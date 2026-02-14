@@ -47,7 +47,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     super(scope, id, props);
 
     // Generate a short hash for bucket names to avoid conflicts
-    // Using first 8 chars of stack ID hash for uniqueness
+    // Using first 8 chars of stack ID hash for deterministic uniqueness
     const crypto = require('crypto');
     const stackHash = crypto.createHash('md5').update(this.stackId).digest('hex').substring(0, 8);
 
