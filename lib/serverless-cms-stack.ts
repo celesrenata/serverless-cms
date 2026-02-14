@@ -46,11 +46,6 @@ export class ServerlessCmsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ServerlessCmsStackProps) {
     super(scope, id, props);
 
-    // Generate a short hash for bucket names to avoid conflicts
-    // Using first 8 chars of stack ID hash for deterministic uniqueness
-    const crypto = require('crypto');
-    const stackHash = crypto.createHash('md5').update(this.stackId).digest('hex').substring(0, 8);
-
     // DynamoDB Tables
     // Import existing tables instead of creating new ones
     
@@ -91,11 +86,11 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // S3 Buckets
     // Note: Using RETAIN removal policy to prevent accidental deletion
-    // Using short hash suffix to avoid S3 conflicts from rapid create/delete cycles
+    // Using account ID for stable bucket names across deployments
 
     // Media Bucket - for uploaded files and generated thumbnails
     this.mediaBucket = new s3.Bucket(this, 'MediaBucket', {
-      bucketName: `serverless-cms-media-${stackHash}`,
+      bucketName: `serverless-cms-media-${props.environment}-${this.account}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
       versioned: true,
@@ -128,7 +123,7 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // Admin Panel Bucket - for hosting the React admin application
     this.adminBucket = new s3.Bucket(this, 'AdminBucket', {
-      bucketName: `serverless-cms-admin-${stackHash}`,
+      bucketName: `serverless-cms-admin-${props.environment}-${this.account}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
       websiteIndexDocument: 'index.html',
@@ -139,7 +134,7 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // Public Website Bucket - for hosting the React public website
     this.publicBucket = new s3.Bucket(this, 'PublicBucket', {
-      bucketName: `serverless-cms-public-${stackHash}`,
+      bucketName: `serverless-cms-public-${props.environment}-${this.account}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
       websiteIndexDocument: 'index.html',
