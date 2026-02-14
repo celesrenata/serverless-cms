@@ -146,17 +146,26 @@ export class AuthService {
       const cognitoUser = userPool.getCurrentUser();
       
       if (!cognitoUser) {
+        console.log('refreshToken: No current user found');
         resolve(null);
         return;
       }
 
       cognitoUser.getSession((err: Error | null, session: CognitoUserSession | null) => {
-        if (err || !session) {
+        if (err) {
+          console.error('refreshToken: getSession error:', err);
+          resolve(null);
+          return;
+        }
+        
+        if (!session) {
+          console.log('refreshToken: No session returned');
           resolve(null);
           return;
         }
 
         if (session.isValid()) {
+          console.log('refreshToken: Session is valid, returning tokens');
           const tokens: AuthTokens = {
             accessToken: session.getAccessToken().getJwtToken(),
             idToken: session.getIdToken().getJwtToken(),
@@ -166,6 +175,7 @@ export class AuthService {
           this.storeTokens(tokens);
           resolve(tokens);
         } else {
+          console.log('refreshToken: Session is invalid');
           resolve(null);
         }
       });

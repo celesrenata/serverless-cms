@@ -287,6 +287,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       MEDIA_BUCKET: this.mediaBucket.bucketName,
       COGNITO_REGION: this.region,
       USER_POOL_ID: this.userPool.userPoolId,
+      USER_POOL_CLIENT_ID: this.userPoolClient.userPoolClientId,
       ENVIRONMENT: props.environment,
     };
 

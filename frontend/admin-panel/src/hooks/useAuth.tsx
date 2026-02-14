@@ -18,8 +18,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsAuthenticated(authenticated);
       
       if (authenticated) {
-        // Fetch user profile from API
+        // Fetch user profile - parse from token instead of API call
+        // to avoid triggering logout on initial load
         await fetchUserProfile();
+      } else {
+        // Not authenticated, clear state
+        setUser(null);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -60,6 +64,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string) => {
     try {
+      // Clear any existing tokens first
+      AuthService.logout();
+      // Now login with fresh credentials
       await AuthService.login(email, password);
       setIsAuthenticated(true);
       await fetchUserProfile();

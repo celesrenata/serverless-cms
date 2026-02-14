@@ -68,14 +68,24 @@ class ApiClient {
               config._retry = true;
               
               try {
+                console.log('API 401: Attempting token refresh...');
                 const refreshed = await AuthService.refreshToken();
                 if (refreshed) {
+                  console.log('API 401: Token refreshed successfully, retrying request');
                   // Retry the original request with new token
                   return this.client.request(config);
+                } else {
+                  console.log('API 401: Token refresh returned null, logging out');
+                  // Refresh returned null, session is invalid
+                  AuthService.logout();
+                  if (!window.location.pathname.includes('/login')) {
+                    window.location.href = '/login';
+                  }
+                  throw new ApiError('Session expired', 401);
                 }
               } catch (refreshError) {
                 // Refresh failed, logout and redirect
-                console.error('Token refresh failed:', refreshError);
+                console.error('API 401: Token refresh failed with error:', refreshError);
                 AuthService.logout();
                 if (!window.location.pathname.includes('/login')) {
                   window.location.href = '/login';
@@ -84,12 +94,8 @@ class ApiClient {
               }
             }
             
-            // If retry also failed, logout and redirect
-            AuthService.logout();
-            if (!window.location.pathname.includes('/login')) {
-              window.location.href = '/login';
-            }
-            
+            // If this was already a retry, just throw the error without logging out
+            // The user might still be authenticated, just this particular request failed
             throw new ApiError('Authentication required', 401);
           }
           
