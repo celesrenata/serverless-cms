@@ -4,9 +4,16 @@ interface PluginCardProps {
   plugin: Plugin;
   onToggleActive: (plugin: Plugin) => void;
   onOpenSettings: (plugin: Plugin) => void;
+  onDelete: (plugin: Plugin) => void;
 }
 
-export const PluginCard = ({ plugin, onToggleActive, onOpenSettings }: PluginCardProps) => {
+export const PluginCard = ({ plugin, onToggleActive, onOpenSettings, onDelete }: PluginCardProps) => {
+  const handleDelete = () => {
+    if (confirm(`Are you sure you want to delete "${plugin.name}"? This action cannot be undone.`)) {
+      onDelete(plugin);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4">
@@ -72,6 +79,15 @@ export const PluginCard = ({ plugin, onToggleActive, onOpenSettings }: PluginCar
           Configure
         </button>
       )}
+
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={handleDelete}
+          className="flex-1 px-4 py-2 text-sm text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors"
+        >
+          Delete
+        </button>
+      </div>
 
       <div className="mt-4 pt-4 border-t border-gray-200 text-xs text-gray-400">
         Installed {new Date(plugin.installed_at * 1000).toLocaleDateString()}

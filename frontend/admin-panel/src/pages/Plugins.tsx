@@ -6,7 +6,7 @@ import { PluginUpload } from '../components/Plugins/PluginUpload';
 import { PluginSettingsModal } from '../components/Plugins/PluginSettingsModal';
 
 export const Plugins = () => {
-  const { plugins, isLoading, error, activatePlugin, deactivatePlugin } = usePlugins();
+  const { plugins, isLoading, error, activatePlugin, deactivatePlugin, deletePlugin } = usePlugins();
   const [selectedPlugin, setSelectedPlugin] = useState<Plugin | null>(null);
   const [showUpload, setShowUpload] = useState(false);
 
@@ -16,6 +16,10 @@ export const Plugins = () => {
     } else {
       activatePlugin(plugin.id);
     }
+  };
+
+  const handleDelete = (plugin: Plugin) => {
+    deletePlugin(plugin.id);
   };
 
   const handleOpenSettings = (plugin: Plugin) => {
@@ -95,6 +99,7 @@ export const Plugins = () => {
               plugin={plugin}
               onToggleActive={handleToggleActive}
               onOpenSettings={handleOpenSettings}
+              onDelete={handleDelete}
             />
           ))}
         </div>

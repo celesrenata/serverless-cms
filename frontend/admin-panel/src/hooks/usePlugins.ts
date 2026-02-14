@@ -31,6 +31,13 @@ export const usePlugins = () => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.deletePlugin(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plugins'] });
+    },
+  });
+
   return {
     plugins: plugins || [],
     isLoading,
@@ -42,6 +49,8 @@ export const usePlugins = () => {
     isActivating: activateMutation.isPending,
     deactivatePlugin: deactivateMutation.mutate,
     isDeactivating: deactivateMutation.isPending,
+    deletePlugin: deleteMutation.mutate,
+    isDeleting: deleteMutation.isPending,
   };
 };
 

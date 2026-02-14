@@ -228,6 +228,10 @@ class ApiClient {
     return response.data;
   }
 
+  async deletePlugin(id: string): Promise<void> {
+    await this.client.delete(`/plugins/${id}`);
+  }
+
   async listPlugins(): Promise<Plugin[]> {
     const response = await this.client.get<Plugin[]>('/plugins');
     return response.data;
