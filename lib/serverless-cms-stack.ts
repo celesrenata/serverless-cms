@@ -151,61 +151,31 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     // S3 Buckets
+    // Import existing buckets instead of creating new ones
+    const mediaBucketName = `cms-media-${props.environment}-${this.account}`;
+    const adminBucketName = `cms-admin-${props.environment}-${this.account}`;
+    const publicBucketName = `cms-public-${props.environment}-${this.account}`;
 
     // Media Bucket - for uploaded files and generated thumbnails
-    this.mediaBucket = new s3.Bucket(this, 'MediaBucket', {
-      bucketName: `cms-media-${props.environment}-${this.account}`,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      autoDeleteObjects: false,
-      versioned: true,
-      cors: [
-        {
-          allowedMethods: [
-            s3.HttpMethods.GET,
-            s3.HttpMethods.POST,
-            s3.HttpMethods.PUT,
-            s3.HttpMethods.DELETE,
-          ],
-          allowedOrigins: ['*'], // Should be restricted to specific domains in production
-          allowedHeaders: ['*'],
-          exposedHeaders: ['ETag'],
-          maxAge: 3000,
-        },
-      ],
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
-    });
-
-    // Add bucket policy to allow public read access to media files
-    this.mediaBucket.addToResourcePolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        principals: [new iam.AnyPrincipal()],
-        actions: ['s3:GetObject'],
-        resources: [`${this.mediaBucket.bucketArn}/*`],
-      })
-    );
+    // Use fromBucketAttributes to reference existing bucket non-destructively
+    this.mediaBucket = s3.Bucket.fromBucketAttributes(this, 'MediaBucket', {
+      bucketName: mediaBucketName,
+      bucketArn: `arn:aws:s3:::${mediaBucketName}`,
+    }) as s3.Bucket;
 
     // Admin Panel Bucket - for hosting the React admin application
-    this.adminBucket = new s3.Bucket(this, 'AdminBucket', {
-      bucketName: `cms-admin-${props.environment}-${this.account}`,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      autoDeleteObjects: false,
-      websiteIndexDocument: 'index.html',
-      websiteErrorDocument: 'index.html', // SPA routing support
-      publicReadAccess: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
-    });
+    this.adminBucket = s3.Bucket.fromBucketAttributes(this, 'AdminBucket', {
+      bucketName: adminBucketName,
+      bucketArn: `arn:aws:s3:::${adminBucketName}`,
+      bucketWebsiteUrl: `http://${adminBucketName}.s3-website-${this.region}.amazonaws.com`,
+    }) as s3.Bucket;
 
     // Public Website Bucket - for hosting the React public website
-    this.publicBucket = new s3.Bucket(this, 'PublicBucket', {
-      bucketName: `cms-public-${props.environment}-${this.account}`,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      autoDeleteObjects: false,
-      websiteIndexDocument: 'index.html',
-      websiteErrorDocument: 'index.html', // SPA routing support
-      publicReadAccess: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
-    });
+    this.publicBucket = s3.Bucket.fromBucketAttributes(this, 'PublicBucket', {
+      bucketName: publicBucketName,
+      bucketArn: `arn:aws:s3:::${publicBucketName}`,
+      bucketWebsiteUrl: `http://${publicBucketName}.s3-website-${this.region}.amazonaws.com`,
+    }) as s3.Bucket;
 
     // Cognito User Pool for authentication
     this.userPool = new cognito.UserPool(this, 'UserPool', {
