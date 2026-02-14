@@ -25,11 +25,11 @@ export interface ServerlessCmsStackProps extends cdk.StackProps {
 }
 
 export class ServerlessCmsStack extends cdk.Stack {
-  public readonly contentTable: dynamodb.Table;
-  public readonly mediaTable: dynamodb.Table;
-  public readonly usersTable: dynamodb.Table;
-  public readonly settingsTable: dynamodb.Table;
-  public readonly pluginsTable: dynamodb.Table;
+  public readonly contentTable: dynamodb.ITable;
+  public readonly mediaTable: dynamodb.ITable;
+  public readonly usersTable: dynamodb.ITable;
+  public readonly settingsTable: dynamodb.ITable;
+  public readonly pluginsTable: dynamodb.ITable;
   public readonly mediaBucket: s3.Bucket;
   public readonly adminBucket: s3.Bucket;
   public readonly publicBucket: s3.Bucket;
