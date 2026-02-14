@@ -906,6 +906,10 @@ export class ServerlessCmsStack extends cdk.Stack {
         certDomains.push(`admin.${props.domainName}`);
       }
       
+      // Note: Using DnsValidatedCertificate (deprecated) because CloudFront requires
+      // certificates in us-east-1, and the new Certificate construct doesn't easily
+      // support cross-region certificates without a separate stack.
+      // This will continue to work and can be migrated when AWS provides a better solution.
       this.certificate = new acm.DnsValidatedCertificate(this, 'Certificate', {
         domainName: certDomains[0],
         subjectAlternativeNames: certDomains.slice(1),
