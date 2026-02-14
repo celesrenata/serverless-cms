@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Editor } from '@tiptap/react';
 import { Media } from '../types/media';
 
 interface UseRichTextEditorProps {
@@ -12,7 +13,7 @@ export const useRichTextEditor = ({
 }: UseRichTextEditorProps = {}) => {
   const [content, setContent] = useState(initialContent);
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
-  const [editorInstance, setEditorInstance] = useState<unknown>(null);
+  const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
@@ -39,7 +40,7 @@ export const useRichTextEditor = ({
     closeMediaPicker();
   };
 
-  const setEditor = (editor: unknown) => {
+  const setEditor = (editor: Editor | null) => {
     setEditorInstance(editor);
   };
 

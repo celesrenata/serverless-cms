@@ -4,6 +4,16 @@ export interface PluginHook {
   priority: number;
 }
 
+export interface PluginConfigSchema {
+  type: string;
+  label?: string;
+  required?: boolean;
+  default?: string | number | boolean;
+  description?: string;
+  placeholder?: string;
+  options?: string[];
+}
+
 export interface Plugin {
   id: string;
   name: string;
@@ -12,7 +22,7 @@ export interface Plugin {
   author: string;
   active: boolean;
   hooks: PluginHook[];
-  config_schema?: Record<string, { type: string; label?: string; required?: boolean; default?: string | number | boolean; description?: string }>;
+  config_schema?: Record<string, PluginConfigSchema>;
   installed_at: number;
   updated_at: number;
 }

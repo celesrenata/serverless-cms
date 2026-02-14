@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plugin, PluginSettings } from '../../types';
+import { Plugin, PluginSettings, PluginConfigSchema } from '../../types';
 import { usePluginSettings } from '../../hooks/usePlugins';
 
 interface PluginSettingsModalProps {
@@ -36,7 +36,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
     );
   };
 
-  const renderField = (key: string, schema: { type: string; default?: string | number | boolean; description?: string }) => {
+  const renderField = (key: string, schema: PluginConfigSchema) => {
     const value = formData[key] ?? schema.default ?? '';
 
     switch (schema.type) {
@@ -44,7 +44,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
         return (
           <input
             type="text"
-            value={value}
+            value={String(value)}
             onChange={(e) => handleChange(key, e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder={schema.placeholder}
@@ -55,7 +55,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
         return (
           <input
             type="number"
-            value={value}
+            value={Number(value)}
             onChange={(e) => handleChange(key, parseFloat(e.target.value))}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder={schema.placeholder}
@@ -67,7 +67,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={value}
+              checked={Boolean(value)}
               onChange={(e) => handleChange(key, e.target.checked)}
               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
             />
@@ -78,7 +78,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
       case 'select':
         return (
           <select
-            value={value}
+            value={String(value)}
             onChange={(e) => handleChange(key, e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
@@ -93,7 +93,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
       case 'textarea':
         return (
           <textarea
-            value={value}
+            value={String(value)}
             onChange={(e) => handleChange(key, e.target.value)}
             rows={4}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -105,7 +105,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
         return (
           <input
             type="text"
-            value={value}
+            value={String(value)}
             onChange={(e) => handleChange(key, e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
@@ -143,7 +143,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
                 <div className="text-gray-500">Loading settings...</div>
               </div>
             ) : plugin.config_schema ? (
-              Object.entries(plugin.config_schema).map(([key, schema]: [string, { type: string; label?: string; required?: boolean; default?: string | number | boolean; description?: string }]) => (
+              Object.entries(plugin.config_schema).map(([key, schema]) => (
                 <div key={key}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {schema.label || key}

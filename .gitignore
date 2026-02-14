@@ -65,3 +65,6 @@ ENV/
 
 # CDK Context
 cdk.context.json
+
+# Kiro settings (may contain secrets)
+.kiro/settings/

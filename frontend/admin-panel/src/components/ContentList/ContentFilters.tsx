@@ -17,11 +17,11 @@ interface ContentFiltersProps {
 
 export function ContentFilters({ filters, onFilterChange }: ContentFiltersProps) {
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, type: e.target.value || undefined });
+    onFilterChange({ ...filters, type: (e.target.value || undefined) as ContentType | undefined });
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, status: e.target.value || undefined });
+    onFilterChange({ ...filters, status: (e.target.value || undefined) as ContentStatus | undefined });
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
