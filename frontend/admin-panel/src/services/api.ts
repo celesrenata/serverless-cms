@@ -21,7 +21,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public statusCode: number,
-    public data?: any
+    public data?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'ApiError';
@@ -73,9 +73,9 @@ class ApiClient {
           }
           
           throw new ApiError(
-            (data as any)?.error || 'An error occurred',
+            (data as { error?: string })?.error || 'An error occurred',
             status,
-            data
+            data as Record<string, unknown>
           );
         }
         
@@ -117,7 +117,7 @@ class ApiClient {
   }
 
   // Media API methods
-  async uploadMedia(file: File, metadata?: any): Promise<Media> {
+  async uploadMedia(file: File, metadata?: Record<string, string>): Promise<Media> {
     const formData = new FormData();
     formData.append('file', file);
     if (metadata) {

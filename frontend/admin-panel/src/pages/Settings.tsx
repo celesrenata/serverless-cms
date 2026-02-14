@@ -46,13 +46,15 @@ export function Settings() {
             setSaveMessage('Settings saved successfully!');
             setTimeout(() => setSaveMessage(''), 3000);
           },
-          onError: (error: any) => {
-            setSaveMessage(`Error: ${error.message}`);
+          onError: (error) => {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            setSaveMessage(`Error: ${errorMessage}`);
           },
         }
       );
-    } catch (error: any) {
-      setSaveMessage(`Error: ${error.message}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setSaveMessage(`Error: ${errorMessage}`);
     }
   };
 

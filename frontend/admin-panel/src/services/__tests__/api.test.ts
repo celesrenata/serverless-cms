@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Mock axios
 vi.mock('axios');
-const mockedAxios = axios as any;
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('API Service', () => {
   beforeEach(() => {

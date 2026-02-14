@@ -36,7 +36,7 @@ export function ContentList() {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       items = items.filter(
-        (item: any) =>
+        (item) =>
           item.title.toLowerCase().includes(searchLower) ||
           item.slug.toLowerCase().includes(searchLower) ||
           item.excerpt.toLowerCase().includes(searchLower)
@@ -55,7 +55,7 @@ export function ContentList() {
 
   const handleSelectAll = (selected: boolean) => {
     if (selected) {
-      setSelectedIds(paginatedContent.map((item: any) => item.id));
+      setSelectedIds(paginatedContent.map((item) => item.id));
     } else {
       setSelectedIds([]);
     }
@@ -136,7 +136,12 @@ export function ContentList() {
     }
   };
 
-  const handleFilterChange = (newFilters: any) => {
+  const handleFilterChange = (newFilters: {
+    type?: ContentType;
+    status?: ContentStatus;
+    author?: string;
+    search?: string;
+  }) => {
     setFilters(newFilters);
     setCurrentPage(1);
     setSelectedIds([]);

@@ -59,22 +59,25 @@ export function Login() {
       await login(email, password);
       // Redirect to dashboard on success
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Login error:', err);
       
       // Handle different error types
       let errorMessage = 'An error occurred during login. Please try again.';
       
-      if (err.code === 'UserNotFoundException') {
-        errorMessage = 'No account found with this email address.';
-      } else if (err.code === 'NotAuthorizedException') {
-        errorMessage = 'Incorrect email or password.';
-      } else if (err.code === 'UserNotConfirmedException') {
-        errorMessage = 'Please verify your email address before logging in.';
-      } else if (err.code === 'TooManyRequestsException') {
-        errorMessage = 'Too many login attempts. Please try again later.';
-      } else if (err.message) {
-        errorMessage = err.message;
+      if (err && typeof err === 'object') {
+        const error = err as { code?: string; message?: string };
+        if (error.code === 'UserNotFoundException') {
+          errorMessage = 'No account found with this email address.';
+        } else if (error.code === 'NotAuthorizedException') {
+          errorMessage = 'Incorrect email or password.';
+        } else if (error.code === 'UserNotConfirmedException') {
+          errorMessage = 'Please verify your email address before logging in.';
+        } else if (error.code === 'TooManyRequestsException') {
+          errorMessage = 'Too many login attempts. Please try again later.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
       }
       
       setError(errorMessage);
