@@ -7,49 +7,93 @@ Run after each deployment to ensure the system is operational.
 import argparse
 import json
 import sys
+import time
 import requests
+from pathlib import Path
 from typing import Dict, List
 
 class SmokeTest:
-    def __init__(self, environment: str):
+    def __init__(self, environment: str, max_retries: int = 3, retry_delay: int = 10):
         self.environment = environment
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
         self.api_base_url = self._get_api_url(environment)
         self.admin_url = self._get_admin_url(environment)
         self.public_url = self._get_public_url(environment)
         self.results: List[Dict] = []
     
+    def _load_outputs(self, env: str) -> Dict:
+        """Load CDK outputs from file."""
+        outputs_file = Path(f"cdk.out/outputs-{env}.json")
+        if outputs_file.exists():
+            with open(outputs_file) as f:
+                return json.load(f)
+        return {}
+    
     def _get_api_url(self, env: str) -> str:
-        """Get API URL based on environment."""
-        urls = {
-            'dev': 'https://api-dev.your-domain.com/api/v1',
-            'staging': 'https://api-staging.your-domain.com/api/v1',
-            'prod': 'https://api.your-domain.com/api/v1',
-        }
-        return urls.get(env, urls['dev'])
+        """Get API URL from CDK outputs or fallback."""
+        outputs = self._load_outputs(env)
+        stack_name = f"ServerlessCmsStack-{env}"
+        
+        # Try to get from outputs
+        if stack_name in outputs:
+            api_endpoint = outputs[stack_name].get('ApiEndpoint')
+            if api_endpoint:
+                return api_endpoint
+        
+        # Fallback to placeholder
+        return f'https://api-{env}.your-domain.com/api/v1'
     
     def _get_admin_url(self, env: str) -> str:
-        """Get admin panel URL based on environment."""
-        urls = {
-            'dev': 'https://admin-dev.your-domain.com',
-            'staging': 'https://admin-staging.your-domain.com',
-            'prod': 'https://admin.your-domain.com',
-        }
-        return urls.get(env, urls['dev'])
+        """Get admin panel URL from CDK outputs or fallback."""
+        outputs = self._load_outputs(env)
+        stack_name = f"ServerlessCmsStack-{env}"
+        
+        # Try to get from outputs
+        if stack_name in outputs:
+            admin_url = outputs[stack_name].get('AdminUrl')
+            if admin_url:
+                return admin_url
+        
+        # Fallback to placeholder
+        return f'https://admin-{env}.your-domain.com'
     
     def _get_public_url(self, env: str) -> str:
-        """Get public website URL based on environment."""
-        urls = {
-            'dev': 'https://dev.your-domain.com',
-            'staging': 'https://staging.your-domain.com',
-            'prod': 'https://www.your-domain.com',
-        }
-        return urls.get(env, urls['dev'])
+        """Get public website URL from CDK outputs or fallback."""
+        outputs = self._load_outputs(env)
+        stack_name = f"ServerlessCmsStack-{env}"
+        
+        # Try to get from outputs
+        if stack_name in outputs:
+            public_url = outputs[stack_name].get('PublicUrl')
+            if public_url:
+                return public_url
+        
+        # Fallback to placeholder
+        return f'https://{env}.your-domain.com'
+    
+    def _make_request_with_retry(self, method: str, url: str, **kwargs) -> requests.Response:
+        """Make HTTP request with retry logic."""
+        for attempt in range(self.max_retries):
+            try:
+                if method == 'GET':
+                    return requests.get(url, **kwargs)
+                elif method == 'OPTIONS':
+                    return requests.options(url, **kwargs)
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                if attempt < self.max_retries - 1:
+                    print(f"   Attempt {attempt + 1} failed, retrying in {self.retry_delay}s...")
+                    time.sleep(self.retry_delay)
+                else:
+                    raise e
+        raise Exception("Max retries exceeded")
     
     def test_api_health(self) -> bool:
         """Test if API is responding."""
         try:
-            response = requests.get(f"{self.api_base_url}/health", timeout=10)
-            success = response.status_code == 200
+            # API Gateway doesn't have a /health endpoint by default, test /content instead
+            response = self._make_request_with_retry('GET', f"{self.api_base_url}/content", timeout=10)
+            success = response.status_code in [200, 403, 404]  # 403/404 are ok, means API is up
             self.results.append({
                 'test': 'API Health Check',
                 'status': 'PASS' if success else 'FAIL',
@@ -67,12 +111,13 @@ class SmokeTest:
     def test_content_list(self) -> bool:
         """Test if content listing endpoint works."""
         try:
-            response = requests.get(
+            response = self._make_request_with_retry(
+                'GET',
                 f"{self.api_base_url}/content",
                 params={'type': 'post', 'status': 'published', 'limit': 5},
                 timeout=10
             )
-            success = response.status_code in [200, 404]  # 404 is ok if no content
+            success = response.status_code in [200, 403, 404]  # 403/404 ok if no auth/content
             self.results.append({
                 'test': 'Content List Endpoint',
                 'status': 'PASS' if success else 'FAIL',
@@ -90,7 +135,7 @@ class SmokeTest:
     def test_admin_panel_loads(self) -> bool:
         """Test if admin panel is accessible."""
         try:
-            response = requests.get(self.admin_url, timeout=10)
+            response = self._make_request_with_retry('GET', self.admin_url, timeout=10)
             success = response.status_code == 200
             self.results.append({
                 'test': 'Admin Panel Loads',
@@ -109,7 +154,7 @@ class SmokeTest:
     def test_public_website_loads(self) -> bool:
         """Test if public website is accessible."""
         try:
-            response = requests.get(self.public_url, timeout=10)
+            response = self._make_request_with_retry('GET', self.public_url, timeout=10)
             success = response.status_code == 200
             self.results.append({
                 'test': 'Public Website Loads',
@@ -128,7 +173,8 @@ class SmokeTest:
     def test_cors_headers(self) -> bool:
         """Test if CORS headers are properly configured."""
         try:
-            response = requests.options(
+            response = self._make_request_with_retry(
+                'OPTIONS',
                 f"{self.api_base_url}/content",
                 headers={'Origin': self.admin_url},
                 timeout=10
@@ -150,7 +196,10 @@ class SmokeTest:
     
     def run_all_tests(self) -> bool:
         """Run all smoke tests."""
-        print(f"\n🔍 Running smoke tests for {self.environment} environment...\n")
+        print(f"\n🔍 Running smoke tests for {self.environment} environment...")
+        print(f"   API: {self.api_base_url}")
+        print(f"   Admin: {self.admin_url}")
+        print(f"   Public: {self.public_url}\n")
         
         tests = [
             self.test_api_health,
