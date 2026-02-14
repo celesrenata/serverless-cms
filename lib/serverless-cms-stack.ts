@@ -963,8 +963,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       enableAcceptEncodingBrotli: false,
     });
 
-    // Origin request policy for API to forward headers (except Authorization)
-    // Note: Authorization cannot be in OriginRequestPolicy per AWS CDK rules
+    // Origin request policy for API to forward headers including Authorization
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {
       originRequestPolicyName: `cms-api-origin-v2-${props.environment}`,
       comment: 'Forward all headers and query strings to API',
@@ -972,6 +971,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       headerBehavior: cloudfront.OriginRequestHeaderBehavior.allowList(
         'Content-Type',
         'Accept',
+        'Authorization',
         'Origin',
         'Referer',
         'User-Agent',
