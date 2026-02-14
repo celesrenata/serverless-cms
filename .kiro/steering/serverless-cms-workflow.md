@@ -8,14 +8,17 @@ This project is a serverless content management system deployed to AWS via CDK. 
 
 ## Critical Testing Requirement
 
-**ALWAYS run unit tests after making changes and BEFORE committing code.**
+**MANDATORY: After EVERY code change, immediately run the relevant tests for that area.**
 
-When making changes to any service component:
+This is non-negotiable. The workflow is:
 
 1. Make your code changes
-2. Run the appropriate test suite to verify changes
-3. Only proceed with git add/commit/push if tests pass
-4. GitHub Actions will automatically deploy passing code to AWS
+2. **IMMEDIATELY run tests** for the area you modified (see Test Commands below)
+3. Fix any failures and re-run tests until they pass
+4. Only proceed with git add/commit/push after tests pass
+5. GitHub Actions will automatically deploy passing code to AWS
+
+**AI Agents: You MUST run tests after making any code changes. Do not skip this step.**
 
 ## Test Commands
 
@@ -90,9 +93,9 @@ Branches:
 
 1. Edit Python code in `lambda/` directory
 2. Update shared utilities in `lambda/shared/` if needed
-3. Run backend tests: `pytest tests/ -v`
+3. **IMMEDIATELY run backend tests:** `pytest tests/ -v`
 4. Verify integration tests pass
-5. Commit and push (triggers deployment)
+5. Only commit and push after tests pass (triggers deployment)
 
 ### Modifying Infrastructure
 
@@ -100,22 +103,23 @@ Branches:
 2. Build: `npm run build`
 3. Synthesize: `npm run synth -- --context environment=dev`
 4. Review changes: `npm run diff -- --context environment=dev`
-5. Run all tests: `npm test`
-6. Commit and push (triggers deployment)
+5. **IMMEDIATELY run all tests:** `npm test`
+6. Only commit and push after tests pass (triggers deployment)
 
 ### Frontend Changes
 
 1. Edit React components in `frontend/admin-panel/` or `frontend/public-website/`
-2. Run frontend tests: `npm run test:admin` or `npm run test:public`
-3. Build locally to verify: `cd frontend/[app] && npm run build`
-4. Commit and push (triggers deployment)
+2. **IMMEDIATELY run frontend tests:** `npm run test:admin` or `npm run test:public`
+3. **IMMEDIATELY run linting:** `npm run lint` in the frontend directory
+4. Build locally to verify: `cd frontend/[app] && npm run build`
+5. Only commit and push after tests pass (triggers deployment)
 
 ### Plugin Development
 
 1. Create plugin in `plugins/[plugin-name]/`
 2. Implement `handler.py` with required hooks
 3. Add README.md with plugin documentation
-4. Test plugin integration: `pytest tests/test_plugin_integration.py -v`
+4. **IMMEDIATELY test plugin integration:** `pytest tests/test_plugin_integration.py -v`
 5. See `PLUGIN_DEVELOPMENT_GUIDE.md` for details
 
 ## Code Quality Standards
@@ -188,7 +192,8 @@ If using NixOS:
 This project includes helpful agent hooks in `.kiro/hooks/`:
 
 - **Pre-Commit Test Runner** - Manual trigger to run all tests before committing
-- **Smart Pre-Commit Tests** - Intelligently runs only relevant tests based on changed files
+- **Smart Pre-Commit Tests** - Intelligently runs only relevant tests based on changed files, then automatically commits and pushes if tests pass
+- **Test on Save** - Automatically runs linting/validation when you save files
 - **Test on Save** - Automatically runs linting/validation when you save files
 
 Access these via the Agent Hooks panel in the IDE or command palette.
