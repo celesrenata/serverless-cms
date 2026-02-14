@@ -74,6 +74,10 @@ class SmokeTest:
     
     def _make_request_with_retry(self, method: str, url: str, **kwargs) -> requests.Response:
         """Make HTTP request with retry logic."""
+        # Always follow redirects
+        if 'allow_redirects' not in kwargs:
+            kwargs['allow_redirects'] = True
+            
         for attempt in range(self.max_retries):
             try:
                 if method == 'GET':

@@ -209,6 +209,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Clean orphaned S3 buckets (dev only)
+        run: |
+          AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          BUCKETS=(
+            "cms-admin-dev-${AWS_ACCOUNT_ID}"
+            "cms-media-dev-${AWS_ACCOUNT_ID}"
+            "cms-public-dev-${AWS_ACCOUNT_ID}"
+          )
+          for BUCKET in "${BUCKETS[@]}"; do
+            if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
+              echo "Removing orphaned bucket: $BUCKET"
+              aws s3 rb "s3://$BUCKET" --force || true
+            fi
+          done
+      
       - name: Deploy to Dev
         run: ./scripts/deploy-all.sh dev
       
