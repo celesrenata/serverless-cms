@@ -12,7 +12,7 @@ export const useRichTextEditor = ({
 }: UseRichTextEditorProps = {}) => {
   const [content, setContent] = useState(initialContent);
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
-  const [editorInstance, setEditorInstance] = useState<any>(null);
+  const [editorInstance, setEditorInstance] = useState<unknown>(null);
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
@@ -39,7 +39,7 @@ export const useRichTextEditor = ({
     closeMediaPicker();
   };
 
-  const setEditor = (editor: any) => {
+  const setEditor = (editor: unknown) => {
     setEditorInstance(editor);
   };
 

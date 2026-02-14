@@ -7,7 +7,12 @@ interface ContentFiltersProps {
     author?: string;
     search?: string;
   };
-  onFilterChange: (filters: any) => void;
+  onFilterChange: (filters: {
+    type?: ContentType;
+    status?: ContentStatus;
+    author?: string;
+    search?: string;
+  }) => void;
 }
 
 export function ContentFilters({ filters, onFilterChange }: ContentFiltersProps) {

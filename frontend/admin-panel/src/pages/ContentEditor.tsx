@@ -129,8 +129,9 @@ export const ContentEditor: React.FC = () => {
         alert('Content created successfully!');
         navigate(`/content/edit/${newContent.id}`);
       }
-    } catch (error: any) {
-      alert(`Error saving content: ${error.message}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Error saving content: ${errorMessage}`);
     }
   };
 

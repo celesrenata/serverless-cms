@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
 import { AuthService } from '../services/auth';
 import { User } from '../types';
 
@@ -13,13 +13,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
-}
+};
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -30,12 +30,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check authentication status on mount
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const authenticated = await AuthService.isAuthenticated();
       setIsAuthenticated(authenticated);
@@ -51,7 +46,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Check authentication status on mount
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const fetchUserProfile = async () => {
     try {

@@ -12,7 +12,7 @@ export const useMedia = (id?: string) => {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: ({ file, metadata }: { file: File; metadata?: any }) =>
+    mutationFn: ({ file, metadata }: { file: File; metadata?: Record<string, string> }) =>
       api.uploadMedia(file, metadata),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media'] });

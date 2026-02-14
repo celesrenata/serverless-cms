@@ -17,7 +17,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
     }
   }, [settings]);
 
-  const handleChange = (key: string, value: any) => {
+  const handleChange = (key: string, value: string | number | boolean) => {
     setFormData((prev) => ({
       ...prev,
       [key]: value,
@@ -36,7 +36,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
     );
   };
 
-  const renderField = (key: string, schema: any) => {
+  const renderField = (key: string, schema: { type: string; default?: string | number | boolean; description?: string }) => {
     const value = formData[key] ?? schema.default ?? '';
 
     switch (schema.type) {
@@ -143,7 +143,7 @@ export const PluginSettingsModal = ({ plugin, onClose }: PluginSettingsModalProp
                 <div className="text-gray-500">Loading settings...</div>
               </div>
             ) : plugin.config_schema ? (
-              Object.entries(plugin.config_schema).map(([key, schema]: [string, any]) => (
+              Object.entries(plugin.config_schema).map(([key, schema]: [string, { type: string; label?: string; required?: boolean; default?: string | number | boolean; description?: string }]) => (
                 <div key={key}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {schema.label || key}
