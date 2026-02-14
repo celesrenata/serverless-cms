@@ -170,7 +170,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install pytest boto3 requests
+          pip install pytest boto3 requests moto pytest-cov
       
       - name: Run integration tests
         run: |
