@@ -21,6 +21,7 @@ import { Construct } from 'constructs';
 export interface ServerlessCmsStackProps extends cdk.StackProps {
   environment: string;
   domainName?: string;
+  subdomain?: string;
   alarmEmail?: string; // Email address for alarm notifications
 }
 
@@ -967,6 +968,20 @@ export class ServerlessCmsStack extends cdk.Stack {
       },
     });
 
+    // Calculate full domain names based on environment
+    const getFullDomain = (prefix?: string) => {
+      if (!props.domainName) return undefined;
+      const parts = [];
+      if (prefix) parts.push(prefix);
+      if (props.subdomain) parts.push(props.subdomain);
+      parts.push(props.domainName);
+      return parts.join('.');
+    };
+
+    const adminDomain = getFullDomain('admin');
+    const publicDomain = props.subdomain ? getFullDomain() : props.domainName;
+    const publicWwwDomain = props.subdomain ? getFullDomain('www') : (props.domainName ? `www.${props.domainName}` : undefined);
+
     // Admin Panel CloudFront Distribution
     this.adminDistribution = new cloudfront.Distribution(this, 'AdminDistribution', {
       comment: `CMS Admin Panel Distribution - ${props.environment}`,
@@ -974,7 +989,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100, // Use only North America and Europe
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-      domainNames: props.domainName ? [`admin.${props.domainName}`] : undefined,
+      domainNames: adminDomain ? [adminDomain] : undefined,
       certificate: this.certificate,
       
       defaultBehavior: {
@@ -1028,7 +1043,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-      domainNames: props.domainName ? [props.domainName, `www.${props.domainName}`] : undefined,
+      domainNames: publicDomain && publicWwwDomain ? [publicDomain, publicWwwDomain] : undefined,
       certificate: this.certificate,
       
       defaultBehavior: {
@@ -1076,33 +1091,37 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     // Create Route53 DNS records if custom domain is configured
-    if (props.domainName && this.hostedZone) {
+    if (props.domainName && this.hostedZone && adminDomain) {
       // Admin subdomain A record
       new route53.ARecord(this, 'AdminAliasRecord', {
         zone: this.hostedZone,
-        recordName: `admin.${props.domainName}`,
+        recordName: adminDomain,
         target: route53.RecordTarget.fromAlias(
           new route53targets.CloudFrontTarget(this.adminDistribution)
         ),
       });
 
-      // Public website root domain A record
-      new route53.ARecord(this, 'PublicAliasRecord', {
-        zone: this.hostedZone,
-        recordName: props.domainName,
-        target: route53.RecordTarget.fromAlias(
-          new route53targets.CloudFrontTarget(this.publicDistribution)
-        ),
-      });
+      // Public website domain A record
+      if (publicDomain) {
+        new route53.ARecord(this, 'PublicAliasRecord', {
+          zone: this.hostedZone,
+          recordName: publicDomain,
+          target: route53.RecordTarget.fromAlias(
+            new route53targets.CloudFrontTarget(this.publicDistribution)
+          ),
+        });
+      }
 
       // Public website www subdomain A record
-      new route53.ARecord(this, 'PublicWwwAliasRecord', {
-        zone: this.hostedZone,
-        recordName: `www.${props.domainName}`,
-        target: route53.RecordTarget.fromAlias(
-          new route53targets.CloudFrontTarget(this.publicDistribution)
-        ),
-      });
+      if (publicWwwDomain) {
+        new route53.ARecord(this, 'PublicWwwAliasRecord', {
+          zone: this.hostedZone,
+          recordName: publicWwwDomain,
+          target: route53.RecordTarget.fromAlias(
+            new route53targets.CloudFrontTarget(this.publicDistribution)
+          ),
+        });
+      }
     }
 
     // Outputs
