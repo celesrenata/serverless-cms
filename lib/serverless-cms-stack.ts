@@ -929,7 +929,7 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // Cache policy for static assets (HTML, CSS, JS, images)
     const staticAssetsCachePolicy = new cloudfront.CachePolicy(this, 'StaticAssetsCachePolicy', {
-      cachePolicyName: `cms-static-assets-${props.environment}`,
+      cachePolicyName: `cms-static-assets-v2-${props.environment}`,
       comment: 'Cache policy for static assets with long TTL',
       defaultTtl: cdk.Duration.days(7),
       maxTtl: cdk.Duration.days(365),
@@ -945,7 +945,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     // Note: When caching is disabled (TTL=0), cookieBehavior and queryStringBehavior must be 'none'
     // All forwarding is handled by OriginRequestPolicy
     const apiCachePolicy = new cloudfront.CachePolicy(this, 'ApiCachePolicy', {
-      cachePolicyName: `cms-api-no-cache-${props.environment}`,
+      cachePolicyName: `cms-api-no-cache-v2-${props.environment}`,
       comment: 'No caching for API endpoints',
       defaultTtl: cdk.Duration.seconds(0),
       maxTtl: cdk.Duration.seconds(0),
@@ -960,7 +960,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     // Origin request policy for API to forward headers (except Authorization)
     // Note: Authorization cannot be in OriginRequestPolicy per AWS CDK rules
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {
-      originRequestPolicyName: `cms-api-origin-${props.environment}`,
+      originRequestPolicyName: `cms-api-origin-v2-${props.environment}`,
       comment: 'Forward all headers and query strings to API',
       cookieBehavior: cloudfront.OriginRequestCookieBehavior.all(),
       headerBehavior: cloudfront.OriginRequestHeaderBehavior.allowList(
@@ -978,7 +978,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     // Note: CORS headers cannot be set as custom headers in CloudFront
     // CORS should be handled by API Gateway or origin server
     const securityHeadersPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersPolicy', {
-      responseHeadersPolicyName: `cms-security-headers-${props.environment}`,
+      responseHeadersPolicyName: `cms-security-headers-v2-${props.environment}`,
       comment: 'Security headers for CMS',
       securityHeadersBehavior: {
         contentTypeOptions: { override: true },
