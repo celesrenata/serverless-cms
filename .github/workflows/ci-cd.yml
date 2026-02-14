@@ -209,6 +209,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Install Lambda Layer dependencies
+        run: |
+          pip install -r lambda/layer/requirements.txt -t lambda/layer/python/
+      
       - name: Clean orphaned S3 buckets (dev only)
         run: |
           AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
