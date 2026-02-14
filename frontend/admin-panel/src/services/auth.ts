@@ -48,8 +48,45 @@ export class AuthService {
           reject(err);
         },
         newPasswordRequired: (_userAttributes, _requiredAttributes) => {
-          // User needs to set a new password
-          reject(new Error('New password required. Please contact administrator.'));
+          // Store the user object for password change
+          (window as any).__cognitoUserForPasswordChange = cognitoUser;
+          // Reject with a specific error code so the UI can handle it
+          const error: any = new Error('New password required');
+          error.code = 'NewPasswordRequired';
+          reject(error);
+        },
+      });
+    });
+  }
+
+  /**
+   * Complete new password challenge
+   */
+  static async completeNewPassword(newPassword: string): Promise<AuthTokens> {
+    return new Promise((resolve, reject) => {
+      const cognitoUser = (window as any).__cognitoUserForPasswordChange;
+      
+      if (!cognitoUser) {
+        reject(new Error('No pending password change'));
+        return;
+      }
+
+      cognitoUser.completeNewPasswordChallenge(newPassword, {}, {
+        onSuccess: (session: CognitoUserSession) => {
+          const tokens: AuthTokens = {
+            accessToken: session.getAccessToken().getJwtToken(),
+            idToken: session.getIdToken().getJwtToken(),
+            refreshToken: session.getRefreshToken().getToken(),
+          };
+          
+          // Store tokens and clean up
+          this.storeTokens(tokens);
+          delete (window as any).__cognitoUserForPasswordChange;
+          
+          resolve(tokens);
+        },
+        onFailure: (err) => {
+          reject(err);
         },
       });
     });

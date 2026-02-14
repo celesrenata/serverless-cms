@@ -8,11 +8,16 @@ export function Login() {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{
     email?: string;
     password?: string;
+    newPassword?: string;
+    confirmPassword?: string;
   }>({});
 
   // Redirect if already authenticated
@@ -67,7 +72,13 @@ export function Login() {
       
       if (err && typeof err === 'object') {
         const error = err as { code?: string; message?: string };
-        if (error.code === 'UserNotFoundException') {
+        if (error.code === 'NewPasswordRequired') {
+          // Show new password form
+          setShowNewPasswordForm(true);
+          setError('');
+          setIsLoading(false);
+          return;
+        } else if (error.code === 'UserNotFoundException') {
           errorMessage = 'No account found with this email address.';
         } else if (error.code === 'NotAuthorizedException') {
           errorMessage = 'Incorrect email or password.';
@@ -81,6 +92,45 @@ export function Login() {
       }
       
       setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNewPasswordSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    
+    setError('');
+    const errors: { newPassword?: string; confirmPassword?: string } = {};
+
+    if (!newPassword) {
+      errors.newPassword = 'New password is required';
+    } else if (newPassword.length < 8) {
+      errors.newPassword = 'Password must be at least 8 characters';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(newPassword)) {
+      errors.newPassword = 'Password must include uppercase, lowercase, number, and special character';
+    }
+
+    if (!confirmPassword) {
+      errors.confirmPassword = 'Please confirm your password';
+    } else if (newPassword !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { AuthService } = await import('../services/auth');
+      await AuthService.completeNewPassword(newPassword);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Password change error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to change password');
     } finally {
       setIsLoading(false);
     }
@@ -134,7 +184,9 @@ export function Login() {
             </div>
           )}
 
-          <div className="rounded-md shadow-sm -space-y-px">
+          {!showNewPasswordForm ? (
+            <>
+              <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">
                 Email address
@@ -234,6 +286,91 @@ export function Login() {
               )}
             </button>
           </div>
+            </>
+          ) : (
+            <form onSubmit={handleNewPasswordSubmit} className="space-y-6">
+              <div className="rounded-md bg-blue-50 p-4">
+                <p className="text-sm text-blue-800">
+                  You must change your temporary password before continuing.
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                  New Password
+                </label>
+                <input
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  required
+                  className={`mt-1 appearance-none block w-full px-3 py-2 border ${
+                    validationErrors.newPassword
+                      ? 'border-red-300'
+                      : 'border-gray-300'
+                  } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    if (validationErrors.newPassword) {
+                      setValidationErrors({ ...validationErrors, newPassword: undefined });
+                    }
+                  }}
+                  disabled={isLoading}
+                />
+                {validationErrors.newPassword && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.newPassword}</p>
+                )}
+                <p className="mt-1 text-xs text-gray-500">
+                  Must be at least 8 characters with uppercase, lowercase, number, and special character
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  className={`mt-1 appearance-none block w-full px-3 py-2 border ${
+                    validationErrors.confirmPassword
+                      ? 'border-red-300'
+                      : 'border-gray-300'
+                  } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (validationErrors.confirmPassword) {
+                      setValidationErrors({ ...validationErrors, confirmPassword: undefined });
+                    }
+                  }}
+                  disabled={isLoading}
+                />
+                {validationErrors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.confirmPassword}</p>
+                )}
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                    isLoading
+                      ? 'bg-blue-400 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                  }`}
+                >
+                  {isLoading ? 'Changing Password...' : 'Change Password'}
+                </button>
+              </div>
+            </form>
+          )}
         </form>
       </div>
     </div>
