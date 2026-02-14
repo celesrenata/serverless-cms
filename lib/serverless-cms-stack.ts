@@ -906,11 +906,10 @@ export class ServerlessCmsStack extends cdk.Stack {
         certDomains.push(`admin.${props.domainName}`);
       }
       
-      this.certificate = new acm.DnsValidatedCertificate(this, 'Certificate', {
+      this.certificate = new acm.Certificate(this, 'Certificate', {
         domainName: certDomains[0],
         subjectAlternativeNames: certDomains.slice(1),
-        hostedZone: this.hostedZone,
-        region: 'us-east-1', // CloudFront requires certificates in us-east-1
+        validation: acm.CertificateValidation.fromDns(this.hostedZone),
       });
     }
 
@@ -1021,7 +1020,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       certificate: this.certificate,
       
       defaultBehavior: {
-        origin: new origins.S3Origin(this.adminBucket, {
+        origin: origins.S3BucketOrigin.withOriginAccessIdentity(this.adminBucket, {
           originAccessIdentity: adminOai,
         }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -1075,7 +1074,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       certificate: this.certificate,
       
       defaultBehavior: {
-        origin: new origins.S3Origin(this.publicBucket, {
+        origin: origins.S3BucketOrigin.withOriginAccessIdentity(this.publicBucket, {
           originAccessIdentity: publicOai,
         }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
