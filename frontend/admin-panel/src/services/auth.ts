@@ -47,6 +47,10 @@ export class AuthService {
         onFailure: (err) => {
           reject(err);
         },
+        newPasswordRequired: (userAttributes, requiredAttributes) => {
+          // User needs to set a new password
+          reject(new Error('New password required. Please contact administrator.'));
+        },
       });
     });
   }
