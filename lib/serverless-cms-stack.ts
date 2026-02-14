@@ -87,10 +87,11 @@ export class ServerlessCmsStack extends cdk.Stack {
     // S3 Buckets
     // Note: Using RETAIN removal policy to prevent accidental deletion
     // Fresh deployment after stack cleanup
+    // Using v2 suffix to avoid S3 conflicts from rapid create/delete cycles
 
     // Media Bucket - for uploaded files and generated thumbnails
     this.mediaBucket = new s3.Bucket(this, 'MediaBucket', {
-      bucketName: `cms-media-${props.environment}-${this.account}`,
+      bucketName: `cms-media-v2-${props.environment}-${this.account}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
       versioned: true,
@@ -123,7 +124,7 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // Admin Panel Bucket - for hosting the React admin application
     this.adminBucket = new s3.Bucket(this, 'AdminBucket', {
-      bucketName: `cms-admin-${props.environment}-${this.account}`,
+      bucketName: `cms-admin-v2-${props.environment}-${this.account}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
       websiteIndexDocument: 'index.html',
@@ -134,7 +135,7 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // Public Website Bucket - for hosting the React public website
     this.publicBucket = new s3.Bucket(this, 'PublicBucket', {
-      bucketName: `cms-public-${props.environment}-${this.account}`,
+      bucketName: `cms-public-v2-${props.environment}-${this.account}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
       websiteIndexDocument: 'index.html',
