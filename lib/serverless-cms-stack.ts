@@ -893,10 +893,11 @@ export class ServerlessCmsStack extends cdk.Stack {
         certDomains.push(`*.${props.domainName}`);
       }
       
-      this.certificate = new acm.Certificate(this, 'Certificate', {
+      this.certificate = new acm.DnsValidatedCertificate(this, 'Certificate', {
         domainName: props.domainName,
         subjectAlternativeNames: certDomains,
-        validation: acm.CertificateValidation.fromDns(this.hostedZone),
+        hostedZone: this.hostedZone,
+        region: 'us-east-1', // CloudFront requires certificates in us-east-1
       });
     }
 
