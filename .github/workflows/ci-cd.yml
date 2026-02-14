@@ -235,6 +235,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r lambda/layer/requirements.txt -t lambda/layer/python/ --platform manylinux2014_x86_64 --only-binary=:all:
+          cp -r lambda/shared lambda/layer/python/
       
       - name: Clean orphaned S3 buckets (dev only)
         run: |
@@ -314,6 +315,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r lambda/layer/requirements.txt -t lambda/layer/python/ --platform manylinux2014_x86_64 --only-binary=:all:
+          cp -r lambda/shared lambda/layer/python/
       
       - name: Deploy CDK Infrastructure
         run: ./scripts/deploy.sh staging --outputs-file cdk.out/outputs-staging.json
@@ -376,6 +378,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r lambda/layer/requirements.txt -t lambda/layer/python/ --platform manylinux2014_x86_64 --only-binary=:all:
+          cp -r lambda/shared lambda/layer/python/
       
       - name: Deploy CDK Infrastructure
         run: ./scripts/deploy.sh prod --outputs-file cdk.out/outputs-prod.json
