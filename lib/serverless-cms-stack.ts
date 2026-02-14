@@ -152,6 +152,7 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // S3 Buckets
     // Note: Using RETAIN removal policy to prevent accidental deletion
+    // Fresh deployment after stack cleanup
 
     // Media Bucket - for uploaded files and generated thumbnails
     this.mediaBucket = new s3.Bucket(this, 'MediaBucket', {
