@@ -841,7 +841,6 @@ export class ServerlessCmsStack extends cdk.Stack {
     // GET /api/v1/plugins - List plugins (requires auth)
     pluginsResource.addMethod('GET', new apigateway.LambdaIntegration(pluginListFunction), {
       authorizer: this.authorizer,
-      authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     // POST /api/v1/plugins/{id}/activate - Activate plugin (requires auth)
