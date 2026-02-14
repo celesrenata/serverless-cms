@@ -883,19 +883,31 @@ export class ServerlessCmsStack extends cdk.Stack {
       });
 
       // Create ACM certificate in us-east-1 (required for CloudFront)
-      // Certificate needs to cover all subdomains we'll use
-      const certDomains = [props.domainName];
+      // Build list of all domains the certificate needs to cover
+      const certDomains: string[] = [];
+      
       if (props.subdomain) {
-        // For dev/staging: *.dev.serverless.celestium.life, *.staging.serverless.celestium.life
-        certDomains.push(`*.${props.subdomain}.${props.domainName}`);
+        // For dev/staging environments:
+        // - dev.serverless.celestium.life (public site)
+        // - www.dev.serverless.celestium.life (public www)
+        // - admin.dev.serverless.celestium.life (admin panel)
+        const envDomain = `${props.subdomain}.${props.domainName}`;
+        certDomains.push(envDomain);
+        certDomains.push(`www.${envDomain}`);
+        certDomains.push(`admin.${envDomain}`);
       } else {
-        // For prod: *.serverless.celestium.life
-        certDomains.push(`*.${props.domainName}`);
+        // For prod environment:
+        // - serverless.celestium.life (public site)
+        // - www.serverless.celestium.life (public www)
+        // - admin.serverless.celestium.life (admin panel)
+        certDomains.push(props.domainName);
+        certDomains.push(`www.${props.domainName}`);
+        certDomains.push(`admin.${props.domainName}`);
       }
       
       this.certificate = new acm.DnsValidatedCertificate(this, 'Certificate', {
-        domainName: props.domainName,
-        subjectAlternativeNames: certDomains,
+        domainName: certDomains[0],
+        subjectAlternativeNames: certDomains.slice(1),
         hostedZone: this.hostedZone,
         region: 'us-east-1', // CloudFront requires certificates in us-east-1
       });
