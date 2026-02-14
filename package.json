@@ -1,0 +1,39 @@
+{
+  "name": "serverless-cms",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "cdk": "cdk",
+    "test": "./scripts/run-all-tests.sh",
+    "test:backend": "pytest tests/ -v",
+    "test:backend:coverage": "pytest tests/ --cov=lambda --cov-report=html",
+    "test:admin": "cd frontend/admin-panel && npm test",
+    "test:public": "cd frontend/public-website && npm test",
+    "deploy:dev": "cdk deploy --context environment=dev",
+    "deploy:staging": "cdk deploy --context environment=staging",
+    "deploy:prod": "cdk deploy --context environment=prod",
+    "deploy:all:dev": "./scripts/deploy-all.sh dev",
+    "deploy:all:staging": "./scripts/deploy-all.sh staging",
+    "deploy:all:prod": "./scripts/deploy-all.sh prod",
+    "deploy:frontend:dev": "./scripts/deploy-frontend.sh dev",
+    "deploy:frontend:staging": "./scripts/deploy-frontend.sh staging",
+    "deploy:frontend:prod": "./scripts/deploy-frontend.sh prod",
+    "build:frontend": "./scripts/build-frontend.sh",
+    "config:frontend:dev": "./scripts/generate-frontend-config.sh dev",
+    "config:frontend:staging": "./scripts/generate-frontend-config.sh staging",
+    "config:frontend:prod": "./scripts/generate-frontend-config.sh prod",
+    "synth": "cdk synth",
+    "diff": "cdk diff"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "aws-cdk": "^2.179.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "source-map-support": "^0.5.21"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.179.0",
+    "constructs": "^10.0.0"
+  }
+}

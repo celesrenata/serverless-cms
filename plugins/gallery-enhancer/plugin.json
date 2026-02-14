@@ -1,0 +1,66 @@
+{
+  "id": "gallery-enhancer",
+  "name": "Gallery Enhancer",
+  "version": "1.0.0",
+  "description": "Enhances photo galleries with custom layouts, animations, and interactive features",
+  "author": "Serverless CMS Team",
+  "hooks": [
+    {
+      "hook_name": "content_render_gallery",
+      "function_name": "gallery-enhancer-function",
+      "priority": 10
+    }
+  ],
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "layout": {
+        "type": "string",
+        "enum": ["grid", "masonry", "carousel", "justified"],
+        "default": "grid",
+        "description": "Gallery layout style"
+      },
+      "columns": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "default": 3,
+        "description": "Number of columns in grid layout"
+      },
+      "gap": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50,
+        "default": 16,
+        "description": "Gap between images in pixels"
+      },
+      "animation": {
+        "type": "string",
+        "enum": ["none", "fade", "slide", "zoom", "flip"],
+        "default": "fade",
+        "description": "Animation effect on image hover"
+      },
+      "lazy_load": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable lazy loading for images"
+      },
+      "show_captions": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show image captions"
+      },
+      "lightbox_enabled": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable lightbox on image click"
+      },
+      "thumbnail_size": {
+        "type": "string",
+        "enum": ["small", "medium", "large"],
+        "default": "medium",
+        "description": "Thumbnail size to use"
+      }
+    }
+  }
+}

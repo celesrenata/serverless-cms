@@ -1,0 +1,43 @@
+{
+  "id": "syntax-highlighter",
+  "name": "Syntax Highlighter",
+  "version": "1.0.0",
+  "description": "Adds syntax highlighting to code blocks in blog posts using Pygments",
+  "author": "Serverless CMS Team",
+  "hooks": [
+    {
+      "hook_name": "content_render_post",
+      "function_name": "syntax-highlighter-function",
+      "priority": 10
+    }
+  ],
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "theme": {
+        "type": "string",
+        "enum": ["monokai", "github", "solarized-dark", "solarized-light", "dracula", "nord"],
+        "default": "monokai",
+        "description": "Color theme for syntax highlighting"
+      },
+      "line_numbers": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show line numbers in code blocks"
+      },
+      "line_number_start": {
+        "type": "integer",
+        "default": 1,
+        "description": "Starting line number"
+      },
+      "highlight_lines": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        },
+        "default": [],
+        "description": "Line numbers to highlight"
+      }
+    }
+  }
+}

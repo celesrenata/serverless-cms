@@ -1,0 +1,160 @@
+import {
+  CognitoUserPool,
+  CognitoUser,
+  AuthenticationDetails,
+  CognitoUserSession,
+} from 'amazon-cognito-identity-js';
+import { AuthTokens } from '../types';
+
+// These should be configured via environment variables
+const poolData = {
+  UserPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || '',
+  ClientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '',
+};
+
+const userPool = new CognitoUserPool(poolData);
+
+export class AuthService {
+  /**
+   * Authenticate user with email and password
+   */
+  static async login(email: string, password: string): Promise<AuthTokens> {
+    return new Promise((resolve, reject) => {
+      const authenticationDetails = new AuthenticationDetails({
+        Username: email,
+        Password: password,
+      });
+
+      const cognitoUser = new CognitoUser({
+        Username: email,
+        Pool: userPool,
+      });
+
+      cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: (session: CognitoUserSession) => {
+          const tokens: AuthTokens = {
+            accessToken: session.getAccessToken().getJwtToken(),
+            idToken: session.getIdToken().getJwtToken(),
+            refreshToken: session.getRefreshToken().getToken(),
+          };
+          
+          // Store tokens in localStorage
+          this.storeTokens(tokens);
+          
+          resolve(tokens);
+        },
+        onFailure: (err) => {
+          reject(err);
+        },
+      });
+    });
+  }
+
+  /**
+   * Logout current user
+   */
+  static logout(): void {
+    const cognitoUser = userPool.getCurrentUser();
+    if (cognitoUser) {
+      cognitoUser.signOut();
+    }
+    this.clearTokens();
+  }
+
+  /**
+   * Get current user session
+   */
+  static async getCurrentSession(): Promise<CognitoUserSession | null> {
+    return new Promise((resolve) => {
+      const cognitoUser = userPool.getCurrentUser();
+      
+      if (!cognitoUser) {
+        resolve(null);
+        return;
+      }
+
+      cognitoUser.getSession((err: Error | null, session: CognitoUserSession | null) => {
+        if (err || !session) {
+          resolve(null);
+          return;
+        }
+        
+        resolve(session);
+      });
+    });
+  }
+
+  /**
+   * Refresh access token using refresh token
+   */
+  static async refreshToken(): Promise<AuthTokens | null> {
+    return new Promise((resolve) => {
+      const cognitoUser = userPool.getCurrentUser();
+      
+      if (!cognitoUser) {
+        resolve(null);
+        return;
+      }
+
+      cognitoUser.getSession((err: Error | null, session: CognitoUserSession | null) => {
+        if (err || !session) {
+          resolve(null);
+          return;
+        }
+
+        if (session.isValid()) {
+          const tokens: AuthTokens = {
+            accessToken: session.getAccessToken().getJwtToken(),
+            idToken: session.getIdToken().getJwtToken(),
+            refreshToken: session.getRefreshToken().getToken(),
+          };
+          
+          this.storeTokens(tokens);
+          resolve(tokens);
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  /**
+   * Get stored access token
+   */
+  static getAccessToken(): string | null {
+    return localStorage.getItem('accessToken');
+  }
+
+  /**
+   * Get stored ID token
+   */
+  static getIdToken(): string | null {
+    return localStorage.getItem('idToken');
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  static async isAuthenticated(): Promise<boolean> {
+    const session = await this.getCurrentSession();
+    return session !== null && session.isValid();
+  }
+
+  /**
+   * Store tokens in localStorage
+   */
+  private static storeTokens(tokens: AuthTokens): void {
+    localStorage.setItem('accessToken', tokens.accessToken);
+    localStorage.setItem('idToken', tokens.idToken);
+    localStorage.setItem('refreshToken', tokens.refreshToken);
+  }
+
+  /**
+   * Clear tokens from localStorage
+   */
+  private static clearTokens(): void {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('idToken');
+    localStorage.removeItem('refreshToken');
+  }
+}

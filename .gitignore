@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+.npm-global/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# CDK
+cdk.out/
+*.js
+*.d.ts
+!jest.config.js
+!scripts/*.js
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+frontend/admin-panel/.env
+frontend/public-website/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Test coverage
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Temporary files
+*.tmp
+.cache/
+
+# AWS
+.aws-sam/
+
+# Python virtual environment
+venv/
+env/
+ENV/
+
+# CDK Context
+cdk.context.json
