@@ -1235,6 +1235,14 @@ export class ServerlessCmsStack extends cdk.Stack {
       description: 'Admin Panel URL',
     });
 
+    // Custom domain URLs (if configured)
+    if (adminDomain) {
+      new cdk.CfnOutput(this, 'AdminCustomUrl', {
+        value: `https://${adminDomain}`,
+        description: 'Admin Panel Custom Domain URL',
+      });
+    }
+
     new cdk.CfnOutput(this, 'PublicDistributionId', {
       value: this.publicDistribution.distributionId,
       description: 'Public CloudFront Distribution ID',
@@ -1249,6 +1257,13 @@ export class ServerlessCmsStack extends cdk.Stack {
       value: `https://${this.publicDistribution.distributionDomainName}`,
       description: 'Public Website URL',
     });
+
+    if (publicDomain) {
+      new cdk.CfnOutput(this, 'PublicCustomUrl', {
+        value: `https://${publicDomain}`,
+        description: 'Public Website Custom Domain URL',
+      });
+    }
 
     // Custom domain outputs (if configured)
     if (props.domainName) {
