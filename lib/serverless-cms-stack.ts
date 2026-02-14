@@ -1272,16 +1272,6 @@ export class ServerlessCmsStack extends cdk.Stack {
         description: 'Custom domain name',
       });
 
-      new cdk.CfnOutput(this, 'AdminCustomUrl', {
-        value: `https://admin.${props.domainName}`,
-        description: 'Admin Panel Custom Domain URL',
-      });
-
-      new cdk.CfnOutput(this, 'PublicCustomUrl', {
-        value: `https://${props.domainName}`,
-        description: 'Public Website Custom Domain URL',
-      });
-
       if (this.certificate) {
         new cdk.CfnOutput(this, 'CertificateArn', {
           value: this.certificate.certificateArn,
