@@ -68,3 +68,6 @@ cdk.context.json
 
 # Kiro settings (may contain secrets)
 .kiro/settings/
+
+# Lambda Layer dependencies (installed at build time)
+lambda/layer/python/
