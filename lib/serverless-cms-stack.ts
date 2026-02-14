@@ -274,6 +274,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     // Shared Lambda Layer for common code
+    // Layer structure: lambda/layer/python/shared/
     const sharedLayer = new lambda.LayerVersion(this, 'SharedLayer', {
       code: lambda.Code.fromAsset('lambda/layer'),
       compatibleRuntimes: [lambda.Runtime.PYTHON_3_12],
