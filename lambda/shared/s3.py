@@ -4,7 +4,12 @@ Handles file uploads, thumbnail generation, and file deletion.
 """
 
 import boto3
-from PIL import Image
+try:
+    from PIL import Image
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
+    Image = None
 import io
 import os
 from typing import Dict, Tuple, Optional
