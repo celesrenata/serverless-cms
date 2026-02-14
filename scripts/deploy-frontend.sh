@@ -85,11 +85,9 @@ if [ "$DEPLOY_ADMIN" = true ]; then
   
   cd frontend/admin-panel
   
-  # Install dependencies if node_modules doesn't exist
-  if [ ! -d "node_modules" ]; then
-    echo "📥 Installing dependencies..."
-    npm install
-  fi
+  # Install dependencies
+  echo "📥 Installing dependencies..."
+  npm ci
   
   # Build
   if [ "$SKIP_BUILD" = false ]; then
@@ -141,11 +139,9 @@ if [ "$DEPLOY_PUBLIC" = true ]; then
   
   cd frontend/public-website
   
-  # Install dependencies if node_modules doesn't exist
-  if [ ! -d "node_modules" ]; then
-    echo "📥 Installing dependencies..."
-    npm install
-  fi
+  # Install dependencies
+  echo "📥 Installing dependencies..."
+  npm ci
   
   # Build
   if [ "$SKIP_BUILD" = false ]; then
