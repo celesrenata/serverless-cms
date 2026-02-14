@@ -80,12 +80,21 @@ npm run build && npm run synth -- --context environment=dev
 ## Deployment Flow
 
 ```
-Code Change → Tests Pass → Git Push → GitHub Actions → AWS CDK Deploy
+Code Change → Tests Pass → Git Push → GitHub Actions → AWS CDK Deploy → Lambda/Frontend Updates
 ```
 
+**All deployments happen automatically via GitHub Actions - no manual deployment needed!**
+
 Branches:
-- `develop` → deploys to Development environment
-- `main` → deploys to Staging (auto) → Production (manual approval)
+- `develop` → deploys to Development environment (automatic on push)
+- `main` → deploys to Staging (automatic) → Production (manual approval)
+
+When you push code:
+1. GitHub Actions runs tests
+2. If tests pass, CDK synthesizes the stack
+3. CDK deploys infrastructure changes (Lambda functions, API Gateway, etc.)
+4. Frontend is built and deployed to S3/CloudFront
+5. You get notified of deployment status
 
 ## Common Development Tasks
 
@@ -95,7 +104,7 @@ Branches:
 2. Update shared utilities in `lambda/shared/` if needed
 3. **IMMEDIATELY run backend tests:** `pytest tests/ -v`
 4. Verify integration tests pass
-5. Only commit and push after tests pass (triggers deployment)
+5. Commit and push - GitHub Actions will automatically deploy the updated Lambda functions
 
 ### Modifying Infrastructure
 
@@ -104,15 +113,15 @@ Branches:
 3. Synthesize: `npm run synth -- --context environment=dev`
 4. Review changes: `npm run diff -- --context environment=dev`
 5. **IMMEDIATELY run all tests:** `npm test`
-6. Only commit and push after tests pass (triggers deployment)
+6. Commit and push - GitHub Actions will deploy infrastructure changes
 
 ### Frontend Changes
 
 1. Edit React components in `frontend/admin-panel/` or `frontend/public-website/`
 2. **IMMEDIATELY run frontend tests:** `npm run test:admin` or `npm run test:public`
 3. **IMMEDIATELY run linting:** `npm run lint` in the frontend directory
-4. Build locally to verify: `cd frontend/[app] && npm run build`
-5. Only commit and push after tests pass (triggers deployment)
+4. Build locally to verify: `npm run build` in the frontend directory
+5. Commit and push - GitHub Actions will build and deploy to S3/CloudFront
 
 ### Plugin Development
 
@@ -144,23 +153,18 @@ Branches:
 - Production uses AWS Secrets Manager and Parameter Store
 - CDK context provides environment-specific configuration
 
-## Manual Deployment (if needed)
+## Manual Deployment (rarely needed)
+
+**Note: Manual deployment is rarely needed since GitHub Actions handles everything automatically.**
+
+If you need to deploy manually for testing:
 
 ```bash
 # Deploy infrastructure only
 npm run deploy:dev
-npm run deploy:staging
-npm run deploy:prod
 
 # Deploy everything (infrastructure + frontend)
 npm run deploy:all:dev
-npm run deploy:all:staging
-npm run deploy:all:prod
-
-# Deploy frontend only
-npm run deploy:frontend:dev
-npm run deploy:frontend:staging
-npm run deploy:frontend:prod
 ```
 
 ## Troubleshooting
