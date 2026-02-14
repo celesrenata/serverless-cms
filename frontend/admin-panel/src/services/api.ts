@@ -61,16 +61,34 @@ class ApiClient {
           
           // Handle token expiration
           if (status === 401) {
-            try {
-              await AuthService.refreshToken();
-              // Retry the original request
-              return this.client.request(error.config!);
-            } catch (refreshError) {
-              // Refresh failed, logout user
+            // Check if this is a retry attempt to prevent infinite loops
+            const config = error.config as typeof error.config & { _retry?: boolean };
+            
+            if (!config._retry) {
+              config._retry = true;
+              
+              try {
+                const refreshed = await AuthService.refreshToken();
+                if (refreshed) {
+                  // Retry the original request with new token
+                  return this.client.request(config);
+                }
+              } catch (refreshError) {
+                // Refresh failed, don't retry
+                console.error('Token refresh failed:', refreshError);
+              }
+            }
+            
+            // Only logout and redirect if we're sure the session is invalid
+            // Don't logout immediately on first 401 to avoid race conditions
+            const hasToken = AuthService.getIdToken();
+            if (!hasToken && !window.location.pathname.includes('/login')) {
+              console.log('No token found, redirecting to login');
               AuthService.logout();
               window.location.href = '/login';
-              throw new ApiError('Session expired', 401);
             }
+            
+            throw new ApiError('Authentication required', 401);
           }
           
           throw new ApiError(

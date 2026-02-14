@@ -127,7 +127,9 @@ export function Login() {
     try {
       const { AuthService } = await import('../services/auth');
       await AuthService.completeNewPassword(newPassword);
-      navigate('/dashboard');
+      // Password changed successfully, tokens are already stored
+      // Force a full page reload to reinitialize auth state
+      window.location.href = '/dashboard';
     } catch (err) {
       console.error('Password change error:', err);
       setError(err instanceof Error ? err.message : 'Failed to change password');
