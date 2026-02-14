@@ -1,0 +1,15 @@
+{
+  "name": "Test on Save",
+  "description": "Automatically runs relevant tests when you save files",
+  "trigger": {
+    "type": "onSave",
+    "filePattern": "**/*.{py,ts,tsx,js,jsx}"
+  },
+  "prompt": "A file was just saved: {{filePath}}\n\nRun the appropriate tests based on the file type:\n\n- If it's a Python file in lambda/: run `pytest tests/ -v -k <relevant_test>`\n- If it's a TypeScript/React file in frontend/admin-panel/: run `cd frontend/admin-panel && npm run lint`\n- If it's a TypeScript/React file in frontend/public-website/: run `cd frontend/public-website && npm run lint`\n- If it's a CDK file in lib/: run `npm run build`\n\nOnly run quick validation (linting/type checking), not full test suites, to keep feedback fast.",
+  "context": {
+    "includeFiles": [
+      "{{filePath}}"
+    ]
+  },
+  "autoApprove": true
+}

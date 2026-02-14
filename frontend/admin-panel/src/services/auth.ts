@@ -7,6 +7,18 @@ import {
 } from 'amazon-cognito-identity-js';
 import { AuthTokens } from '../types';
 
+// Extend Window interface for temporary Cognito user storage
+declare global {
+  interface Window {
+    __cognitoUserForPasswordChange?: CognitoUser;
+  }
+}
+
+// Custom error type for new password requirement
+interface NewPasswordRequiredError extends Error {
+  code: string;
+}
+
 // These should be configured via environment variables
 const poolData = {
   UserPoolId: import.meta.env.VITE_USER_POOL_ID || '',
@@ -49,9 +61,9 @@ export class AuthService {
         },
         newPasswordRequired: (_userAttributes, _requiredAttributes) => {
           // Store the user object for password change
-          (window as any).__cognitoUserForPasswordChange = cognitoUser;
+          window.__cognitoUserForPasswordChange = cognitoUser;
           // Reject with a specific error code so the UI can handle it
-          const error: any = new Error('New password required');
+          const error = new Error('New password required') as NewPasswordRequiredError;
           error.code = 'NewPasswordRequired';
           reject(error);
         },
@@ -64,7 +76,7 @@ export class AuthService {
    */
   static async completeNewPassword(newPassword: string): Promise<AuthTokens> {
     return new Promise((resolve, reject) => {
-      const cognitoUser = (window as any).__cognitoUserForPasswordChange;
+      const cognitoUser = window.__cognitoUserForPasswordChange;
       
       if (!cognitoUser) {
         reject(new Error('No pending password change'));
@@ -81,7 +93,7 @@ export class AuthService {
           
           // Store tokens and clean up
           this.storeTokens(tokens);
-          delete (window as any).__cognitoUserForPasswordChange;
+          delete window.__cognitoUserForPasswordChange;
           
           resolve(tokens);
         },
