@@ -6,7 +6,7 @@ export interface ContentMetadata {
   seo_description?: string;
   tags?: string[];
   categories?: string[];
-  custom_fields?: Record<string, any>;
+  custom_fields?: Record<string, string | number | boolean>;
 }
 
 export interface Content {
@@ -59,5 +59,5 @@ export interface ContentFilters {
 
 export interface ContentListResponse {
   items: Content[];
-  last_key?: Record<string, any>;
+  last_key?: Record<string, string>;
 }

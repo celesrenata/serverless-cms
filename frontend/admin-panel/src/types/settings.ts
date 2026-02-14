@@ -2,9 +2,9 @@ export interface SiteSettings {
   site_title: string;
   site_description: string;
   theme?: string;
-  [key: string]: any;
+  [key: string]: string | undefined;
 }
 
 export interface SettingsUpdate {
-  [key: string]: any;
+  [key: string]: string | number | boolean | undefined;
 }
