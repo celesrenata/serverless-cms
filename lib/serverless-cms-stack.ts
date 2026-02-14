@@ -873,15 +873,29 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // Custom Domain and SSL Configuration (optional)
     if (props.domainName) {
+      // Extract root domain for hosted zone lookup (e.g., celestium.life from serverless.celestium.life)
+      const domainParts = props.domainName.split('.');
+      const rootDomain = domainParts.slice(-2).join('.'); // Get last two parts (e.g., celestium.life)
+      
       // Lookup existing hosted zone
       this.hostedZone = route53.HostedZone.fromLookup(this, 'HostedZone', {
-        domainName: props.domainName,
+        domainName: rootDomain,
       });
 
       // Create ACM certificate in us-east-1 (required for CloudFront)
+      // Certificate needs to cover all subdomains we'll use
+      const certDomains = [props.domainName];
+      if (props.subdomain) {
+        // For dev/staging: *.dev.serverless.celestium.life, *.staging.serverless.celestium.life
+        certDomains.push(`*.${props.subdomain}.${props.domainName}`);
+      } else {
+        // For prod: *.serverless.celestium.life
+        certDomains.push(`*.${props.domainName}`);
+      }
+      
       this.certificate = new acm.Certificate(this, 'Certificate', {
         domainName: props.domainName,
-        subjectAlternativeNames: [`*.${props.domainName}`],
+        subjectAlternativeNames: certDomains,
         validation: acm.CertificateValidation.fromDns(this.hostedZone),
       });
     }
