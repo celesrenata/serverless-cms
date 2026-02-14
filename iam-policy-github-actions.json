@@ -44,7 +44,9 @@
         "arn:aws:s3:::cdk-*",
         "arn:aws:s3:::cdk-*/*",
         "arn:aws:s3:::cms-*",
-        "arn:aws:s3:::cms-*/*"
+        "arn:aws:s3:::cms-*/*",
+        "arn:aws:s3:::serverless-cms-*",
+        "arn:aws:s3:::serverless-cms-*/*"
       ]
     },
     {
