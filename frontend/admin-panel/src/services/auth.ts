@@ -9,8 +9,8 @@ import { AuthTokens } from '../types';
 
 // These should be configured via environment variables
 const poolData = {
-  UserPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || '',
-  ClientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '',
+  UserPoolId: import.meta.env.VITE_USER_POOL_ID || '',
+  ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID || '',
 };
 
 const userPool = new CognitoUserPool(poolData);
