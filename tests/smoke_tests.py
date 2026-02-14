@@ -8,7 +8,14 @@ import argparse
 import json
 import sys
 import time
-import requests
+
+try:
+    import requests
+except ImportError as e:
+    print(f"Error importing requests: {e}", file=sys.stderr)
+    print("Please install: pip install requests", file=sys.stderr)
+    sys.exit(1)
+
 from pathlib import Path
 from typing import Dict, List
 
