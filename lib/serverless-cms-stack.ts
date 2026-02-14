@@ -351,6 +351,13 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.contentTable.grantReadWriteData(contentListFunction);
     this.contentTable.grantReadWriteData(contentUpdateFunction);
     this.contentTable.grantReadWriteData(contentDeleteFunction);
+    
+    // Grant explicit GSI query permissions
+    contentListFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:Query'],
+      resources: [`${this.contentTable.tableArn}/index/*`],
+    }));
+    
     this.pluginsTable.grantReadData(contentCreateFunction);
     this.pluginsTable.grantReadData(contentGetFunction);
     this.pluginsTable.grantReadData(contentUpdateFunction);
