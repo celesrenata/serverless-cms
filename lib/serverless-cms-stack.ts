@@ -47,108 +47,42 @@ export class ServerlessCmsStack extends cdk.Stack {
     super(scope, id, props);
 
     // DynamoDB Tables
+    // Import existing tables instead of creating new ones
     
     // Content Table
-    this.contentTable = new dynamodb.Table(this, 'ContentTable', {
-      tableName: `cms-content-${props.environment}`,
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'type#timestamp',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
-
-    // GSI: type-published_at-index
-    this.contentTable.addGlobalSecondaryIndex({
-      indexName: 'type-published_at-index',
-      partitionKey: {
-        name: 'type',
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'published_at',
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
-
-    // GSI: slug-index
-    this.contentTable.addGlobalSecondaryIndex({
-      indexName: 'slug-index',
-      partitionKey: {
-        name: 'slug',
-        type: dynamodb.AttributeType.STRING,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
-
-    // GSI: status-scheduled_at-index
-    this.contentTable.addGlobalSecondaryIndex({
-      indexName: 'status-scheduled_at-index',
-      partitionKey: {
-        name: 'status',
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'scheduled_at',
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
+    this.contentTable = dynamodb.Table.fromTableName(
+      this,
+      'ContentTable',
+      `cms-content-${props.environment}`
+    );
 
     // Media Table
-    this.mediaTable = new dynamodb.Table(this, 'MediaTable', {
-      tableName: `cms-media-${props.environment}`,
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
+    this.mediaTable = dynamodb.Table.fromTableName(
+      this,
+      'MediaTable',
+      `cms-media-${props.environment}`
+    );
 
     // Users Table
-    this.usersTable = new dynamodb.Table(this, 'UsersTable', {
-      tableName: `cms-users-${props.environment}`,
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
+    this.usersTable = dynamodb.Table.fromTableName(
+      this,
+      'UsersTable',
+      `cms-users-${props.environment}`
+    );
 
     // Settings Table
-    this.settingsTable = new dynamodb.Table(this, 'SettingsTable', {
-      tableName: `cms-settings-${props.environment}`,
-      partitionKey: {
-        name: 'key',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
+    this.settingsTable = dynamodb.Table.fromTableName(
+      this,
+      'SettingsTable',
+      `cms-settings-${props.environment}`
+    );
 
     // Plugins Table
-    this.pluginsTable = new dynamodb.Table(this, 'PluginsTable', {
-      tableName: `cms-plugins-${props.environment}`,
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
+    this.pluginsTable = dynamodb.Table.fromTableName(
+      this,
+      'PluginsTable',
+      `cms-plugins-${props.environment}`
+    );
 
     // S3 Buckets
     // Note: Using RETAIN removal policy to prevent accidental deletion
