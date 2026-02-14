@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuthContext';
 
 export function Login() {
   const navigate = useNavigate();

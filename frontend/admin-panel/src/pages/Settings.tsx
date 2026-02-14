@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuthContext';
 import { useSettings } from '../hooks/useSettings';
 import { api } from '../services/api';
 import { User } from '../types';
