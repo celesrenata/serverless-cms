@@ -97,7 +97,7 @@ export class AuthService {
           
           resolve(tokens);
         },
-        onFailure: (err) => {
+        onFailure: (err: Error) => {
           reject(err);
         },
       });

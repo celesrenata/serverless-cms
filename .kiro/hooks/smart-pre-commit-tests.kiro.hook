@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Smart Pre-Commit Tests",
+  "description": "Checks staged files, runs only relevant tests for those files, and suggests a commit message if all tests pass",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      ".kiro/steering/serverless-cms-workflow.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "I need you to run smart pre-commit tests. Follow these steps:\n\n1. First, check which files are staged for commit using: git diff --cached --name-only\n   - If no files are staged, remind me to stage files first with git add and stop here\n\n2. Based on the staged files, determine which tests to run:\n   - If any Python files in lambda/ or tests/ changed: run pytest tests/ -v\n   - If any files in frontend/admin-panel/ changed: run npm run lint and npm test -- --run in the frontend/admin-panel directory\n   - If any files in frontend/public-website/ changed: run npm run lint and npm test -- --run in the frontend/public-website directory\n   - If any TypeScript files in lib/ or bin/ changed: run npm run build and npm run synth -- --context environment=dev\n\n3. After running the appropriate tests, show me a summary of what passed or failed\n\n4. If all tests pass:\n   - Run git diff --cached to see what's being committed\n   - Analyze the changes and suggest an appropriate commit message following conventional commits format (fix:, feat:, chore:, docs:, refactor:, test:, style:, etc.)\n   - Base the suggestion on what actually changed in the code\n\n5. If any tests fail:\n   - Show me which tests failed\n   - Do NOT suggest a commit message\n   - Remind me to fix the failing tests before committing\n\nUse the context from .kiro/steering/serverless-cms-workflow.md to understand the project structure and testing requirements."
+  }
+}

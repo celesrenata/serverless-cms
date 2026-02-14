@@ -74,17 +74,19 @@ class ApiClient {
                   return this.client.request(config);
                 }
               } catch (refreshError) {
-                // Refresh failed, don't retry
+                // Refresh failed, logout and redirect
                 console.error('Token refresh failed:', refreshError);
+                AuthService.logout();
+                if (!window.location.pathname.includes('/login')) {
+                  window.location.href = '/login';
+                }
+                throw new ApiError('Session expired', 401);
               }
             }
             
-            // Only logout and redirect if we're sure the session is invalid
-            // Don't logout immediately on first 401 to avoid race conditions
-            const hasToken = AuthService.getIdToken();
-            if (!hasToken && !window.location.pathname.includes('/login')) {
-              console.log('No token found, redirecting to login');
-              AuthService.logout();
+            // If retry also failed, logout and redirect
+            AuthService.logout();
+            if (!window.location.pathname.includes('/login')) {
               window.location.href = '/login';
             }
             
