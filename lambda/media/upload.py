@@ -45,16 +45,23 @@ def parse_multipart_form_data(body: str, content_type: str) -> Optional[Dict[str
         # Decode base64 body
         decoded_body = base64.b64decode(body)
         
+        # The boundary in the body is prefixed with --
+        boundary_bytes = f'--{boundary}'.encode()
+        
         # Split by boundary
-        parts = decoded_body.split(f'--{boundary}'.encode())
+        parts = decoded_body.split(boundary_bytes)
         
         file_data = None
         filename = None
         file_content_type = 'application/octet-stream'
         
         for part in parts:
-            if not part or part == b'--\r\n' or part == b'--':
+            if not part or part == b'--\r\n' or part == b'--' or part == b'\r\n':
                 continue
+            
+            # Each part starts with \r\n (except empty first part)
+            if part.startswith(b'\r\n'):
+                part = part[2:]
             
             # Split headers and content
             if b'\r\n\r\n' in part:
@@ -71,9 +78,7 @@ def parse_multipart_form_data(body: str, content_type: str) -> Optional[Dict[str
                         if 'Content-Type:' in line:
                             file_content_type = line.split('Content-Type:')[1].strip()
                     
-                    # Remove trailing boundary markers properly
-                    # Multipart ends with \r\n--boundary-- or \r\n--boundary\r\n
-                    # We need to remove the trailing \r\n that comes before the next boundary
+                    # Remove trailing \r\n if present (before next boundary)
                     if content.endswith(b'\r\n'):
                         file_data = content[:-2]
                     else:
