@@ -468,7 +468,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     // Grant permissions to user functions
-    this.usersTable.grantReadData(userGetMeFunction);
+    this.usersTable.grantReadWriteData(userGetMeFunction); // Need write for last_login update
     this.usersTable.grantReadWriteData(userUpdateMeFunction);
     this.usersTable.grantReadData(userListFunction);
     
