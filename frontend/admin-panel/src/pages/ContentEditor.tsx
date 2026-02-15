@@ -47,10 +47,10 @@ export const ContentEditor: React.FC = () => {
       setContentBody(content.content);
       setStatus(content.status);
       setFeaturedImage(content.featured_image || '');
-      setSeoTitle(content.metadata.seo_title || '');
-      setSeoDescription(content.metadata.seo_description || '');
-      setTags(content.metadata.tags || []);
-      setCategories(content.metadata.categories || []);
+      setSeoTitle(content.metadata?.seo_title || '');
+      setSeoDescription(content.metadata?.seo_description || '');
+      setTags(content.metadata?.tags || []);
+      setCategories(content.metadata?.categories || []);
       if (content.scheduled_at) {
         setScheduledAt(new Date(content.scheduled_at * 1000).toISOString().slice(0, 16));
       }
