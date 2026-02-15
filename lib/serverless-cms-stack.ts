@@ -1129,9 +1129,10 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     // Media CloudFront Distribution
+    // Note: Custom domain temporarily disabled until certificate validates with new media subdomain
     const mediaDistribution = new cloudfront.Distribution(this, 'MediaDistribution', {
-      domainNames: props.domainName ? [`media.${props.domainName}`] : undefined,
-      certificate: props.domainName ? this.certificate : undefined,
+      // domainNames: props.domainName ? [`media.${props.domainName}`] : undefined,
+      // certificate: props.domainName ? this.certificate : undefined,
       comment: `CMS Media Distribution - ${props.environment}`,
       defaultBehavior: {
         origin: origins.S3BucketOrigin.withOriginAccessIdentity(this.mediaBucket, {
@@ -1148,6 +1149,11 @@ export class ServerlessCmsStack extends cdk.Stack {
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
       enableIpv6: true,
     });
+
+    // Remove the explicit dependency since we're not using custom domain yet
+    // if (this.certificate) {
+    //   mediaDistribution.node.addDependency(this.certificate);
+    // }
 
     // Add media CloudFront URL to media functions
     const mediaCdnUrl = `https://${mediaDistribution.distributionDomainName}`;
@@ -1188,17 +1194,17 @@ export class ServerlessCmsStack extends cdk.Stack {
         });
       }
 
-      // Media subdomain A record
-      const mediaDomain = props.subdomain
-        ? `media.${props.subdomain}.${props.domainName}`
-        : `media.${props.domainName}`;
-      new route53.ARecord(this, 'MediaAliasRecord', {
-        zone: this.hostedZone,
-        recordName: mediaDomain,
-        target: route53.RecordTarget.fromAlias(
-          new route53targets.CloudFrontTarget(mediaDistribution)
-        ),
-      });
+      // Media subdomain A record - temporarily disabled until certificate validates
+      // const mediaDomain = props.subdomain
+      //   ? `media.${props.subdomain}.${props.domainName}`
+      //   : `media.${props.domainName}`;
+      // new route53.ARecord(this, 'MediaAliasRecord', {
+      //   zone: this.hostedZone,
+      //   recordName: mediaDomain,
+      //   target: route53.RecordTarget.fromAlias(
+      //     new route53targets.CloudFrontTarget(mediaDistribution)
+      //   ),
+      // });
     }
 
     // Outputs
