@@ -42,7 +42,15 @@ def parse_multipart_form_data(body: str, content_type: str) -> Optional[Dict[str
         
         boundary = content_type.split('boundary=')[1].strip()
         
+        # Remove quotes if present
+        if boundary.startswith('"') and boundary.endswith('"'):
+            boundary = boundary[1:-1]
+        
+        print(f"DEBUG: Boundary: {boundary}")
+        
         # Decode base64 body
+        decoded_body = base64.b64decode(body)
+        print(f"DEBUG: Decoded body length: {len(decoded_body)}")
         decoded_body = base64.b64decode(body)
         
         # The boundary in the body is prefixed with --
@@ -83,6 +91,9 @@ def parse_multipart_form_data(body: str, content_type: str) -> Optional[Dict[str
                         file_data = content[:-2]
                     else:
                         file_data = content
+                    
+                    print(f"DEBUG: File data length: {len(file_data)}")
+                    print(f"DEBUG: First 20 bytes: {file_data[:20].hex()}")
         
         if file_data and filename:
             return {
