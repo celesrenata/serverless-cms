@@ -891,18 +891,22 @@ export class ServerlessCmsStack extends cdk.Stack {
         // - dev.serverless.celestium.life (public site)
         // - www.dev.serverless.celestium.life (public www)
         // - admin.dev.serverless.celestium.life (admin panel)
+        // - media.dev.serverless.celestium.life (media CDN)
         const envDomain = `${props.subdomain}.${props.domainName}`;
         certDomains.push(envDomain);
         certDomains.push(`www.${envDomain}`);
         certDomains.push(`admin.${envDomain}`);
+        certDomains.push(`media.${envDomain}`);
       } else {
         // For prod environment:
         // - serverless.celestium.life (public site)
         // - www.serverless.celestium.life (public www)
         // - admin.serverless.celestium.life (admin panel)
+        // - media.serverless.celestium.life (media CDN)
         certDomains.push(props.domainName);
         certDomains.push(`www.${props.domainName}`);
         certDomains.push(`admin.${props.domainName}`);
+        certDomains.push(`media.${props.domainName}`);
       }
       
       // Note: Using DnsValidatedCertificate (deprecated) because CloudFront requires
@@ -1183,6 +1187,18 @@ export class ServerlessCmsStack extends cdk.Stack {
           ),
         });
       }
+
+      // Media subdomain A record
+      const mediaDomain = props.subdomain
+        ? `media.${props.subdomain}.${props.domainName}`
+        : `media.${props.domainName}`;
+      new route53.ARecord(this, 'MediaAliasRecord', {
+        zone: this.hostedZone,
+        recordName: mediaDomain,
+        target: route53.RecordTarget.fromAlias(
+          new route53targets.CloudFrontTarget(mediaDistribution)
+        ),
+      });
     }
 
     // Outputs
