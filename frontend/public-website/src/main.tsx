@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
-import 'prismjs/components/prism-clike'; // Load base language first
+import Prism from 'prismjs'; // Load Prism first
+import 'prismjs/components/prism-clike'; // Then load base language
 import App from './App';
 import './index.css';
 
