@@ -230,6 +230,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.api = new apigateway.RestApi(this, 'CmsApi', {
       restApiName: `cms-api-${props.environment}`,
       description: 'Serverless CMS API',
+      binaryMediaTypes: ['multipart/form-data', 'image/*', 'application/octet-stream'],
       deployOptions: {
         stageName: props.environment,
         throttlingRateLimit: 100,
