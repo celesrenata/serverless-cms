@@ -69,12 +69,10 @@ PUBLIC_BUCKET=$(jq -r ".\"$STACK_NAME\".PublicBucketName" "$OUTPUTS_FILE")
 ADMIN_DIST_ID=$(jq -r ".\"$STACK_NAME\".AdminDistributionId" "$OUTPUTS_FILE")
 PUBLIC_DIST_ID=$(jq -r ".\"$STACK_NAME\".PublicDistributionId" "$OUTPUTS_FILE")
 
-# Generate frontend configuration if .env files don't exist
-if [ ! -f "frontend/admin-panel/.env" ] || [ ! -f "frontend/public-website/.env" ]; then
-  echo ""
-  echo "📋 Generating frontend configuration..."
-  ./scripts/generate-frontend-config.sh "$ENVIRONMENT" "$OUTPUTS_FILE"
-fi
+# Always generate fresh frontend configuration
+echo ""
+echo "📋 Generating frontend configuration..."
+./scripts/generate-frontend-config.sh "$ENVIRONMENT" "$OUTPUTS_FILE"
 
 # Deploy Admin Panel
 if [ "$DEPLOY_ADMIN" = true ]; then
