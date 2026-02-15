@@ -233,8 +233,8 @@ class ApiClient {
   }
 
   async listPlugins(): Promise<Plugin[]> {
-    const response = await this.client.get<Plugin[]>('/plugins');
-    return response.data;
+    const response = await this.client.get<{plugins: Plugin[], count: number}>('/plugins');
+    return response.data.plugins;
   }
 
   async getPluginSettings(id: string): Promise<PluginSettings> {
