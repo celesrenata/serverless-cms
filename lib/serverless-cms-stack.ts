@@ -947,9 +947,20 @@ export class ServerlessCmsStack extends cdk.Stack {
       enableAcceptEncodingBrotli: true,
     });
 
-    // Use AWS managed CachingDisabled policy which forwards Authorization header
-    // and disables caching (perfect for API endpoints)
-    const apiCachePolicy = cloudfront.CachePolicy.CACHING_DISABLED;
+    // Custom cache policy for API endpoints that forwards Authorization header
+    // Note: Must have TTL > 0 to include Authorization header
+    const apiCachePolicy = new cloudfront.CachePolicy(this, 'ApiCachePolicy', {
+      cachePolicyName: `cms-api-auth-v3-${props.environment}`,
+      comment: 'Minimal caching for API endpoints with Authorization',
+      defaultTtl: cdk.Duration.seconds(1),
+      maxTtl: cdk.Duration.seconds(1),
+      minTtl: cdk.Duration.seconds(0),
+      cookieBehavior: cloudfront.CacheCookieBehavior.none(),
+      headerBehavior: cloudfront.CacheHeaderBehavior.allowList('Authorization'),
+      queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),
+      enableAcceptEncodingGzip: false,
+      enableAcceptEncodingBrotli: false,
+    });
 
     // Origin request policy for API to forward headers (Authorization is in CachePolicy)
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {
