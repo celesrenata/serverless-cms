@@ -233,3 +233,31 @@ def extract_s3_key_from_url(url: str) -> str:
         return parts[1] if len(parts) > 1 else parts[0]
     
     return url
+
+
+def convert_s3_url_to_cdn(url: str) -> str:
+    """
+    Convert S3 URL to CloudFront CDN URL.
+    
+    Args:
+        url: S3 URL (e.g., https://bucket.s3.amazonaws.com/key)
+        
+    Returns:
+        CloudFront URL if MEDIA_CDN_URL is set, otherwise original URL
+    """
+    if not url:
+        return url
+    
+    media_cdn_url = os.environ.get('MEDIA_CDN_URL', '')
+    if not media_cdn_url:
+        return url
+    
+    # Only convert S3 URLs
+    if '.s3.amazonaws.com/' not in url and 's3.amazonaws.com/' not in url:
+        return url
+    
+    # Extract the S3 key
+    key = extract_s3_key_from_url(url)
+    
+    # Return CloudFront URL
+    return f"{media_cdn_url}/{key}"

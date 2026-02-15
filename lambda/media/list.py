@@ -10,6 +10,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.db import MediaRepository
+from shared.s3 import convert_s3_url_to_cdn
 
 
 media_repo = MediaRepository()
@@ -50,6 +51,14 @@ def handler(event, context):
         
         # Get media list
         result = media_repo.list_media(limit=limit, last_key=last_key)
+        
+        # Convert S3 URLs to CloudFront URLs
+        for item in result['items']:
+            if 'url' in item:
+                item['url'] = convert_s3_url_to_cdn(item['url'])
+            if 'thumbnails' in item:
+                for size, url in item['thumbnails'].items():
+                    item['thumbnails'][size] = convert_s3_url_to_cdn(url)
         
         return {
             'statusCode': 200,
