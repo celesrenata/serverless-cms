@@ -25,6 +25,14 @@ const poolData = {
   ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID || '',
 };
 
+// Validate configuration
+if (!poolData.UserPoolId || !poolData.ClientId) {
+  console.error('Cognito configuration missing:', {
+    hasUserPoolId: !!poolData.UserPoolId,
+    hasClientId: !!poolData.ClientId,
+  });
+}
+
 const userPool = new CognitoUserPool(poolData);
 
 export class AuthService {
