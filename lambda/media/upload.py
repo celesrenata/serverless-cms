@@ -71,8 +71,13 @@ def parse_multipart_form_data(body: str, content_type: str) -> Optional[Dict[str
                         if 'Content-Type:' in line:
                             file_content_type = line.split('Content-Type:')[1].strip()
                     
-                    # Remove trailing boundary markers
-                    file_data = content.rstrip(b'\r\n--')
+                    # Remove trailing boundary markers more carefully
+                    # Look for the boundary pattern at the end
+                    if content.endswith(b'\r\n'):
+                        content = content[:-2]
+                    if content.endswith(b'--'):
+                        content = content[:-2]
+                    file_data = content
         
         if file_data and filename:
             return {
