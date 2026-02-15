@@ -110,7 +110,7 @@ export function ContentTable({
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item.author}
+                    {item.author_name || item.author}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {formatDate(item.published_at || item.updated_at)}

@@ -17,6 +17,7 @@ export interface Content {
   content: string;
   excerpt: string;
   author: string;
+  author_name?: string;
   status: ContentStatus;
   featured_image?: string;
   metadata: ContentMetadata;
