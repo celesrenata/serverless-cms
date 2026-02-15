@@ -1,6 +1,7 @@
 """
 S3 utilities for media file operations.
 Handles file uploads, thumbnail generation, and file deletion.
+Updated: 2026-02-15 - Added CloudFront URL conversion
 """
 
 import boto3

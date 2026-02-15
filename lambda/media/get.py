@@ -1,6 +1,7 @@
 """
 Media retrieval Lambda function.
 Handles fetching media metadata by ID.
+Updated: 2026-02-15 - Convert S3 URLs to CloudFront URLs
 """
 import json
 import os

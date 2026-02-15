@@ -1,6 +1,7 @@
 """
 Media listing Lambda function.
 Handles fetching paginated list of media items.
+Updated: 2026-02-15 - Convert S3 URLs to CloudFront URLs
 """
 import json
 import os
