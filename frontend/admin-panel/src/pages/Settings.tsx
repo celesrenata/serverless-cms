@@ -197,20 +197,20 @@ export function Settings() {
                               <img
                                 className="h-10 w-10 rounded-full"
                                 src={u.avatar_url}
-                                alt={u.display_name}
+                                alt={u.name || u.display_name || u.email}
                               />
                             ) : (
                               <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-medium">
-                                {u.display_name.charAt(0).toUpperCase()}
+                                {(u.name || u.display_name || u.email).charAt(0).toUpperCase()}
                               </div>
                             )}
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                              {u.display_name}
+                              {u.name || u.display_name || u.email}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {u.username}
+                              {u.username || u.email}
                             </div>
                           </div>
                         </div>
