@@ -23,7 +23,7 @@ MEDIA_BUCKET = os.environ.get('MEDIA_BUCKET', '')
 
 def upload_file(file_data: bytes, filename: str, content_type: str) -> str:
     """
-    Upload file to S3 and return URL.
+    Upload file to S3 and return CloudFront URL.
     
     Args:
         file_data: Binary file content
@@ -31,7 +31,7 @@ def upload_file(file_data: bytes, filename: str, content_type: str) -> str:
         content_type: MIME type of the file
         
     Returns:
-        S3 URL of the uploaded file
+        CloudFront URL of the uploaded file
         
     Raises:
         Exception: If upload fails
@@ -51,8 +51,12 @@ def upload_file(file_data: bytes, filename: str, content_type: str) -> str:
             CacheControl='public, max-age=31536000',  # Cache for 1 year
         )
         
-        # Return public URL
-        url = f"https://{MEDIA_BUCKET}.s3.amazonaws.com/{key}"
+        # Return CloudFront URL if available, otherwise S3 URL
+        media_cdn_url = os.environ.get('MEDIA_CDN_URL', '')
+        if media_cdn_url:
+            url = f"{media_cdn_url}/{key}"
+        else:
+            url = f"https://{MEDIA_BUCKET}.s3.amazonaws.com/{key}"
         return url
         
     except ClientError as e:
@@ -138,8 +142,12 @@ def generate_thumbnails(s3_key: str, mime_type: str) -> Dict[str, str]:
                 CacheControl='public, max-age=31536000',
             )
             
-            # Store thumbnail URL
-            thumbnails[size_name] = f"https://{MEDIA_BUCKET}.s3.amazonaws.com/{thumb_key}"
+            # Store thumbnail URL (use CloudFront if available)
+            media_cdn_url = os.environ.get('MEDIA_CDN_URL', '')
+            if media_cdn_url:
+                thumbnails[size_name] = f"{media_cdn_url}/{thumb_key}"
+            else:
+                thumbnails[size_name] = f"https://{MEDIA_BUCKET}.s3.amazonaws.com/{thumb_key}"
         
         return thumbnails
         

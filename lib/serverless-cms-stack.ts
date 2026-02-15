@@ -109,18 +109,8 @@ export class ServerlessCmsStack extends cdk.Stack {
           maxAge: 3000,
         },
       ],
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
-
-    // Add bucket policy to allow public read access to media files
-    this.mediaBucket.addToResourcePolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        principals: [new iam.AnyPrincipal()],
-        actions: ['s3:GetObject'],
-        resources: [`${this.mediaBucket.bucketArn}/*`],
-      })
-    );
 
     // Admin Panel Bucket - for hosting the React admin application
     this.adminBucket = new s3.Bucket(this, 'AdminBucket', {
@@ -939,9 +929,14 @@ export class ServerlessCmsStack extends cdk.Stack {
       comment: `OAI for public bucket ${props.environment}`,
     });
 
+    const mediaOai = new cloudfront.OriginAccessIdentity(this, 'MediaOAI', {
+      comment: `OAI for media bucket ${props.environment}`,
+    });
+
     // Grant CloudFront access to S3 buckets
     this.adminBucket.grantRead(adminOai);
     this.publicBucket.grantRead(publicOai);
+    this.mediaBucket.grantRead(mediaOai);
 
     // Cache policy for static assets (HTML, CSS, JS, images)
     const staticAssetsCachePolicy = new cloudfront.CachePolicy(this, 'StaticAssetsCachePolicy', {
@@ -1129,6 +1124,33 @@ export class ServerlessCmsStack extends cdk.Stack {
       ],
     });
 
+    // Media CloudFront Distribution
+    const mediaDistribution = new cloudfront.Distribution(this, 'MediaDistribution', {
+      domainNames: props.domainName ? [`media.${props.domainName}`] : undefined,
+      certificate: props.domainName ? this.certificate : undefined,
+      comment: `CMS Media Distribution - ${props.environment}`,
+      defaultBehavior: {
+        origin: origins.S3BucketOrigin.withOriginAccessIdentity(this.mediaBucket, {
+          originAccessIdentity: mediaOai,
+        }),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
+        cachePolicy: staticAssetsCachePolicy,
+        responseHeadersPolicy: securityHeadersPolicy,
+        compress: true,
+      },
+      priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
+      httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
+      enableIpv6: true,
+    });
+
+    // Add media CloudFront URL to media functions
+    const mediaCdnUrl = `https://${mediaDistribution.distributionDomainName}`;
+    mediaUploadFunction.addEnvironment('MEDIA_CDN_URL', mediaCdnUrl);
+    mediaGetFunction.addEnvironment('MEDIA_CDN_URL', mediaCdnUrl);
+    mediaListFunction.addEnvironment('MEDIA_CDN_URL', mediaCdnUrl);
+
     // Create Route53 DNS records if custom domain is configured
     if (props.domainName && this.hostedZone && adminDomain) {
       // Admin subdomain A record
@@ -1303,6 +1325,21 @@ export class ServerlessCmsStack extends cdk.Stack {
         description: 'Public Website Custom Domain URL',
       });
     }
+
+    new cdk.CfnOutput(this, 'MediaDistributionId', {
+      value: mediaDistribution.distributionId,
+      description: 'Media CloudFront Distribution ID',
+    });
+
+    new cdk.CfnOutput(this, 'MediaDistributionDomainName', {
+      value: mediaDistribution.distributionDomainName,
+      description: 'Media CloudFront Distribution Domain Name',
+    });
+
+    new cdk.CfnOutput(this, 'MediaUrl', {
+      value: `https://${mediaDistribution.distributionDomainName}`,
+      description: 'Media CloudFront URL',
+    });
 
     // Custom domain outputs (if configured)
     if (props.domainName) {
