@@ -55,8 +55,8 @@ def handler(event, context):
         
         # Convert S3 URLs to CloudFront URLs
         for item in result['items']:
-            if 'url' in item:
-                item['url'] = convert_s3_url_to_cdn(item['url'])
+            if 's3_url' in item:
+                item['s3_url'] = convert_s3_url_to_cdn(item['s3_url'])
             if 'thumbnails' in item:
                 for size, url in item['thumbnails'].items():
                     item['thumbnails'][size] = convert_s3_url_to_cdn(url)
