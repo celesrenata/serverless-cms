@@ -359,6 +359,10 @@ export class ServerlessCmsStack extends cdk.Stack {
       actions: ['dynamodb:Query'],
       resources: [`${this.contentTable.tableArn}/index/*`],
     }));
+    contentGetFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:Query'],
+      resources: [`${this.contentTable.tableArn}/index/*`],
+    }));
     contentListFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['dynamodb:Query'],
       resources: [`${this.contentTable.tableArn}/index/*`],
