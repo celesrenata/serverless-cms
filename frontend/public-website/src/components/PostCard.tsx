@@ -37,7 +37,7 @@ export const PostCard = ({ post }: PostCardProps) => {
         </Link>
         <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
         <div className="flex items-center justify-between text-sm text-gray-500">
-          <span>By {post.author}</span>
+          <span>By {post.author_name || 'Unknown Author'}</span>
           {post.published_at && (
             <time dateTime={new Date(post.published_at * 1000).toISOString()}>
               {new Date(post.published_at * 1000).toLocaleDateString()}

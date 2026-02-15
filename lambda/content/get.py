@@ -9,12 +9,13 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from shared.db import ContentRepository
+from shared.db import ContentRepository, UserRepository
 from shared.plugins import PluginManager
 from shared.auth import extract_user_from_event
 
 
 content_repo = ContentRepository()
+user_repo = UserRepository()
 plugin_manager = PluginManager()
 
 
@@ -116,6 +117,20 @@ def handler(event, context):
         except Exception as e:
             print(f"Plugin filter error: {e}")
             # Continue with unfiltered content
+        
+        # Enrich author field with user name
+        author_id = content.get('author')
+        if author_id:
+            try:
+                user = user_repo.get_by_id(author_id)
+                if user:
+                    # Add author_name field while keeping author ID
+                    content['author_name'] = user.get('name', user.get('email', 'Unknown Author'))
+                else:
+                    content['author_name'] = 'Unknown Author'
+            except Exception as e:
+                print(f"Error fetching author info: {e}")
+                content['author_name'] = 'Unknown Author'
         
         return {
             'statusCode': 200,

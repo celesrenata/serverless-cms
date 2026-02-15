@@ -6,6 +6,7 @@ export interface Content {
   content: string;
   excerpt: string;
   author: string;
+  author_name?: string; // Enriched from user table
   status: 'draft' | 'published' | 'archived';
   featured_image: string;
   metadata: {
