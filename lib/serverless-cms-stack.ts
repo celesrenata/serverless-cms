@@ -481,7 +481,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     
     userUpdateMeFunction.addToRolePolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
-      actions: ['cognito-idp:AdminGetUser'],
+      actions: ['cognito-idp:AdminGetUser', 'cognito-idp:AdminUpdateUserAttributes'],
       resources: [this.userPool.userPoolArn],
     }));
 
