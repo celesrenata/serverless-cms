@@ -13,13 +13,16 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.auth import require_auth
-from shared.db import ContentRepository
+from shared.db import ContentRepository, UserRepository
 from shared.plugins import PluginManager
 from shared.logger import create_logger, log_performance
+import boto3
 
 
 content_repo = ContentRepository()
+user_repo = UserRepository()
 plugin_manager = PluginManager()
+cognito_client = boto3.client('cognito-idp')
 
 
 @require_auth(roles=['admin', 'editor', 'author'])
@@ -42,6 +45,27 @@ def handler(event, context, user_id, role):
              path='/api/v1/content')
     
     try:
+        # Ensure user exists in users table
+        user = user_repo.get_by_id(user_id)
+        if not user:
+            try:
+                cognito_response = cognito_client.admin_get_user(
+                    UserPoolId=os.environ.get('USER_POOL_ID'),
+                    Username=user_id
+                )
+                attributes = {attr['Name']: attr['Value'] for attr in cognito_response.get('UserAttributes', [])}
+                user = {
+                    'id': user_id,
+                    'email': attributes.get('email', ''),
+                    'name': attributes.get('name', attributes.get('email', '').split('@')[0]),
+                    'role': role,
+                    'created_at': int(time.time())
+                }
+                user_repo.create(user)
+                log.info('Auto-created user in users table', user_id=user_id)
+            except Exception as e:
+                log.warning('Failed to auto-create user', user_id=user_id, error=str(e))
+        
         # Parse request body
         body = json.loads(event.get('body', '{}'))
         content_type = body.get('type', 'post')

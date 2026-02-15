@@ -47,8 +47,8 @@ def handler(event, context, user_id, role):
                 user = {
                     'id': user_id,
                     'email': attributes.get('email', ''),
+                    'name': attributes.get('name', attributes.get('email', '').split('@')[0]),
                     'username': cognito_response.get('Username', ''),
-                    'display_name': attributes.get('name', attributes.get('email', '').split('@')[0]),
                     'role': 'viewer',  # Default role
                     'avatar_url': '',
                     'bio': '',
