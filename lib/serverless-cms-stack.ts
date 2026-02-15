@@ -431,6 +431,8 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.mediaBucket.grantDelete(mediaDeleteFunction);
     this.pluginsTable.grantReadData(mediaUploadFunction);
     this.pluginsTable.grantReadData(mediaDeleteFunction);
+    this.usersTable.grantReadData(mediaUploadFunction);
+    this.usersTable.grantReadData(mediaDeleteFunction);
 
     // User Lambda Functions
     const userGetMeFunction = new lambda.Function(this, 'UserGetMeFunction', {
