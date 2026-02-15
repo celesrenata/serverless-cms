@@ -16,6 +16,7 @@ export const useMedia = (id?: string) => {
       api.uploadMedia(file, metadata),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media'] });
+      queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
     },
   });
 
@@ -24,6 +25,7 @@ export const useMedia = (id?: string) => {
       api.updateMedia(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media'] });
+      queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
     },
   });
 
@@ -31,6 +33,7 @@ export const useMedia = (id?: string) => {
     mutationFn: (id: string) => api.deleteMedia(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media'] });
+      queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
     },
   });
 
