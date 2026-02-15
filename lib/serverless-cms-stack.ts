@@ -364,8 +364,16 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.pluginsTable.grantReadData(contentUpdateFunction);
     this.pluginsTable.grantReadData(contentDeleteFunction);
     this.usersTable.grantReadData(contentCreateFunction);
+    this.usersTable.grantReadWriteData(contentCreateFunction); // Need write for auto-creating users
     this.usersTable.grantReadData(contentUpdateFunction);
     this.usersTable.grantReadData(contentDeleteFunction);
+    
+    // Grant Cognito permissions for user auto-creation
+    contentCreateFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['cognito-idp:AdminGetUser'],
+      resources: [this.userPool.userPoolArn],
+    }));
 
     // Media Lambda Functions
     const mediaUploadFunction = new lambda.Function(this, 'MediaUploadFunction', {
@@ -463,6 +471,19 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.usersTable.grantReadData(userGetMeFunction);
     this.usersTable.grantReadWriteData(userUpdateMeFunction);
     this.usersTable.grantReadData(userListFunction);
+    
+    // Grant Cognito permissions for user profile sync
+    userGetMeFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['cognito-idp:AdminGetUser'],
+      resources: [this.userPool.userPoolArn],
+    }));
+    
+    userUpdateMeFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['cognito-idp:AdminGetUser'],
+      resources: [this.userPool.userPoolArn],
+    }));
 
     // Settings Lambda Functions
     const settingsGetFunction = new lambda.Function(this, 'SettingsGetFunction', {
