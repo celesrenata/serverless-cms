@@ -948,8 +948,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     // Cache policy for API endpoints (no caching)
-    // Note: When caching is disabled (TTL=0), cookieBehavior and queryStringBehavior must be 'none'
-    // All forwarding is handled by OriginRequestPolicy
+    // Note: Authorization header must be in CachePolicy, not OriginRequestPolicy
     const apiCachePolicy = new cloudfront.CachePolicy(this, 'ApiCachePolicy', {
       cachePolicyName: `cms-api-no-cache-v2-${props.environment}`,
       comment: 'No caching for API endpoints',
@@ -957,13 +956,13 @@ export class ServerlessCmsStack extends cdk.Stack {
       maxTtl: cdk.Duration.seconds(0),
       minTtl: cdk.Duration.seconds(0),
       cookieBehavior: cloudfront.CacheCookieBehavior.none(),
-      headerBehavior: cloudfront.CacheHeaderBehavior.none(),
+      headerBehavior: cloudfront.CacheHeaderBehavior.allowList('Authorization'),
       queryStringBehavior: cloudfront.CacheQueryStringBehavior.none(),
       enableAcceptEncodingGzip: false,
       enableAcceptEncodingBrotli: false,
     });
 
-    // Origin request policy for API to forward headers including Authorization
+    // Origin request policy for API to forward headers (Authorization is in CachePolicy)
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {
       originRequestPolicyName: `cms-api-origin-v2-${props.environment}`,
       comment: 'Forward all headers and query strings to API',
@@ -971,7 +970,6 @@ export class ServerlessCmsStack extends cdk.Stack {
       headerBehavior: cloudfront.OriginRequestHeaderBehavior.allowList(
         'Content-Type',
         'Accept',
-        'Authorization',
         'Origin',
         'Referer',
         'User-Agent',
