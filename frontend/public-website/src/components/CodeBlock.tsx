@@ -1,17 +1,29 @@
 import { useEffect } from 'react';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
-import 'prismjs/components/prism-clike'; // Base for many languages
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-python';
+
+// Import languages in dependency order
+// Core language (no dependencies)
+import 'prismjs/components/prism-clike';
+
+// Languages that depend on clike
+import 'prismjs/components/prism-c';
+import 'prismjs/components/prism-cpp';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-csharp';
-import 'prismjs/components/prism-cpp';
+import 'prismjs/components/prism-php';
+
+// Languages that depend on javascript (which depends on clike)
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-typescript';
+
+// Independent languages
+import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-go';
 import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-ruby';
-import 'prismjs/components/prism-php';
+
+// Plugins
 import 'prismjs/plugins/line-numbers/prism-line-numbers';
 import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
 
