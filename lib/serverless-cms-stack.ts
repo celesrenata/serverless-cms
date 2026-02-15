@@ -365,6 +365,8 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.pluginsTable.grantReadData(contentDeleteFunction);
     this.usersTable.grantReadData(contentCreateFunction);
     this.usersTable.grantReadWriteData(contentCreateFunction); // Need write for auto-creating users
+    this.usersTable.grantReadData(contentGetFunction); // Need read for author enrichment
+    this.usersTable.grantReadData(contentListFunction); // Need read for author enrichment
     this.usersTable.grantReadData(contentUpdateFunction);
     this.usersTable.grantReadData(contentDeleteFunction);
     
