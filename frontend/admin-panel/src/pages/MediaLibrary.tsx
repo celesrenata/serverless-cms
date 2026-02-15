@@ -11,6 +11,7 @@ export const MediaLibrary: React.FC = () => {
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [previewMedia, setPreviewMedia] = useState<Media | null>(null);
 
   const { data, isLoading, error, refetch } = useMediaList();
   const { delete: deleteMedia } = useMedia();
@@ -48,6 +49,10 @@ export const MediaLibrary: React.FC = () => {
   const handleEdit = (media: Media) => {
     setSelectedMedia(media);
     setIsModalOpen(true);
+  };
+
+  const handlePreview = (media: Media) => {
+    setPreviewMedia(media);
   };
 
   const handleDelete = async (media: Media) => {
@@ -269,6 +274,7 @@ export const MediaLibrary: React.FC = () => {
                 media={media}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onSelect={handlePreview}
               />
             ))}
           </div>
@@ -283,6 +289,50 @@ export const MediaLibrary: React.FC = () => {
           onClose={handleModalClose}
           onSave={handleModalSave}
         />
+      )}
+
+      {/* Preview Modal */}
+      {previewMedia && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4"
+          onClick={() => setPreviewMedia(null)}
+        >
+          <div className="relative max-w-7xl max-h-full">
+            <button
+              onClick={() => setPreviewMedia(null)}
+              className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors z-10"
+              title="Close"
+            >
+              <svg
+                className="w-6 h-6 text-gray-700"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <img
+              src={previewMedia.s3_url}
+              alt={previewMedia.metadata.alt_text || previewMedia.filename}
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="absolute bottom-4 left-4 right-4 bg-white bg-opacity-90 rounded-lg p-4">
+              <p className="font-medium text-gray-900">{previewMedia.filename}</p>
+              <p className="text-sm text-gray-600 mt-1">
+                {(previewMedia.size / 1024).toFixed(2)} KB
+                {previewMedia.dimensions &&
+                  ` • ${previewMedia.dimensions.width}×${previewMedia.dimensions.height}`}
+              </p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
