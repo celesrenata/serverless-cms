@@ -24,7 +24,9 @@ STACK_NAME=$(jq -r 'keys[0]' "$OUTPUTS_FILE")
 API_ENDPOINT=$(jq -r ".\"$STACK_NAME\".ApiEndpoint" "$OUTPUTS_FILE")
 USER_POOL_ID=$(jq -r ".\"$STACK_NAME\".UserPoolId" "$OUTPUTS_FILE")
 USER_POOL_CLIENT_ID=$(jq -r ".\"$STACK_NAME\".UserPoolClientId" "$OUTPUTS_FILE")
-REGION=$(jq -r ".\"$STACK_NAME\".Environment" "$OUTPUTS_FILE" | sed 's/.*-//')  # Extract region from environment
+# Extract region from User Pool ARN (format: arn:aws:cognito-idp:REGION:...)
+USER_POOL_ARN=$(jq -r ".\"$STACK_NAME\".UserPoolArn" "$OUTPUTS_FILE")
+REGION=$(echo "$USER_POOL_ARN" | cut -d: -f4)
 MEDIA_BUCKET=$(jq -r ".\"$STACK_NAME\".MediaBucketName" "$OUTPUTS_FILE")
 
 # Use custom domain URLs if available, otherwise use CloudFront URLs

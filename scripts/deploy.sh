@@ -3,8 +3,9 @@
 # Deployment script for Serverless CMS
 # Usage: ./scripts/deploy.sh [dev|staging|prod] [options]
 # Options:
-#   --skip-build    Skip CDK build step
-#   --outputs-file  Save stack outputs to file (default: outputs-{env}.json)
+#   --skip-build       Skip CDK build step
+#   --outputs-file     Save stack outputs to file (default: outputs-{env}.json)
+#   --clean-buckets    Delete orphaned S3 buckets before deployment
 
 set -e
 
@@ -12,6 +13,7 @@ set -e
 ENVIRONMENT=${1:-dev}
 SKIP_BUILD=false
 OUTPUTS_FILE=""
+CLEAN_BUCKETS=false
 
 shift || true
 while [[ $# -gt 0 ]]; do
@@ -23,6 +25,10 @@ while [[ $# -gt 0 ]]; do
     --outputs-file)
       OUTPUTS_FILE="$2"
       shift 2
+      ;;
+    --clean-buckets)
+      CLEAN_BUCKETS=true
+      shift
       ;;
     *)
       echo "Unknown option: $1"
@@ -38,6 +44,56 @@ fi
 
 echo "🚀 Deploying Serverless CMS to $ENVIRONMENT environment..."
 echo "   Outputs will be saved to: $OUTPUTS_FILE"
+
+# Check for orphaned buckets (but don't fail - just warn)
+echo ""
+echo "🔍 Checking for orphaned resources..."
+if bash "$(dirname "$0")/import-existing-buckets.sh" "$ENVIRONMENT" 2>/dev/null; then
+  echo "✓ No orphaned resources detected"
+else
+  echo ""
+  echo "⚠️  WARNING: Orphaned S3 buckets detected!"
+  echo "   If deployment fails with 'bucket already exists' error:"
+  echo "   1. Your data is safe (buckets are retained by design)"
+  echo "   2. Run: ./scripts/import-existing-buckets.sh $ENVIRONMENT"
+  echo "   3. Follow the instructions to import or clean up"
+  echo ""
+  
+  # In CI environment, automatically continue
+  if [ -n "$CI" ] || [ -n "$GITHUB_ACTIONS" ]; then
+    echo "   Running in CI - attempting deployment anyway..."
+  else
+    read -p "Continue with deployment anyway? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "Deployment cancelled"
+      exit 1
+    fi
+  fi
+fi
+
+# Clean orphaned buckets if requested
+if [ "$CLEAN_BUCKETS" = true ]; then
+  echo ""
+  echo "🧹 Cleaning orphaned S3 buckets..."
+  echo "⚠️  WARNING: This will DELETE all data in the buckets!"
+  
+  AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+  BUCKETS=(
+    "cms-admin-${ENVIRONMENT}-${AWS_ACCOUNT_ID}"
+    "cms-media-${ENVIRONMENT}-${AWS_ACCOUNT_ID}"
+    "cms-public-${ENVIRONMENT}-${AWS_ACCOUNT_ID}"
+  )
+  
+  for BUCKET in "${BUCKETS[@]}"; do
+    if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
+      echo "   Deleting bucket: $BUCKET"
+      aws s3 rb "s3://$BUCKET" --force 2>/dev/null || echo "   ⚠️  Could not delete $BUCKET (may not exist or already managed)"
+    fi
+  done
+  
+  echo "   ✓ Cleanup complete"
+fi
 
 # Build CDK (unless skipped)
 if [ "$SKIP_BUILD" = false ]; then
@@ -57,10 +113,43 @@ npx cdk synth --context environment=$ENVIRONMENT > /dev/null
 # Deploy stack
 echo ""
 echo "☁️  Deploying to AWS..."
-npx cdk deploy \
+
+# Try deployment, if it fails due to existing buckets, provide helpful error message
+if ! npx cdk deploy \
   --context environment=$ENVIRONMENT \
   --require-approval never \
-  --outputs-file "$OUTPUTS_FILE"
+  --outputs-file "$OUTPUTS_FILE" 2>&1 | tee /tmp/cdk-deploy.log; then
+  
+  # Check if error is due to existing buckets
+  if grep -q "already exists" /tmp/cdk-deploy.log; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "❌ Deployment failed: S3 buckets already exist"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "This happens when the CloudFormation stack was deleted but S3 buckets"
+    echo "were retained (by design to protect your data)."
+    echo ""
+    echo "To resolve this issue, choose ONE of these options:"
+    echo ""
+    echo "Option 1: Import existing buckets into CloudFormation (RECOMMENDED)"
+    echo "  cdk import --context environment=$ENVIRONMENT"
+    echo ""
+    echo "Option 2: Delete buckets and redeploy (⚠️  DESTROYS ALL DATA)"
+    echo "  ./scripts/deploy.sh $ENVIRONMENT --clean-buckets"
+    echo ""
+    echo "Option 3: Manually delete specific buckets:"
+    AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo "ACCOUNT_ID")
+    echo "  aws s3 rb s3://cms-admin-${ENVIRONMENT}-${AWS_ACCOUNT_ID} --force"
+    echo "  aws s3 rb s3://cms-media-${ENVIRONMENT}-${AWS_ACCOUNT_ID} --force"
+    echo "  aws s3 rb s3://cms-public-${ENVIRONMENT}-${AWS_ACCOUNT_ID} --force"
+    echo ""
+    exit 1
+  else
+    # Different error - just fail
+    exit 1
+  fi
+fi
 
 # Display important outputs
 echo ""

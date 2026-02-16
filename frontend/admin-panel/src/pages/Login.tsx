@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuthContext';
 
 export function Login() {
   const navigate = useNavigate();
@@ -8,11 +8,16 @@ export function Login() {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{
     email?: string;
     password?: string;
+    newPassword?: string;
+    confirmPassword?: string;
   }>({});
 
   // Redirect if already authenticated
@@ -59,25 +64,75 @@ export function Login() {
       await login(email, password);
       // Redirect to dashboard on success
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Login error:', err);
       
       // Handle different error types
       let errorMessage = 'An error occurred during login. Please try again.';
       
-      if (err.code === 'UserNotFoundException') {
-        errorMessage = 'No account found with this email address.';
-      } else if (err.code === 'NotAuthorizedException') {
-        errorMessage = 'Incorrect email or password.';
-      } else if (err.code === 'UserNotConfirmedException') {
-        errorMessage = 'Please verify your email address before logging in.';
-      } else if (err.code === 'TooManyRequestsException') {
-        errorMessage = 'Too many login attempts. Please try again later.';
-      } else if (err.message) {
-        errorMessage = err.message;
+      if (err && typeof err === 'object') {
+        const error = err as { code?: string; message?: string };
+        if (error.code === 'NewPasswordRequired') {
+          // Show new password form
+          setShowNewPasswordForm(true);
+          setError('');
+          setIsLoading(false);
+          return;
+        } else if (error.code === 'UserNotFoundException') {
+          errorMessage = 'No account found with this email address.';
+        } else if (error.code === 'NotAuthorizedException') {
+          errorMessage = 'Incorrect email or password.';
+        } else if (error.code === 'UserNotConfirmedException') {
+          errorMessage = 'Please verify your email address before logging in.';
+        } else if (error.code === 'TooManyRequestsException') {
+          errorMessage = 'Too many login attempts. Please try again later.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
       }
       
       setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNewPasswordSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    
+    setError('');
+    const errors: { newPassword?: string; confirmPassword?: string } = {};
+
+    if (!newPassword) {
+      errors.newPassword = 'New password is required';
+    } else if (newPassword.length < 8) {
+      errors.newPassword = 'Password must be at least 8 characters';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(newPassword)) {
+      errors.newPassword = 'Password must include uppercase, lowercase, number, and special character';
+    }
+
+    if (!confirmPassword) {
+      errors.confirmPassword = 'Please confirm your password';
+    } else if (newPassword !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { AuthService } = await import('../services/auth');
+      await AuthService.completeNewPassword(newPassword);
+      // Password changed successfully, tokens are already stored
+      // Force a full page reload to reinitialize auth state
+      window.location.href = '/dashboard';
+    } catch (err) {
+      console.error('Password change error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to change password');
     } finally {
       setIsLoading(false);
     }
@@ -106,32 +161,33 @@ export function Login() {
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="h-5 w-5 text-red-400"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-red-800">{error}</p>
-                </div>
+        {error && (
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-red-800">{error}</p>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          <div className="rounded-md shadow-sm -space-y-px">
+        {!showNewPasswordForm ? (
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+              <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">
                 Email address
@@ -231,7 +287,91 @@ export function Login() {
               )}
             </button>
           </div>
-        </form>
+          </form>
+        ) : (
+          <form className="mt-8 space-y-6" onSubmit={handleNewPasswordSubmit}>
+              <div className="rounded-md bg-blue-50 p-4">
+                <p className="text-sm text-blue-800">
+                  You must change your temporary password before continuing.
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                  New Password
+                </label>
+                <input
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  required
+                  className={`mt-1 appearance-none block w-full px-3 py-2 border ${
+                    validationErrors.newPassword
+                      ? 'border-red-300'
+                      : 'border-gray-300'
+                  } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    if (validationErrors.newPassword) {
+                      setValidationErrors({ ...validationErrors, newPassword: undefined });
+                    }
+                  }}
+                  disabled={isLoading}
+                />
+                {validationErrors.newPassword && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.newPassword}</p>
+                )}
+                <p className="mt-1 text-xs text-gray-500">
+                  Must be at least 8 characters with uppercase, lowercase, number, and special character
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  className={`mt-1 appearance-none block w-full px-3 py-2 border ${
+                    validationErrors.confirmPassword
+                      ? 'border-red-300'
+                      : 'border-gray-300'
+                  } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (validationErrors.confirmPassword) {
+                      setValidationErrors({ ...validationErrors, confirmPassword: undefined });
+                    }
+                  }}
+                  disabled={isLoading}
+                />
+                {validationErrors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.confirmPassword}</p>
+                )}
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                    isLoading
+                      ? 'bg-blue-400 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                  }`}
+                >
+                  {isLoading ? 'Changing Password...' : 'Change Password'}
+                </button>
+              </div>
+          </form>
+        )}
       </div>
     </div>
   );

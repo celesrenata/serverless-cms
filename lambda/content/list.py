@@ -9,10 +9,11 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from shared.db import ContentRepository
+from shared.db import ContentRepository, UserRepository
 
 
 content_repo = ContentRepository()
+user_repo = UserRepository()
 
 
 def handler(event, context):
@@ -31,7 +32,7 @@ def handler(event, context):
         params = event.get('queryStringParameters', {}) or {}
         
         content_type = params.get('type', 'post')
-        status = params.get('status', 'published')
+        status = params.get('status')  # None means all statuses
         limit = int(params.get('limit', '20'))
         last_key_str = params.get('last_key')
         
@@ -102,6 +103,22 @@ def handler(event, context):
                    search_lower in item.get('content', '').lower() or
                    search_lower in item.get('excerpt', '').lower()
             ]
+        
+        # Enrich items with author names
+        # Cache user lookups to avoid duplicate queries
+        user_cache = {}
+        for item in items:
+            author_id = item.get('author')
+            if author_id:
+                if author_id not in user_cache:
+                    try:
+                        user = user_repo.get_by_id(author_id)
+                        user_cache[author_id] = user.get('name', user.get('email', 'Unknown Author')) if user else 'Unknown Author'
+                    except Exception as e:
+                        print(f"Error fetching author {author_id}: {e}")
+                        user_cache[author_id] = 'Unknown Author'
+                
+                item['author_name'] = user_cache[author_id]
         
         # Prepare response
         response_data = {

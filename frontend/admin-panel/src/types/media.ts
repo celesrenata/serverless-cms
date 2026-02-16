@@ -12,7 +12,7 @@ export interface MediaThumbnails {
 export interface MediaMetadata {
   alt_text?: string;
   caption?: string;
-  exif?: Record<string, any>;
+  exif?: Record<string, string | number>;
 }
 
 export interface Media {
@@ -40,5 +40,5 @@ export interface MediaUpdate {
 
 export interface MediaListResponse {
   items: Media[];
-  last_key?: Record<string, any>;
+  last_key?: Record<string, string>;
 }

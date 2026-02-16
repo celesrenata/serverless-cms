@@ -56,21 +56,34 @@ class ContentRepository:
     def list_by_type(
         self, 
         content_type: str, 
-        status: Optional[str] = 'published',
+        status: Optional[str] = None,
         limit: int = 20, 
         last_key: Optional[Dict] = None
     ) -> Dict[str, Any]:
         """List content by type with pagination."""
         try:
-            query_params = {
-                'IndexName': 'type-published_at-index',
-                'KeyConditionExpression': Key('type').eq(content_type),
-                'ScanIndexForward': False,  # Descending order
-                'Limit': limit
-            }
-            
-            if status:
-                query_params['FilterExpression'] = Attr('status').eq(status)
+            # For draft/archived content, use status-scheduled_at-index
+            # For published content, use type-published_at-index
+            # For all statuses (None), use type-published_at-index without filter
+            if status in ['draft', 'archived']:
+                query_params = {
+                    'IndexName': 'status-scheduled_at-index',
+                    'KeyConditionExpression': Key('status').eq(status),
+                    'FilterExpression': Attr('type').eq(content_type),
+                    'ScanIndexForward': False,  # Descending order
+                    'Limit': limit
+                }
+            else:
+                # Use type-published_at-index for published or all statuses
+                query_params = {
+                    'IndexName': 'type-published_at-index',
+                    'KeyConditionExpression': Key('type').eq(content_type),
+                    'ScanIndexForward': False,  # Descending order
+                    'Limit': limit
+                }
+                # Only filter by status if a specific status is requested
+                if status:
+                    query_params['FilterExpression'] = Attr('status').eq(status)
             
             if last_key:
                 query_params['ExclusiveStartKey'] = last_key

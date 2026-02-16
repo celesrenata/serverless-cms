@@ -1,25 +1,7 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect, useCallback, ReactNode } from 'react';
 import { AuthService } from '../services/auth';
 import { User } from '../types';
-
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  refreshUser: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-}
+import { AuthContext, AuthContextType } from '../contexts/AuthContext';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -30,19 +12,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check authentication status on mount
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const authenticated = await AuthService.isAuthenticated();
       setIsAuthenticated(authenticated);
       
       if (authenticated) {
-        // Fetch user profile from API
+        // Fetch user profile - parse from token instead of API call
+        // to avoid triggering logout on initial load
         await fetchUserProfile();
+      } else {
+        // Not authenticated, clear state
+        setUser(null);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -51,7 +32,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Check authentication status on mount
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const fetchUserProfile = async () => {
     try {
@@ -78,6 +64,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string) => {
     try {
+      // Clear any existing tokens first
+      AuthService.logout();
+      // Now login with fresh credentials
       await AuthService.login(email, password);
       setIsAuthenticated(true);
       await fetchUserProfile();

@@ -1,6 +1,7 @@
 """
 Media listing Lambda function.
 Handles fetching paginated list of media items.
+Updated: 2026-02-15 - Convert S3 URLs to CloudFront URLs
 """
 import json
 import os
@@ -10,6 +11,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.db import MediaRepository
+from shared.s3 import convert_s3_url_to_cdn
 
 
 media_repo = MediaRepository()
@@ -50,6 +52,14 @@ def handler(event, context):
         
         # Get media list
         result = media_repo.list_media(limit=limit, last_key=last_key)
+        
+        # Convert S3 URLs to CloudFront URLs
+        for item in result['items']:
+            if 's3_url' in item:
+                item['s3_url'] = convert_s3_url_to_cdn(item['s3_url'])
+            if 'thumbnails' in item:
+                for size, url in item['thumbnails'].items():
+                    item['thumbnails'][size] = convert_s3_url_to_cdn(url)
         
         return {
             'statusCode': 200,

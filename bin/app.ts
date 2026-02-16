@@ -13,19 +13,22 @@ const envConfig = {
   dev: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION || 'us-west-2',
-    domainName: undefined, // No custom domain for dev
+    domainName: 'serverless.celestium.life',
+    subdomain: 'dev',
     alarmEmail: process.env.ALARM_EMAIL, // Optional: Set via environment variable
   },
   staging: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION || 'us-west-2',
-    domainName: 'staging-cms.example.com', // Update with your domain
+    domainName: 'serverless.celestium.life',
+    subdomain: 'staging',
     alarmEmail: process.env.ALARM_EMAIL,
   },
   prod: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION || 'us-west-2',
-    domainName: 'cms.example.com', // Update with your domain
+    domainName: 'serverless.celestium.life',
+    subdomain: undefined, // No subdomain for prod (uses root)
     alarmEmail: process.env.ALARM_EMAIL,
   },
 };
@@ -39,6 +42,7 @@ new ServerlessCmsStack(app, `ServerlessCmsStack-${environment}`, {
   },
   environment,
   domainName: config.domainName,
+  subdomain: config.subdomain,
   alarmEmail: config.alarmEmail,
   tags: {
     Environment: environment,

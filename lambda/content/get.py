@@ -9,12 +9,13 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from shared.db import ContentRepository
+from shared.db import ContentRepository, UserRepository
 from shared.plugins import PluginManager
 from shared.auth import extract_user_from_event
 
 
 content_repo = ContentRepository()
+user_repo = UserRepository()
 plugin_manager = PluginManager()
 
 
@@ -40,23 +41,30 @@ def handler(event, context):
         if slug:
             content = content_repo.get_by_slug(slug)
         elif content_id:
-            # For ID lookup, we need to query by id
-            # Since we have a composite key, we'll use query on the base table
-            # For now, use slug index as primary lookup method
-            # In production, you might want to add a GSI on just 'id'
-            content = content_repo.get_by_slug(content_id)
+            # For ID lookup, scan by id (consider adding id-only GSI in production)
+            from boto3.dynamodb.conditions import Attr
+            table = content_repo.table
             
-            # If not found by slug, try as actual ID with scan (less efficient)
-            if not content:
-                # This is a fallback - in production consider adding id-only GSI
-                from boto3.dynamodb.conditions import Attr
-                table = content_repo.table
-                response = table.scan(
-                    FilterExpression=Attr('id').eq(content_id),
-                    Limit=1
-                )
+            # Scan with pagination to find the item
+            content = None
+            scan_kwargs = {
+                'FilterExpression': Attr('id').eq(content_id),
+                'Limit': 100
+            }
+            
+            while True:
+                response = table.scan(**scan_kwargs)
                 items = response.get('Items', [])
-                content = items[0] if items else None
+                if items:
+                    content = items[0]
+                    break
+                
+                # Check if there are more items to scan
+                last_key = response.get('LastEvaluatedKey')
+                if not last_key:
+                    break
+                    
+                scan_kwargs['ExclusiveStartKey'] = last_key
         
         if not content:
             return {
@@ -116,6 +124,20 @@ def handler(event, context):
         except Exception as e:
             print(f"Plugin filter error: {e}")
             # Continue with unfiltered content
+        
+        # Enrich author field with user name
+        author_id = content.get('author')
+        if author_id:
+            try:
+                user = user_repo.get_by_id(author_id)
+                if user:
+                    # Add author_name field while keeping author ID
+                    content['author_name'] = user.get('name', user.get('email', 'Unknown Author'))
+                else:
+                    content['author_name'] = 'Unknown Author'
+            except Exception as e:
+                print(f"Error fetching author info: {e}")
+                content['author_name'] = 'Unknown Author'
         
         return {
             'statusCode': 200,

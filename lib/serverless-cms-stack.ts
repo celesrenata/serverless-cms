@@ -21,15 +21,16 @@ import { Construct } from 'constructs';
 export interface ServerlessCmsStackProps extends cdk.StackProps {
   environment: string;
   domainName?: string;
+  subdomain?: string;
   alarmEmail?: string; // Email address for alarm notifications
 }
 
 export class ServerlessCmsStack extends cdk.Stack {
-  public readonly contentTable: dynamodb.Table;
-  public readonly mediaTable: dynamodb.Table;
-  public readonly usersTable: dynamodb.Table;
-  public readonly settingsTable: dynamodb.Table;
-  public readonly pluginsTable: dynamodb.Table;
+  public readonly contentTable: dynamodb.ITable;
+  public readonly mediaTable: dynamodb.ITable;
+  public readonly usersTable: dynamodb.ITable;
+  public readonly settingsTable: dynamodb.ITable;
+  public readonly pluginsTable: dynamodb.ITable;
   public readonly mediaBucket: s3.Bucket;
   public readonly adminBucket: s3.Bucket;
   public readonly publicBucket: s3.Bucket;
@@ -47,114 +48,50 @@ export class ServerlessCmsStack extends cdk.Stack {
     super(scope, id, props);
 
     // DynamoDB Tables
+    // Import existing tables instead of creating new ones
     
     // Content Table
-    this.contentTable = new dynamodb.Table(this, 'ContentTable', {
-      tableName: `cms-content-${props.environment}`,
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'type#timestamp',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
-
-    // GSI: type-published_at-index
-    this.contentTable.addGlobalSecondaryIndex({
-      indexName: 'type-published_at-index',
-      partitionKey: {
-        name: 'type',
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'published_at',
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
-
-    // GSI: slug-index
-    this.contentTable.addGlobalSecondaryIndex({
-      indexName: 'slug-index',
-      partitionKey: {
-        name: 'slug',
-        type: dynamodb.AttributeType.STRING,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
-
-    // GSI: status-scheduled_at-index
-    this.contentTable.addGlobalSecondaryIndex({
-      indexName: 'status-scheduled_at-index',
-      partitionKey: {
-        name: 'status',
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'scheduled_at',
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
+    this.contentTable = dynamodb.Table.fromTableName(
+      this,
+      'ContentTable',
+      `cms-content-${props.environment}`
+    );
 
     // Media Table
-    this.mediaTable = new dynamodb.Table(this, 'MediaTable', {
-      tableName: `cms-media-${props.environment}`,
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
+    this.mediaTable = dynamodb.Table.fromTableName(
+      this,
+      'MediaTable',
+      `cms-media-${props.environment}`
+    );
 
     // Users Table
-    this.usersTable = new dynamodb.Table(this, 'UsersTable', {
-      tableName: `cms-users-${props.environment}`,
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
+    this.usersTable = dynamodb.Table.fromTableName(
+      this,
+      'UsersTable',
+      `cms-users-${props.environment}`
+    );
 
     // Settings Table
-    this.settingsTable = new dynamodb.Table(this, 'SettingsTable', {
-      tableName: `cms-settings-${props.environment}`,
-      partitionKey: {
-        name: 'key',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
+    this.settingsTable = dynamodb.Table.fromTableName(
+      this,
+      'SettingsTable',
+      `cms-settings-${props.environment}`
+    );
 
     // Plugins Table
-    this.pluginsTable = new dynamodb.Table(this, 'PluginsTable', {
-      tableName: `cms-plugins-${props.environment}`,
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: true,
-    });
+    this.pluginsTable = dynamodb.Table.fromTableName(
+      this,
+      'PluginsTable',
+      `cms-plugins-${props.environment}`
+    );
 
     // S3 Buckets
+    // Note: Using RETAIN removal policy to prevent accidental deletion
+    // Using account ID for stable bucket names across deployments
 
     // Media Bucket - for uploaded files and generated thumbnails
     this.mediaBucket = new s3.Bucket(this, 'MediaBucket', {
-      bucketName: `cms-media-${props.environment}-${this.account}`,
+      bucketName: `serverless-cms-media-${props.environment}-${this.account}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
       versioned: true,
@@ -172,22 +109,12 @@ export class ServerlessCmsStack extends cdk.Stack {
           maxAge: 3000,
         },
       ],
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
-
-    // Add bucket policy to allow public read access to media files
-    this.mediaBucket.addToResourcePolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        principals: [new iam.AnyPrincipal()],
-        actions: ['s3:GetObject'],
-        resources: [`${this.mediaBucket.bucketArn}/*`],
-      })
-    );
 
     // Admin Panel Bucket - for hosting the React admin application
     this.adminBucket = new s3.Bucket(this, 'AdminBucket', {
-      bucketName: `cms-admin-${props.environment}-${this.account}`,
+      bucketName: `serverless-cms-admin-${props.environment}-${this.account}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
       websiteIndexDocument: 'index.html',
@@ -198,7 +125,7 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // Public Website Bucket - for hosting the React public website
     this.publicBucket = new s3.Bucket(this, 'PublicBucket', {
-      bucketName: `cms-public-${props.environment}-${this.account}`,
+      bucketName: `serverless-cms-public-${props.environment}-${this.account}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
       websiteIndexDocument: 'index.html',
@@ -303,6 +230,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.api = new apigateway.RestApi(this, 'CmsApi', {
       restApiName: `cms-api-${props.environment}`,
       description: 'Serverless CMS API',
+      binaryMediaTypes: ['multipart/form-data', 'image/*', 'application/octet-stream'],
       deployOptions: {
         stageName: props.environment,
         throttlingRateLimit: 100,
@@ -333,8 +261,9 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     // Shared Lambda Layer for common code
+    // Layer structure: lambda/layer/python/shared/
     const sharedLayer = new lambda.LayerVersion(this, 'SharedLayer', {
-      code: lambda.Code.fromAsset('lambda/shared'),
+      code: lambda.Code.fromAsset('lambda/layer'),
       compatibleRuntimes: [lambda.Runtime.PYTHON_3_12],
       description: 'Shared utilities for CMS Lambda functions',
     });
@@ -349,6 +278,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       MEDIA_BUCKET: this.mediaBucket.bucketName,
       COGNITO_REGION: this.region,
       USER_POOL_ID: this.userPool.userPoolId,
+      USER_POOL_CLIENT_ID: this.userPoolClient.userPoolClientId,
       ENVIRONMENT: props.environment,
     };
 
@@ -414,13 +344,38 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.contentTable.grantReadWriteData(contentListFunction);
     this.contentTable.grantReadWriteData(contentUpdateFunction);
     this.contentTable.grantReadWriteData(contentDeleteFunction);
+    
+    // Grant explicit GSI query permissions
+    contentCreateFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:Query'],
+      resources: [`${this.contentTable.tableArn}/index/*`],
+    }));
+    contentGetFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:Query'],
+      resources: [`${this.contentTable.tableArn}/index/*`],
+    }));
+    contentListFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:Query'],
+      resources: [`${this.contentTable.tableArn}/index/*`],
+    }));
+    
     this.pluginsTable.grantReadData(contentCreateFunction);
     this.pluginsTable.grantReadData(contentGetFunction);
     this.pluginsTable.grantReadData(contentUpdateFunction);
     this.pluginsTable.grantReadData(contentDeleteFunction);
     this.usersTable.grantReadData(contentCreateFunction);
+    this.usersTable.grantReadWriteData(contentCreateFunction); // Need write for auto-creating users
+    this.usersTable.grantReadData(contentGetFunction); // Need read for author enrichment
+    this.usersTable.grantReadData(contentListFunction); // Need read for author enrichment
     this.usersTable.grantReadData(contentUpdateFunction);
     this.usersTable.grantReadData(contentDeleteFunction);
+    
+    // Grant Cognito permissions for user auto-creation
+    contentCreateFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['cognito-idp:AdminGetUser'],
+      resources: [this.userPool.userPoolArn],
+    }));
 
     // Media Lambda Functions
     const mediaUploadFunction = new lambda.Function(this, 'MediaUploadFunction', {
@@ -477,6 +432,8 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.mediaBucket.grantDelete(mediaDeleteFunction);
     this.pluginsTable.grantReadData(mediaUploadFunction);
     this.pluginsTable.grantReadData(mediaDeleteFunction);
+    this.usersTable.grantReadData(mediaUploadFunction);
+    this.usersTable.grantReadData(mediaDeleteFunction);
 
     // User Lambda Functions
     const userGetMeFunction = new lambda.Function(this, 'UserGetMeFunction', {
@@ -513,9 +470,22 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     // Grant permissions to user functions
-    this.usersTable.grantReadData(userGetMeFunction);
+    this.usersTable.grantReadWriteData(userGetMeFunction); // Need write for last_login update
     this.usersTable.grantReadWriteData(userUpdateMeFunction);
     this.usersTable.grantReadData(userListFunction);
+    
+    // Grant Cognito permissions for user profile sync
+    userGetMeFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['cognito-idp:AdminGetUser'],
+      resources: [this.userPool.userPoolArn],
+    }));
+    
+    userUpdateMeFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['cognito-idp:AdminGetUser', 'cognito-idp:AdminUpdateUserAttributes'],
+      resources: [this.userPool.userPoolArn],
+    }));
 
     // Settings Lambda Functions
     const settingsGetFunction = new lambda.Function(this, 'SettingsGetFunction', {
@@ -895,7 +865,6 @@ export class ServerlessCmsStack extends cdk.Stack {
     // GET /api/v1/plugins - List plugins (requires auth)
     pluginsResource.addMethod('GET', new apigateway.LambdaIntegration(pluginListFunction), {
       authorizer: this.authorizer,
-      authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     // POST /api/v1/plugins/{id}/activate - Activate plugin (requires auth)
@@ -928,16 +897,51 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // Custom Domain and SSL Configuration (optional)
     if (props.domainName) {
+      // Extract root domain for hosted zone lookup (e.g., celestium.life from serverless.celestium.life)
+      const domainParts = props.domainName.split('.');
+      const rootDomain = domainParts.slice(-2).join('.'); // Get last two parts (e.g., celestium.life)
+      
       // Lookup existing hosted zone
       this.hostedZone = route53.HostedZone.fromLookup(this, 'HostedZone', {
-        domainName: props.domainName,
+        domainName: rootDomain,
       });
 
       // Create ACM certificate in us-east-1 (required for CloudFront)
-      this.certificate = new acm.Certificate(this, 'Certificate', {
-        domainName: props.domainName,
-        subjectAlternativeNames: [`*.${props.domainName}`],
-        validation: acm.CertificateValidation.fromDns(this.hostedZone),
+      // Build list of all domains the certificate needs to cover
+      const certDomains: string[] = [];
+      
+      if (props.subdomain) {
+        // For dev/staging environments:
+        // - dev.serverless.celestium.life (public site)
+        // - www.dev.serverless.celestium.life (public www)
+        // - admin.dev.serverless.celestium.life (admin panel)
+        // - media.dev.serverless.celestium.life (media CDN)
+        const envDomain = `${props.subdomain}.${props.domainName}`;
+        certDomains.push(envDomain);
+        certDomains.push(`www.${envDomain}`);
+        certDomains.push(`admin.${envDomain}`);
+        certDomains.push(`media.${envDomain}`);
+      } else {
+        // For prod environment:
+        // - serverless.celestium.life (public site)
+        // - www.serverless.celestium.life (public www)
+        // - admin.serverless.celestium.life (admin panel)
+        // - media.serverless.celestium.life (media CDN)
+        certDomains.push(props.domainName);
+        certDomains.push(`www.${props.domainName}`);
+        certDomains.push(`admin.${props.domainName}`);
+        certDomains.push(`media.${props.domainName}`);
+      }
+      
+      // Note: Using DnsValidatedCertificate (deprecated) because CloudFront requires
+      // certificates in us-east-1, and the new Certificate construct doesn't easily
+      // support cross-region certificates without a separate stack.
+      // This will continue to work and can be migrated when AWS provides a better solution.
+      this.certificate = new acm.DnsValidatedCertificate(this, 'Certificate', {
+        domainName: certDomains[0],
+        subjectAlternativeNames: certDomains.slice(1),
+        hostedZone: this.hostedZone,
+        region: 'us-east-1', // CloudFront requires certificates in us-east-1
       });
     }
 
@@ -953,13 +957,18 @@ export class ServerlessCmsStack extends cdk.Stack {
       comment: `OAI for public bucket ${props.environment}`,
     });
 
+    const mediaOai = new cloudfront.OriginAccessIdentity(this, 'MediaOAI', {
+      comment: `OAI for media bucket ${props.environment}`,
+    });
+
     // Grant CloudFront access to S3 buckets
     this.adminBucket.grantRead(adminOai);
     this.publicBucket.grantRead(publicOai);
+    this.mediaBucket.grantRead(mediaOai);
 
     // Cache policy for static assets (HTML, CSS, JS, images)
     const staticAssetsCachePolicy = new cloudfront.CachePolicy(this, 'StaticAssetsCachePolicy', {
-      cachePolicyName: `cms-static-assets-${props.environment}`,
+      cachePolicyName: `cms-static-assets-v2-${props.environment}`,
       comment: 'Cache policy for static assets with long TTL',
       defaultTtl: cdk.Duration.days(7),
       maxTtl: cdk.Duration.days(365),
@@ -971,26 +980,24 @@ export class ServerlessCmsStack extends cdk.Stack {
       enableAcceptEncodingBrotli: true,
     });
 
-    // Cache policy for API endpoints (no caching)
-    // Note: When caching is disabled (TTL=0), cookieBehavior and queryStringBehavior must be 'none'
-    // All forwarding is handled by OriginRequestPolicy
+    // Custom cache policy for API endpoints that forwards Authorization header
+    // Note: Must have TTL > 0 to include Authorization header
     const apiCachePolicy = new cloudfront.CachePolicy(this, 'ApiCachePolicy', {
-      cachePolicyName: `cms-api-no-cache-${props.environment}`,
-      comment: 'No caching for API endpoints',
-      defaultTtl: cdk.Duration.seconds(0),
-      maxTtl: cdk.Duration.seconds(0),
+      cachePolicyName: `cms-api-auth-v3-${props.environment}`,
+      comment: 'Minimal caching for API endpoints with Authorization',
+      defaultTtl: cdk.Duration.seconds(1),
+      maxTtl: cdk.Duration.seconds(1),
       minTtl: cdk.Duration.seconds(0),
       cookieBehavior: cloudfront.CacheCookieBehavior.none(),
-      headerBehavior: cloudfront.CacheHeaderBehavior.none(),
-      queryStringBehavior: cloudfront.CacheQueryStringBehavior.none(),
+      headerBehavior: cloudfront.CacheHeaderBehavior.allowList('Authorization'),
+      queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),
       enableAcceptEncodingGzip: false,
       enableAcceptEncodingBrotli: false,
     });
 
-    // Origin request policy for API to forward headers (except Authorization)
-    // Note: Authorization cannot be in OriginRequestPolicy per AWS CDK rules
+    // Origin request policy for API to forward headers (Authorization is in CachePolicy)
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {
-      originRequestPolicyName: `cms-api-origin-${props.environment}`,
+      originRequestPolicyName: `cms-api-origin-v2-${props.environment}`,
       comment: 'Forward all headers and query strings to API',
       cookieBehavior: cloudfront.OriginRequestCookieBehavior.all(),
       headerBehavior: cloudfront.OriginRequestHeaderBehavior.allowList(
@@ -1008,7 +1015,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     // Note: CORS headers cannot be set as custom headers in CloudFront
     // CORS should be handled by API Gateway or origin server
     const securityHeadersPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersPolicy', {
-      responseHeadersPolicyName: `cms-security-headers-${props.environment}`,
+      responseHeadersPolicyName: `cms-security-headers-v2-${props.environment}`,
       comment: 'Security headers for CMS',
       securityHeadersBehavior: {
         contentTypeOptions: { override: true },
@@ -1023,6 +1030,20 @@ export class ServerlessCmsStack extends cdk.Stack {
       },
     });
 
+    // Calculate full domain names based on environment
+    const getFullDomain = (prefix?: string) => {
+      if (!props.domainName) return undefined;
+      const parts = [];
+      if (prefix) parts.push(prefix);
+      if (props.subdomain) parts.push(props.subdomain);
+      parts.push(props.domainName);
+      return parts.join('.');
+    };
+
+    const adminDomain = getFullDomain('admin');
+    const publicDomain = props.subdomain ? getFullDomain() : props.domainName;
+    const publicWwwDomain = props.subdomain ? getFullDomain('www') : (props.domainName ? `www.${props.domainName}` : undefined);
+
     // Admin Panel CloudFront Distribution
     this.adminDistribution = new cloudfront.Distribution(this, 'AdminDistribution', {
       comment: `CMS Admin Panel Distribution - ${props.environment}`,
@@ -1030,11 +1051,11 @@ export class ServerlessCmsStack extends cdk.Stack {
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100, // Use only North America and Europe
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-      domainNames: props.domainName ? [`admin.${props.domainName}`] : undefined,
+      domainNames: adminDomain ? [adminDomain] : undefined,
       certificate: this.certificate,
       
       defaultBehavior: {
-        origin: new origins.S3Origin(this.adminBucket, {
+        origin: origins.S3BucketOrigin.withOriginAccessIdentity(this.adminBucket, {
           originAccessIdentity: adminOai,
         }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -1084,11 +1105,11 @@ export class ServerlessCmsStack extends cdk.Stack {
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-      domainNames: props.domainName ? [props.domainName, `www.${props.domainName}`] : undefined,
+      domainNames: publicDomain && publicWwwDomain ? [publicDomain, publicWwwDomain] : undefined,
       certificate: this.certificate,
       
       defaultBehavior: {
-        origin: new origins.S3Origin(this.publicBucket, {
+        origin: origins.S3BucketOrigin.withOriginAccessIdentity(this.publicBucket, {
           originAccessIdentity: publicOai,
         }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -1131,34 +1152,83 @@ export class ServerlessCmsStack extends cdk.Stack {
       ],
     });
 
+    // Media CloudFront Distribution
+    // Note: Custom domain temporarily disabled until certificate validates with new media subdomain
+    const mediaDistribution = new cloudfront.Distribution(this, 'MediaDistribution', {
+      // domainNames: props.domainName ? [`media.${props.domainName}`] : undefined,
+      // certificate: props.domainName ? this.certificate : undefined,
+      comment: `CMS Media Distribution - ${props.environment}`,
+      defaultBehavior: {
+        origin: origins.S3BucketOrigin.withOriginAccessIdentity(this.mediaBucket, {
+          originAccessIdentity: mediaOai,
+        }),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
+        cachePolicy: staticAssetsCachePolicy,
+        responseHeadersPolicy: securityHeadersPolicy,
+        compress: true,
+      },
+      priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
+      httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
+      enableIpv6: true,
+    });
+
+    // Remove the explicit dependency since we're not using custom domain yet
+    // if (this.certificate) {
+    //   mediaDistribution.node.addDependency(this.certificate);
+    // }
+
+    // Add media CloudFront URL to media functions
+    const mediaCdnUrl = `https://${mediaDistribution.distributionDomainName}`;
+    mediaUploadFunction.addEnvironment('MEDIA_CDN_URL', mediaCdnUrl);
+    mediaGetFunction.addEnvironment('MEDIA_CDN_URL', mediaCdnUrl);
+    mediaListFunction.addEnvironment('MEDIA_CDN_URL', mediaCdnUrl);
+
     // Create Route53 DNS records if custom domain is configured
-    if (props.domainName && this.hostedZone) {
+    if (props.domainName && this.hostedZone && adminDomain) {
       // Admin subdomain A record
       new route53.ARecord(this, 'AdminAliasRecord', {
         zone: this.hostedZone,
-        recordName: `admin.${props.domainName}`,
+        recordName: adminDomain,
         target: route53.RecordTarget.fromAlias(
           new route53targets.CloudFrontTarget(this.adminDistribution)
         ),
       });
 
-      // Public website root domain A record
-      new route53.ARecord(this, 'PublicAliasRecord', {
-        zone: this.hostedZone,
-        recordName: props.domainName,
-        target: route53.RecordTarget.fromAlias(
-          new route53targets.CloudFrontTarget(this.publicDistribution)
-        ),
-      });
+      // Public website domain A record
+      if (publicDomain) {
+        new route53.ARecord(this, 'PublicAliasRecord', {
+          zone: this.hostedZone,
+          recordName: publicDomain,
+          target: route53.RecordTarget.fromAlias(
+            new route53targets.CloudFrontTarget(this.publicDistribution)
+          ),
+        });
+      }
 
       // Public website www subdomain A record
-      new route53.ARecord(this, 'PublicWwwAliasRecord', {
-        zone: this.hostedZone,
-        recordName: `www.${props.domainName}`,
-        target: route53.RecordTarget.fromAlias(
-          new route53targets.CloudFrontTarget(this.publicDistribution)
-        ),
-      });
+      if (publicWwwDomain) {
+        new route53.ARecord(this, 'PublicWwwAliasRecord', {
+          zone: this.hostedZone,
+          recordName: publicWwwDomain,
+          target: route53.RecordTarget.fromAlias(
+            new route53targets.CloudFrontTarget(this.publicDistribution)
+          ),
+        });
+      }
+
+      // Media subdomain A record - temporarily disabled until certificate validates
+      // const mediaDomain = props.subdomain
+      //   ? `media.${props.subdomain}.${props.domainName}`
+      //   : `media.${props.domainName}`;
+      // new route53.ARecord(this, 'MediaAliasRecord', {
+      //   zone: this.hostedZone,
+      //   recordName: mediaDomain,
+      //   target: route53.RecordTarget.fromAlias(
+      //     new route53targets.CloudFrontTarget(mediaDistribution)
+      //   ),
+      // });
     }
 
     // Outputs
@@ -1272,6 +1342,14 @@ export class ServerlessCmsStack extends cdk.Stack {
       description: 'Admin Panel URL',
     });
 
+    // Custom domain URLs (if configured)
+    if (adminDomain) {
+      new cdk.CfnOutput(this, 'AdminCustomUrl', {
+        value: `https://${adminDomain}`,
+        description: 'Admin Panel Custom Domain URL',
+      });
+    }
+
     new cdk.CfnOutput(this, 'PublicDistributionId', {
       value: this.publicDistribution.distributionId,
       description: 'Public CloudFront Distribution ID',
@@ -1287,21 +1365,33 @@ export class ServerlessCmsStack extends cdk.Stack {
       description: 'Public Website URL',
     });
 
+    if (publicDomain) {
+      new cdk.CfnOutput(this, 'PublicCustomUrl', {
+        value: `https://${publicDomain}`,
+        description: 'Public Website Custom Domain URL',
+      });
+    }
+
+    new cdk.CfnOutput(this, 'MediaDistributionId', {
+      value: mediaDistribution.distributionId,
+      description: 'Media CloudFront Distribution ID',
+    });
+
+    new cdk.CfnOutput(this, 'MediaDistributionDomainName', {
+      value: mediaDistribution.distributionDomainName,
+      description: 'Media CloudFront Distribution Domain Name',
+    });
+
+    new cdk.CfnOutput(this, 'MediaUrl', {
+      value: `https://${mediaDistribution.distributionDomainName}`,
+      description: 'Media CloudFront URL',
+    });
+
     // Custom domain outputs (if configured)
     if (props.domainName) {
       new cdk.CfnOutput(this, 'DomainName', {
         value: props.domainName,
         description: 'Custom domain name',
-      });
-
-      new cdk.CfnOutput(this, 'AdminCustomUrl', {
-        value: `https://admin.${props.domainName}`,
-        description: 'Admin Panel Custom Domain URL',
-      });
-
-      new cdk.CfnOutput(this, 'PublicCustomUrl', {
-        value: `https://${props.domainName}`,
-        description: 'Public Website Custom Domain URL',
       });
 
       if (this.certificate) {

@@ -1,6 +1,7 @@
 """
 Media retrieval Lambda function.
 Handles fetching media metadata by ID.
+Updated: 2026-02-15 - Convert S3 URLs to CloudFront URLs
 """
 import json
 import os
@@ -10,6 +11,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.db import MediaRepository
+from shared.s3 import convert_s3_url_to_cdn
 
 
 media_repo = MediaRepository()
@@ -43,6 +45,13 @@ def handler(event, context):
                 'headers': {'Content-Type': 'application/json'},
                 'body': json.dumps({'error': 'Media not found'})
             }
+        
+        # Convert S3 URLs to CloudFront URLs
+        if 's3_url' in media:
+            media['s3_url'] = convert_s3_url_to_cdn(media['s3_url'])
+        if 'thumbnails' in media:
+            for size, url in media['thumbnails'].items():
+                media['thumbnails'][size] = convert_s3_url_to_cdn(url)
         
         return {
             'statusCode': 200,

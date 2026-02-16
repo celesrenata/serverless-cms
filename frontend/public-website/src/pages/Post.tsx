@@ -92,7 +92,7 @@ export const Post = () => {
             </h1>
             
             <div className="flex items-center text-gray-600 text-sm">
-              <span>By {post.author}</span>
+              <span>By {post.author_name || 'Unknown Author'}</span>
               <span className="mx-2">•</span>
               {post.published_at && (
                 <time dateTime={new Date(post.published_at * 1000).toISOString()}>

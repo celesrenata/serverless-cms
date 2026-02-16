@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { AuthService } from './auth';
 import {
@@ -21,7 +22,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public statusCode: number,
-    public data?: any
+    public data?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'ApiError';
@@ -33,7 +34,7 @@ class ApiClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
+      baseURL: import.meta.env.VITE_API_ENDPOINT || '/api/v1',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -60,22 +61,48 @@ class ApiClient {
           
           // Handle token expiration
           if (status === 401) {
-            try {
-              await AuthService.refreshToken();
-              // Retry the original request
-              return this.client.request(error.config!);
-            } catch (refreshError) {
-              // Refresh failed, logout user
-              AuthService.logout();
-              window.location.href = '/login';
-              throw new ApiError('Session expired', 401);
+            // Check if this is a retry attempt to prevent infinite loops
+            const config = error.config as typeof error.config & { _retry?: boolean };
+            
+            if (!config._retry) {
+              config._retry = true;
+              
+              try {
+                console.log('API 401: Attempting token refresh...');
+                const refreshed = await AuthService.refreshToken();
+                if (refreshed) {
+                  console.log('API 401: Token refreshed successfully, retrying request');
+                  // Retry the original request with new token
+                  return this.client.request(config);
+                } else {
+                  console.log('API 401: Token refresh returned null, logging out');
+                  // Refresh returned null, session is invalid
+                  AuthService.logout();
+                  if (!window.location.pathname.includes('/login')) {
+                    window.location.href = '/login';
+                  }
+                  throw new ApiError('Session expired', 401);
+                }
+              } catch (refreshError) {
+                // Refresh failed, logout and redirect
+                console.error('API 401: Token refresh failed with error:', refreshError);
+                AuthService.logout();
+                if (!window.location.pathname.includes('/login')) {
+                  window.location.href = '/login';
+                }
+                throw new ApiError('Session expired', 401);
+              }
             }
+            
+            // If this was already a retry, just throw the error without logging out
+            // The user might still be authenticated, just this particular request failed
+            throw new ApiError('Authentication required', 401);
           }
           
           throw new ApiError(
-            (data as any)?.error || 'An error occurred',
+            (data as { error?: string })?.error || 'An error occurred',
             status,
-            data
+            data as Record<string, unknown>
           );
         }
         
@@ -117,7 +144,7 @@ class ApiClient {
   }
 
   // Media API methods
-  async uploadMedia(file: File, metadata?: any): Promise<Media> {
+  async uploadMedia(file: File, metadata?: Record<string, string>): Promise<Media> {
     const formData = new FormData();
     formData.append('file', file);
     if (metadata) {
@@ -201,9 +228,13 @@ class ApiClient {
     return response.data;
   }
 
+  async deletePlugin(id: string): Promise<void> {
+    await this.client.delete(`/plugins/${id}`);
+  }
+
   async listPlugins(): Promise<Plugin[]> {
-    const response = await this.client.get<Plugin[]>('/plugins');
-    return response.data;
+    const response = await this.client.get<{plugins: Plugin[], count: number}>('/plugins');
+    return response.data.plugins;
   }
 
   async getPluginSettings(id: string): Promise<PluginSettings> {

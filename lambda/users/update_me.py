@@ -49,11 +49,18 @@ def handler(event, context, user_id, role):
         
         # Prepare updates (only allow certain fields to be updated by user)
         updates = {}
-        allowed_fields = ['display_name', 'bio', 'avatar_url']
+        allowed_fields = ['name', 'display_name', 'bio', 'avatar_url']
         
         for field in allowed_fields:
             if field in body:
                 updates[field] = body[field]
+        
+        # If name is provided, also update display_name for backwards compatibility
+        if 'name' in body and 'display_name' not in body:
+            updates['display_name'] = body['name']
+        # If display_name is provided, also update name for consistency
+        if 'display_name' in body and 'name' not in body:
+            updates['name'] = body['display_name']
         
         # Users cannot change their own role
         # Role changes must be done by admins through the admin endpoint
@@ -74,21 +81,22 @@ def handler(event, context, user_id, role):
         # Update user in DynamoDB
         updated_user = user_repo.update(user_id, updates)
         
-        # Sync display_name to Cognito if changed
-        if 'display_name' in updates:
+        # Sync display_name/name to Cognito if changed
+        if 'display_name' in updates or 'name' in updates:
             try:
+                name_value = updates.get('name') or updates.get('display_name')
                 cognito_client.admin_update_user_attributes(
                     UserPoolId=os.environ.get('USER_POOL_ID'),
                     Username=user_id,
                     UserAttributes=[
                         {
                             'Name': 'name',
-                            'Value': updates['display_name']
+                            'Value': name_value
                         }
                     ]
                 )
             except Exception as e:
-                print(f"Warning: Failed to sync display_name to Cognito: {e}")
+                print(f"Warning: Failed to sync name to Cognito: {e}")
                 # Continue even if Cognito sync fails
         
         return {

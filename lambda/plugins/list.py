@@ -5,11 +5,18 @@ Lists all installed plugins with their status.
 import json
 import boto3
 import os
+import sys
+
+# Add shared directory to path
+sys.path.insert(0, '/opt/python')
+from shared.response import success_response, error_response
+from shared.auth import require_auth
 
 dynamodb = boto3.resource('dynamodb')
 
 
-def handler(event, context):
+@require_auth(roles=['admin', 'editor'])
+def handler(event, context, user_id, role):
     """
     List all installed plugins.
     GET /api/v1/plugins
@@ -43,33 +50,15 @@ def handler(event, context):
             # Sort by name
             plugins.sort(key=lambda p: p.get('name', '').lower())
             
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps({
-                    'plugins': plugins,
-                    'count': len(plugins)
-                })
-            }
+            return success_response(200, {
+                'plugins': plugins,
+                'count': len(plugins)
+            })
         
         except Exception as e:
             print(f"Error scanning plugins: {e}")
-            return {
-                'statusCode': 500,
-                'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps({
-                    'error': 'Database error',
-                    'code': 'DATABASE_ERROR'
-                })
-            }
+            return error_response(500, 'Database error')
     
     except Exception as e:
         print(f"Error in list handler: {e}")
-        return {
-            'statusCode': 500,
-            'headers': {'Content-Type': 'application/json'},
-            'body': json.dumps({
-                'error': 'Internal server error',
-                'code': 'INTERNAL_ERROR'
-            })
-        }
+        return error_response(500, 'Internal server error')

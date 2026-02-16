@@ -1,17 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-csharp';
-import 'prismjs/components/prism-cpp';
-import 'prismjs/components/prism-go';
-import 'prismjs/components/prism-rust';
-import 'prismjs/components/prism-ruby';
-import 'prismjs/components/prism-php';
-import 'prismjs/plugins/line-numbers/prism-line-numbers';
 import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
 
 interface CodeBlockProps {
@@ -20,14 +9,66 @@ interface CodeBlockProps {
   showLineNumbers?: boolean;
 }
 
+// Load Prism languages dynamically in correct dependency order
+const loadPrismLanguages = async () => {
+  // Core language (no dependencies)
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-clike');
+  
+  // Languages that depend on clike
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-c');
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-cpp');
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-java');
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-csharp');
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-php');
+  
+  // JavaScript (depends on clike)
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-javascript');
+  
+  // TypeScript (depends on javascript)
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-typescript');
+  
+  // Independent languages
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-python');
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-go');
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-rust');
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/components/prism-ruby');
+  
+  // Plugins
+  // @ts-expect-error - Prism component imports are side-effect only
+  await import('prismjs/plugins/line-numbers/prism-line-numbers');
+};
+
 export const CodeBlock = ({
   code,
   language,
   showLineNumbers = true,
 }: CodeBlockProps) => {
+  const [languagesLoaded, setLanguagesLoaded] = useState(false);
+
   useEffect(() => {
-    Prism.highlightAll();
-  }, [code, language]);
+    loadPrismLanguages().then(() => {
+      setLanguagesLoaded(true);
+      Prism.highlightAll();
+    });
+  }, []);
+
+  useEffect(() => {
+    if (languagesLoaded) {
+      Prism.highlightAll();
+    }
+  }, [code, language, languagesLoaded]);
 
   // Escape HTML to prevent code execution
   const escapeHtml = (text: string) => {

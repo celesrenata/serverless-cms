@@ -14,6 +14,8 @@ export const ContentEditor: React.FC = () => {
 
   const { content, isLoading, create, update, isCreating, isUpdating } = useContent(id);
 
+  console.log('ContentEditor - id:', id, 'content:', content, 'isLoading:', isLoading);
+
   // Form state
   const [type, setType] = useState<ContentType>('post');
   const [title, setTitle] = useState('');
@@ -40,6 +42,7 @@ export const ContentEditor: React.FC = () => {
   // Load content data in edit mode
   useEffect(() => {
     if (content) {
+      console.log('Loading content into editor:', content);
       setType(content.type);
       setTitle(content.title);
       setSlug(content.slug);
@@ -47,10 +50,10 @@ export const ContentEditor: React.FC = () => {
       setContentBody(content.content);
       setStatus(content.status);
       setFeaturedImage(content.featured_image || '');
-      setSeoTitle(content.metadata.seo_title || '');
-      setSeoDescription(content.metadata.seo_description || '');
-      setTags(content.metadata.tags || []);
-      setCategories(content.metadata.categories || []);
+      setSeoTitle(content.metadata?.seo_title || '');
+      setSeoDescription(content.metadata?.seo_description || '');
+      setTags(content.metadata?.tags || []);
+      setCategories(content.metadata?.categories || []);
       if (content.scheduled_at) {
         setScheduledAt(new Date(content.scheduled_at * 1000).toISOString().slice(0, 16));
       }
@@ -100,8 +103,14 @@ export const ContentEditor: React.FC = () => {
       return;
     }
 
+    // In edit mode, if content hasn't loaded yet, prevent saving
+    if (isEditMode && !content) {
+      alert('Please wait for content to load before saving.');
+      return;
+    }
+
     const finalStatus = saveStatus || status;
-    const scheduledTimestamp = scheduledAt ? Math.floor(new Date(scheduledAt).getTime() / 1000) : undefined;
+    const scheduledTimestamp = scheduledAt ? Math.floor(new Date(scheduledAt).getTime() / 1000) : 0;
 
     const data: ContentCreate | ContentUpdate = {
       type,
@@ -117,7 +126,8 @@ export const ContentEditor: React.FC = () => {
         tags: tags.length > 0 ? tags : undefined,
         categories: categories.length > 0 ? categories : undefined,
       },
-      scheduled_at: scheduledTimestamp,
+      // Only include scheduled_at if status is draft and a time is set
+      scheduled_at: finalStatus === 'draft' && scheduledTimestamp > 0 ? scheduledTimestamp : 0,
     };
 
     try {
@@ -129,8 +139,9 @@ export const ContentEditor: React.FC = () => {
         alert('Content created successfully!');
         navigate(`/content/edit/${newContent.id}`);
       }
-    } catch (error: any) {
-      alert(`Error saving content: ${error.message}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Error saving content: ${errorMessage}`);
     }
   };
 

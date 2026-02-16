@@ -1,0 +1,17 @@
+{
+  "name": "Smart Pre-Commit Tests",
+  "description": "Intelligently runs only the tests relevant to changed files before commit",
+  "trigger": {
+    "type": "manual",
+    "label": "Smart Test & Commit",
+    "icon": "git-commit"
+  },
+  "prompt": "Analyze the git diff to determine which files have changed, then run only the relevant tests:\n\n1. Check `git diff --cached --name-only` to see staged files\n2. If lambda/ or tests/ files changed: run `pytest tests/ -v`\n3. If frontend/admin-panel/ files changed: run `npm run lint && npm test -- --run` in frontend/admin-panel directory\n4. If frontend/public-website/ files changed: run `npm run lint && npm test -- --run` in frontend/public-website directory\n5. If lib/ or bin/ files changed: run `npm run build && npm run synth -- --context environment=dev`\n6. If no files are staged, remind the user to stage files first with `git add`\n\nAfter tests pass:\n1. Analyze the changes with `git diff --cached`\n2. Generate an appropriate commit message following conventional commits format (feat:, fix:, chore:, docs:, refactor:, test:, style:, etc.) based on what actually changed\n3. Commit the changes using `git commit -m \"<message>\"`\n4. Push to the current branch using `git push`\n5. Report success and mention that GitHub Actions will deploy the changes\n\nIf any tests fail, do NOT commit. Show which tests failed and stop.",
+  "context": {
+    "includeFiles": [
+      "scripts/run-all-tests.sh",
+      ".kiro/steering/serverless-cms-workflow.md"
+    ]
+  },
+  "autoApprove": false
+}

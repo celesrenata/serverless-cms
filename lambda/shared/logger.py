@@ -159,5 +159,5 @@ def create_logger(event: Dict[str, Any], context: Any, user_id: str = None, user
     Returns:
         StructuredLogger instance
     """
-    request_id = context.request_id if context else None
+    request_id = context.aws_request_id if context else None
     return StructuredLogger(request_id=request_id, user_id=user_id, user_role=user_role)

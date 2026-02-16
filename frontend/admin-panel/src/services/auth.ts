@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import {
   CognitoUserPool,
   CognitoUser,
@@ -6,11 +7,31 @@ import {
 } from 'amazon-cognito-identity-js';
 import { AuthTokens } from '../types';
 
+// Extend Window interface for temporary Cognito user storage
+declare global {
+  interface Window {
+    __cognitoUserForPasswordChange?: CognitoUser;
+  }
+}
+
+// Custom error type for new password requirement
+interface NewPasswordRequiredError extends Error {
+  code: string;
+}
+
 // These should be configured via environment variables
 const poolData = {
-  UserPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || '',
-  ClientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '',
+  UserPoolId: import.meta.env.VITE_USER_POOL_ID || '',
+  ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID || '',
 };
+
+// Validate configuration
+if (!poolData.UserPoolId || !poolData.ClientId) {
+  console.error('Cognito configuration missing:', {
+    hasUserPoolId: !!poolData.UserPoolId,
+    hasClientId: !!poolData.ClientId,
+  });
+}
 
 const userPool = new CognitoUserPool(poolData);
 
@@ -44,6 +65,47 @@ export class AuthService {
           resolve(tokens);
         },
         onFailure: (err) => {
+          reject(err);
+        },
+        newPasswordRequired: (_userAttributes, _requiredAttributes) => {
+          // Store the user object for password change
+          window.__cognitoUserForPasswordChange = cognitoUser;
+          // Reject with a specific error code so the UI can handle it
+          const error = new Error('New password required') as NewPasswordRequiredError;
+          error.code = 'NewPasswordRequired';
+          reject(error);
+        },
+      });
+    });
+  }
+
+  /**
+   * Complete new password challenge
+   */
+  static async completeNewPassword(newPassword: string): Promise<AuthTokens> {
+    return new Promise((resolve, reject) => {
+      const cognitoUser = window.__cognitoUserForPasswordChange;
+      
+      if (!cognitoUser) {
+        reject(new Error('No pending password change'));
+        return;
+      }
+
+      cognitoUser.completeNewPasswordChallenge(newPassword, {}, {
+        onSuccess: (session: CognitoUserSession) => {
+          const tokens: AuthTokens = {
+            accessToken: session.getAccessToken().getJwtToken(),
+            idToken: session.getIdToken().getJwtToken(),
+            refreshToken: session.getRefreshToken().getToken(),
+          };
+          
+          // Store tokens and clean up
+          this.storeTokens(tokens);
+          delete window.__cognitoUserForPasswordChange;
+          
+          resolve(tokens);
+        },
+        onFailure: (err: Error) => {
           reject(err);
         },
       });
@@ -92,17 +154,26 @@ export class AuthService {
       const cognitoUser = userPool.getCurrentUser();
       
       if (!cognitoUser) {
+        console.log('refreshToken: No current user found');
         resolve(null);
         return;
       }
 
       cognitoUser.getSession((err: Error | null, session: CognitoUserSession | null) => {
-        if (err || !session) {
+        if (err) {
+          console.error('refreshToken: getSession error:', err);
+          resolve(null);
+          return;
+        }
+        
+        if (!session) {
+          console.log('refreshToken: No session returned');
           resolve(null);
           return;
         }
 
         if (session.isValid()) {
+          console.log('refreshToken: Session is valid, returning tokens');
           const tokens: AuthTokens = {
             accessToken: session.getAccessToken().getJwtToken(),
             idToken: session.getIdToken().getJwtToken(),
@@ -112,6 +183,7 @@ export class AuthService {
           this.storeTokens(tokens);
           resolve(tokens);
         } else {
+          console.log('refreshToken: Session is invalid');
           resolve(null);
         }
       });

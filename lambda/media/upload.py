@@ -42,19 +42,34 @@ def parse_multipart_form_data(body: str, content_type: str) -> Optional[Dict[str
         
         boundary = content_type.split('boundary=')[1].strip()
         
+        # Remove quotes if present
+        if boundary.startswith('"') and boundary.endswith('"'):
+            boundary = boundary[1:-1]
+        
+        print(f"DEBUG: Boundary: {boundary}")
+        
         # Decode base64 body
         decoded_body = base64.b64decode(body)
+        print(f"DEBUG: Decoded body length: {len(decoded_body)}")
+        decoded_body = base64.b64decode(body)
+        
+        # The boundary in the body is prefixed with --
+        boundary_bytes = f'--{boundary}'.encode()
         
         # Split by boundary
-        parts = decoded_body.split(f'--{boundary}'.encode())
+        parts = decoded_body.split(boundary_bytes)
         
         file_data = None
         filename = None
         file_content_type = 'application/octet-stream'
         
         for part in parts:
-            if not part or part == b'--\r\n' or part == b'--':
+            if not part or part == b'--\r\n' or part == b'--' or part == b'\r\n':
                 continue
+            
+            # Each part starts with \r\n (except empty first part)
+            if part.startswith(b'\r\n'):
+                part = part[2:]
             
             # Split headers and content
             if b'\r\n\r\n' in part:
@@ -71,8 +86,14 @@ def parse_multipart_form_data(body: str, content_type: str) -> Optional[Dict[str
                         if 'Content-Type:' in line:
                             file_content_type = line.split('Content-Type:')[1].strip()
                     
-                    # Remove trailing boundary markers
-                    file_data = content.rstrip(b'\r\n--')
+                    # Remove trailing \r\n if present (before next boundary)
+                    if content.endswith(b'\r\n'):
+                        file_data = content[:-2]
+                    else:
+                        file_data = content
+                    
+                    print(f"DEBUG: File data length: {len(file_data)}")
+                    print(f"DEBUG: First 20 bytes: {file_data[:20].hex()}")
         
         if file_data and filename:
             return {

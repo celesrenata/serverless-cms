@@ -1,0 +1,18 @@
+{
+  "name": "Pre-Commit Test Runner",
+  "description": "Automatically runs all tests before git commit to ensure code quality",
+  "trigger": {
+    "type": "manual",
+    "label": "Run Tests Before Commit",
+    "icon": "test-tube"
+  },
+  "prompt": "Run all tests for the serverless CMS project. This includes:\n1. Backend/Lambda tests (pytest)\n2. Admin panel tests (npm test)\n3. Public website tests (npm test)\n4. Infrastructure validation (CDK synth)\n\nRun the comprehensive test suite using ./scripts/run-all-tests.sh and report the results. If all tests pass, confirm that the code is ready to commit. If any tests fail, report which tests failed and suggest fixes.",
+  "context": {
+    "includeFiles": [
+      "scripts/run-all-tests.sh",
+      "package.json",
+      "pytest.ini"
+    ]
+  },
+  "autoApprove": false
+}

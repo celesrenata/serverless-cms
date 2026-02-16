@@ -2,28 +2,35 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Content } from '../types';
+import { useAuth } from '../hooks/useAuthContext';
 
 export function Dashboard() {
-  // Fetch statistics
+  const { isAuthenticated } = useAuth();
+
+  // Fetch statistics - only when authenticated
   const { data: contentList } = useQuery({
     queryKey: ['content', 'all'],
     queryFn: () => api.listContent({ limit: 100 }),
+    enabled: isAuthenticated,
   });
 
   const { data: mediaList } = useQuery({
     queryKey: ['media', 'all'],
     queryFn: () => api.listMedia({ limit: 100 }),
+    enabled: isAuthenticated,
   });
 
   const { data: users } = useQuery({
     queryKey: ['users'],
     queryFn: () => api.listUsers(),
+    enabled: isAuthenticated,
   });
 
   // Fetch recent content
   const { data: recentContent } = useQuery({
     queryKey: ['content', 'recent'],
     queryFn: () => api.listContent({ limit: 5 }),
+    enabled: isAuthenticated,
   });
 
   const stats = [
