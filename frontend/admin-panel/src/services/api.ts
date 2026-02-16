@@ -34,7 +34,7 @@ class ApiClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
+      baseURL: import.meta.env.VITE_API_ENDPOINT || '/api/v1',
       headers: {
         'Content-Type': 'application/json',
       },
