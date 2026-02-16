@@ -103,8 +103,14 @@ export const ContentEditor: React.FC = () => {
       return;
     }
 
+    // In edit mode, if content hasn't loaded yet, prevent saving
+    if (isEditMode && !content) {
+      alert('Please wait for content to load before saving.');
+      return;
+    }
+
     const finalStatus = saveStatus || status;
-    const scheduledTimestamp = scheduledAt ? Math.floor(new Date(scheduledAt).getTime() / 1000) : undefined;
+    const scheduledTimestamp = scheduledAt ? Math.floor(new Date(scheduledAt).getTime() / 1000) : 0;
 
     const data: ContentCreate | ContentUpdate = {
       type,
@@ -120,7 +126,8 @@ export const ContentEditor: React.FC = () => {
         tags: tags.length > 0 ? tags : undefined,
         categories: categories.length > 0 ? categories : undefined,
       },
-      scheduled_at: scheduledTimestamp,
+      // Only include scheduled_at if status is draft and a time is set
+      scheduled_at: finalStatus === 'draft' && scheduledTimestamp > 0 ? scheduledTimestamp : 0,
     };
 
     try {
