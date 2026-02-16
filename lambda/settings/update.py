@@ -27,6 +27,7 @@ def handler(event, context, user_id, role):
     - 9.2: Admin-only access for updates
     - 9.4: Support settings for site title, site description, and theme selection
     - 9.5: Record timestamp and user for updates
+    - 22.1: Support registration_enabled, comments_enabled, captcha_enabled settings
     """
     try:
         # Parse request body
@@ -44,6 +45,47 @@ def handler(event, context, user_id, role):
                     'message': 'Request body is required'
                 })
             }
+        
+        # Define allowed settings keys and their types
+        allowed_settings = {
+            'site_title': str,
+            'site_description': str,
+            'theme': str,
+            'registration_enabled': bool,
+            'comments_enabled': bool,
+            'captcha_enabled': bool,
+        }
+        
+        # Validate settings keys
+        for key in body.keys():
+            if key not in allowed_settings:
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    'body': json.dumps({
+                        'error': 'Bad request',
+                        'message': f'Invalid setting key: {key}. Allowed keys: {", ".join(allowed_settings.keys())}'
+                    })
+                }
+            
+            # Validate value type
+            expected_type = allowed_settings[key]
+            value = body[key]
+            if not isinstance(value, expected_type):
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    'body': json.dumps({
+                        'error': 'Bad request',
+                        'message': f'Invalid type for {key}. Expected {expected_type.__name__}, got {type(value).__name__}'
+                    })
+                }
         
         # Get current timestamp
         current_time = int(time.time())

@@ -1,447 +1,369 @@
-# Implementation Plan
+# Implementation Plan - Phase 2: User Management & Site Configuration
 
-- [x] 1. Set up project structure and infrastructure foundation
-  - Initialize CDK project with TypeScript
-  - Create directory structure for Lambda functions, frontend apps, and shared code
-  - Configure CDK app entry point and stack definitions
-  - Set up environment configuration for dev/staging/prod
-  - _Requirements: All requirements depend on infrastructure_
+This task list covers Phase 2 features including user management, comment system, email notifications, CAPTCHA protection, and user registration. Phase 1 (core CMS) is complete.
 
-- [x] 2. Implement DynamoDB tables and data layer
-  - [x] 2.1 Create DynamoDB table definitions in CDK
-    - Define cms-content table with partition key (id) and sort key (type#timestamp)
-    - Add GSI for type-published_at-index and slug-index
-    - Add GSI for status-scheduled_at-index for scheduled publishing
-    - Define cms-media, cms-users, cms-settings, and cms-plugins tables
-    - Configure billing mode as PAY_PER_REQUEST
-    - _Requirements: 1.1, 2.1, 3.1, 5.1, 9.1, 16.1_
-  
-  - [x] 2.2 Implement shared database utilities
-    - Write ContentRepository class with CRUD operations
-    - Implement query methods using GSIs (get_by_slug, list_by_type, get_scheduled_content)
-    - Create MediaRepository, UserRepository, SettingsRepository, and PluginRepository classes
-    - Add error handling for DynamoDB operations
-    - _Requirements: 1.1, 2.1, 3.1, 3.2, 4.1, 4.2_
+---
 
-- [x] 3. Implement S3 buckets and media handling
-  - [x] 3.1 Create S3 bucket definitions in CDK
-    - Define media bucket with CORS configuration
-    - Create admin panel bucket with website hosting
-    - Create public website bucket with website hosting
-    - Configure bucket policies for security
-    - _Requirements: 2.1, 2.5_
-  
-  - [x] 3.2 Implement S3 utilities for file operations
-    - Write upload_file function for media uploads
-    - Implement generate_thumbnails function using Pillow
-    - Create delete_file function to remove files and thumbnails
-    - Add error handling for S3 operations
-    - _Requirements: 2.1, 2.2, 2.3, 2.5_
+## Task 1: AWS SES Setup and Email Infrastructure
 
-- [x] 4. Implement Cognito authentication
-  - [x] 4.1 Create Cognito User Pool in CDK
-    - Define user pool with email sign-in
-    - Configure password policy
-    - Create user pool client for admin panel
-    - Set up email verification
-    - _Requirements: 5.1, 5.5_
-  
-  - [x] 4.2 Implement authentication utilities
-    - Write verify_token function for JWT validation
-    - Create require_auth decorator for Lambda functions
-    - Implement role-based permission checking
-    - Add token caching for performance
-    - _Requirements: 5.4, 5.5_
+**Objective:** Configure AWS SES to send emails from no-reply@celestium.life and implement email utility module
 
-- [x] 5. Implement content management Lambda functions
-  - [x] 5.1 Create content creation Lambda
-    - Implement POST /api/v1/content handler
-    - Validate required fields (title, content)
-    - Check slug uniqueness
-    - Store content in DynamoDB with timestamps
-    - Apply role-based access control (author, editor, admin)
-    - Execute plugin hooks for content_create
-    - _Requirements: 1.1, 1.3, 1.4, 19.1_
-  
-  - [x] 5.2 Create content retrieval Lambda functions
-    - Implement GET /api/v1/content/{id} handler
-    - Implement GET /api/v1/content/slug/{slug} handler
-    - Add authentication check for draft content
-    - Apply plugin content filters before returning
-    - _Requirements: 3.1, 4.2, 4.5, 17.1, 17.2_
-  
-  - [x] 5.3 Create content listing Lambda
-    - Implement GET /api/v1/content handler
-    - Support query parameters for type, status, limit, offset
-    - Use GSI for efficient queries
-    - Implement pagination with last_key
-    - _Requirements: 4.1, 6.3, 6.4, 13.1, 13.2_
-  
-  - [x] 5.4 Create content update Lambda
-    - Implement PUT /api/v1/content/{id} handler
-    - Validate user permissions (author or editor)
-    - Update content with new timestamp
-    - Preserve original published_at timestamp
-    - Execute plugin hooks for content_update
-    - _Requirements: 3.2, 3.3, 3.4, 3.5, 19.2_
-  
-  - [x] 5.5 Create content deletion Lambda
-    - Implement DELETE /api/v1/content/{id} handler
-    - Verify user has editor or admin role
-    - Remove content from DynamoDB
-    - Execute plugin hooks for content_delete
-    - _Requirements: 19.3_
+**Subtasks:**
+- [x] 1.1 Add AWS SES email identity configuration to CDK stack (lib/serverless-cms-stack.ts)
+- [x] 1.2 Implement lambda/shared/email.py utility module with send_email function and email templates
+- [x] 1.3 Add SES IAM permissions to Lambda execution roles in CDK stack
+- [x] 1.4 Configure SNS topics for bounce/complaint handling in CDK stack
+- [x] 1.5 Write unit tests for email utility functions
 
-- [x] 6. Implement media management Lambda functions
-  - [x] 6.1 Create media upload Lambda
-    - Implement POST /api/v1/media/upload handler
-    - Parse multipart file upload
-    - Upload file to S3 media bucket
-    - Generate thumbnails for images
-    - Store media metadata in DynamoDB
-    - Return S3 URLs within 5 seconds
-    - Execute plugin hooks for media_upload
-    - _Requirements: 2.1, 2.2, 2.4, 2.5, 19.3_
-  
-  - [x] 6.2 Create media retrieval and deletion Lambdas
-    - Implement GET /api/v1/media/{id} handler
-    - Implement GET /api/v1/media handler with pagination
-    - Implement DELETE /api/v1/media/{id} handler
-    - Remove files from S3 and metadata from DynamoDB
-    - Execute plugin hooks for media_delete
-    - _Requirements: 2.3, 19.3_
+_Requirements: 23.1, 23.2, 23.3, 23.4, 23.5, 23.6, 23.9, 27.1, 27.2, 27.3, 27.7_
 
-- [x] 7. Implement user management Lambda functions
-  - [x] 7.1 Create user profile Lambdas
-    - Implement GET /api/v1/users/me handler
-    - Implement PUT /api/v1/users/me handler for profile updates
-    - Implement GET /api/v1/users handler (admin only)
-    - Store user data in DynamoDB
-    - Sync with Cognito user attributes
-    - _Requirements: 5.1, 5.2_
+**Status:** ✅ COMPLETE
 
-- [x] 8. Implement settings management Lambda functions
-  - [x] 8.1 Create settings Lambdas
-    - Implement GET /api/v1/settings handler
-    - Implement PUT /api/v1/settings handler (admin only)
-    - Store settings in DynamoDB settings table
-    - Record timestamp and user for updates
-    - _Requirements: 9.1, 9.2, 9.4, 9.5_
+---
 
-- [x] 9. Implement plugin system Lambda functions
-  - [x] 9.1 Create plugin management Lambdas
-    - Implement POST /api/v1/plugins/install handler
-    - Validate plugin structure and metadata
-    - Store plugin metadata in DynamoDB
-    - Implement POST /api/v1/plugins/{id}/activate handler
-    - Implement POST /api/v1/plugins/{id}/deactivate handler
-    - Implement GET /api/v1/plugins handler
-    - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5_
-  
-  - [x] 9.2 Create plugin settings Lambdas
-    - Implement GET /api/v1/plugins/{id}/settings handler
-    - Implement PUT /api/v1/plugins/{id}/settings handler
-    - Validate settings against plugin schema
-    - Store plugin settings in DynamoDB
-    - _Requirements: 20.1, 20.2, 20.3, 20.4, 20.5_
-  
-  - [x] 9.3 Implement plugin manager utility
-    - Write PluginManager class for hook execution
-    - Implement get_active_plugins method
-    - Create execute_hook method to invoke plugin Lambda functions
-    - Add priority-based hook ordering
-    - Implement error handling for plugin failures
-    - Create apply_content_filters helper method
-    - _Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 19.4, 19.5_
+## Task 2: User Management Backend - Lambda Functions
 
-- [x] 10. Implement scheduled publishing
-  - [x] 10.1 Create scheduler Lambda function
-    - Implement Lambda to check for scheduled content
-    - Query DynamoDB using status-scheduled_at-index
-    - Update content status to published when time is reached
-    - Set published_at timestamp
-    - _Requirements: 15.1, 15.2, 15.3, 15.4_
-  
-  - [x] 10.2 Configure EventBridge rule
-    - Create EventBridge rule in CDK to trigger every 5 minutes
-    - Connect rule to scheduler Lambda
-    - _Requirements: 15.3_
+**Objective:** Implement Lambda functions for complete user CRUD operations with Cognito integration
 
-- [x] 11. Set up API Gateway
-  - [x] 11.1 Create API Gateway REST API in CDK
-    - Define REST API with CORS configuration
-    - Create resource paths for content, media, users, settings, plugins
-    - Connect Lambda functions to API methods
-    - Configure Lambda integrations
-    - _Requirements: All API requirements_
-  
-  - [x] 11.2 Configure API Gateway authorizer
-    - Set up Cognito authorizer for protected endpoints
-    - Configure authorization scopes
-    - Add authorizer to protected routes
-    - _Requirements: 5.4, 5.5_
+**Subtasks:**
+- [x] 2.1 Create lambda/users/create.py - Create user in Cognito and DynamoDB with welcome email
+- [x] 2.2 Create lambda/users/update.py - Update user details and role in Cognito and DynamoDB
+- [x] 2.3 Create lambda/users/delete.py - Delete user from Cognito and mark content as orphaned
+- [x] 2.4 Create lambda/users/reset_password.py - Trigger Cognito password reset with email notification
+- [x] 2.5 Update lambda/users/list.py to include last_login and created_at timestamps
+- [x] 2.6 Add email format validation and role validation to all user functions
+- [x] 2.7 Implement self-deletion prevention in delete.py
+- [x]* 2.8 Write integration tests for user management operations
 
+_Requirements: 21.1, 21.2, 21.3, 21.4, 21.5, 21.6, 21.7, 21.8, 21.9_
 
-- [ ] 12. Implement Admin Panel React application
-  - [x] 12.1 Set up Admin Panel project structure
-    - Initialize React app with TypeScript and Vite
-    - Install dependencies (React Router, TanStack Query, Tailwind CSS, TipTap)
-    - Configure TypeScript and ESLint
-    - Set up directory structure for components, pages, hooks, services
-    - _Requirements: 8.1_
-  
-  - [x] 12.2 Implement authentication service and hook
-    - Create auth service with Cognito integration
-    - Implement login, logout, and token refresh functions
-    - Create useAuth hook for authentication state
-    - Add token storage in localStorage
-    - Implement protected route wrapper
-    - _Requirements: 5.5_
-  
-  - [x] 12.3 Implement API client service
-    - Create axios-based API client
-    - Add request interceptor for auth tokens
-    - Add response interceptor for error handling
-    - Implement API methods for all endpoints
-    - Create custom ApiError class
-    - _Requirements: All API requirements_
-  
-  - [x] 12.4 Create layout components
-    - Implement AdminLayout component with sidebar and header
-    - Create Sidebar component with navigation links
-    - Create Header component with user menu
-    - Add responsive design for mobile
-    - _Requirements: 8.1_
-  
-  - [x] 12.5 Implement Dashboard page
-    - Create Dashboard component
-    - Display content, media, and user statistics
-    - Show recent activity list
-    - Add quick action buttons
-    - Fetch data using TanStack Query
-    - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
-  
-  - [x] 12.6 Implement Content List page
-    - Create ContentList component with table view
-    - Implement ContentFilters component for type, status, author, date
-    - Add search functionality
-    - Implement pagination
-    - Add bulk actions (delete, publish, archive)
-    - Create useContentList hook
-    - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
-  
-  - [x] 12.7 Implement Rich Text Editor
-    - Create RichTextEditor component using TipTap
-    - Implement EditorToolbar with formatting buttons
-    - Add support for bold, italic, headings, lists, links
-    - Create MediaPicker component for inserting images
-    - Add code block support
-    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
-  
-  - [x] 12.8 Implement Content Editor page
-    - Create ContentEditor component for create/edit
-    - Add form fields for title, slug, excerpt, content
-    - Integrate RichTextEditor component
-    - Add SEO metadata fields (seo_title, seo_description)
-    - Implement category and tag inputs
-    - Add featured image selector
-    - Create status selector (draft, published, archived)
-    - Add scheduled publishing date picker
-    - Implement preview mode
-    - Create useContent hook for CRUD operations
-    - _Requirements: 1.1, 1.2, 1.5, 3.2, 7.1, 7.3, 7.4, 7.5, 10.1, 10.2, 10.3, 10.4, 15.1_
-  
-  - [x] 12.9 Implement Media Library page
-    - Create MediaLibrary component with grid view
-    - Implement MediaUpload component with drag & drop
-    - Create MediaItem component for individual media cards
-    - Add MediaModal for editing metadata (alt_text, caption)
-    - Implement search and filter functionality
-    - Create useMedia hook for media operations
-    - _Requirements: 2.1, 2.2, 2.3_
-  
-  - [x] 12.10 Implement Settings page
-    - Create Settings component
-    - Add form for site_title and site_description
-    - Implement theme selector
-    - Add user management section (admin only)
-    - Create useSettings hook
-    - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
-  
-  - [x] 12.11 Implement Plugins page
-    - Create Plugins component with list of installed plugins
-    - Add plugin upload/install interface
-    - Implement activate/deactivate buttons
-    - Create plugin settings modal
-    - Display plugin metadata (name, version, description, author)
-    - Create usePlugins hook
-    - _Requirements: 16.1, 16.2, 16.3, 16.4, 18.1, 18.2, 20.1, 20.2_
-  
-  - [x] 12.12 Implement Login page
-    - Create Login component with email/password form
-    - Add form validation
-    - Implement Cognito authentication flow
-    - Add error handling and display
-    - Redirect to dashboard on success
-    - _Requirements: 5.5_
+**Status:** ✅ COMPLETE
 
-- [x] 13. Implement Public Website React application
-  - [x] 13.1 Set up Public Website project structure
-    - Initialize React app with TypeScript and Vite
-    - Install dependencies (React Router, TanStack Query, Tailwind CSS, Prism.js)
-    - Configure TypeScript and ESLint
-    - Set up directory structure for components, pages, hooks, services
-    - _Requirements: 4.1, 4.2_
-  
-  - [x] 13.2 Create layout components
-    - Implement Layout component with header and footer
-    - Create Header component with navigation
-    - Create Footer component
-    - Add responsive design
-    - _Requirements: 4.3_
-  
-  - [x] 13.3 Implement Home page
-    - Create Home component
-    - Display featured content
-    - Show recent posts/projects
-    - Add photo gallery preview
-    - Fetch data using TanStack Query
-    - _Requirements: 4.1, 4.2_
-  
-  - [x] 13.4 Implement Blog listing page
-    - Create Blog component
-    - Display list of published posts
-    - Implement pagination
-    - Add category/tag filters
-    - Create PostCard component for previews
-    - _Requirements: 4.1, 6.3, 6.4_
-  
-  - [x] 13.5 Implement Single Post page
-    - Create Post component
-    - Display full post content with formatting
-    - Show author information
-    - Display publication date
-    - Add SEO metadata to HTML head
-    - Show related posts
-    - Apply plugin content filters
-    - _Requirements: 4.2, 7.2, 17.2_
-  
-  - [x] 13.6 Implement Gallery page
-    - Create Gallery component with grid layout
-    - Display gallery images using medium thumbnails
-    - Implement Lightbox component for full-size viewing
-    - Add navigation between images in lightbox
-    - Optimize progressive loading
-    - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
-  
-  - [x] 13.7 Implement Projects page
-    - Create Projects component
-    - Display code projects with descriptions
-    - Implement CodeBlock component with syntax highlighting
-    - Support multiple programming languages
-    - Add line numbers and preserve indentation
-    - Escape HTML in code snippets
-    - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  
-  - [x] 13.8 Implement API client and hooks
-    - Create API client for public endpoints
-    - Implement useContent hook for fetching content
-    - Create useSiteSettings hook
-    - Configure TanStack Query with caching
-    - _Requirements: 4.1, 4.2, 9.3_
+---
 
-- [x] 14. Set up CloudFront distribution
-  - [x] 14.1 Create CloudFront distribution in CDK
-    - Configure distribution with S3 origins for admin and public buckets
-    - Add API Gateway as origin for /api/* path
-    - Set up cache policies for static assets
-    - Disable caching for API endpoints
-    - Configure HTTPS redirect
-    - _Requirements: 4.3_
-  
-  - [x] 14.2 Configure custom domain and SSL
-    - Add Route53 hosted zone
-    - Create ACM certificate
-    - Configure CloudFront with custom domain
-    - Add DNS records
-    - _Requirements: 4.3_
+## Task 3: User Management Backend - CDK Infrastructure
 
-- [x] 15. Implement deployment scripts
-  - [x] 15.1 Create CDK deployment script
-    - Write CDK deploy command
-    - Add environment variable configuration
-    - Create stack outputs for API URL, user pool ID, etc.
-    - _Requirements: All infrastructure requirements_
-  
-  - [x] 15.2 Create frontend build and deploy scripts
-    - Write build script for Admin Panel
-    - Write build script for Public Website
-    - Create S3 sync commands for deployment
-    - Add CloudFront cache invalidation
-    - _Requirements: 4.3_
+**Objective:** Add API Gateway routes and Lambda functions for user management to CDK stack
 
-- [x] 16. Write integration tests for API endpoints
-  - Test content lifecycle (create, read, update, delete)
-  - Test media upload and deletion
-  - Test user authentication and authorization
-  - Test plugin installation and activation
-  - Test scheduled publishing
-  - _Requirements: All requirements_
+**Subtasks:**
+- [x] 3.1 Create Lambda functions in CDK for user create, update, delete, reset_password
+- [x] 3.2 Add POST /api/v1/users endpoint with admin authorization
+- [x] 3.3 Add PUT /api/v1/users/{id} endpoint with admin authorization
+- [x] 3.4 Add DELETE /api/v1/users/{id} endpoint with admin authorization
+- [x] 3.5 Add POST /api/v1/users/{id}/reset-password endpoint with admin authorization
+- [x] 3.6 Grant Cognito admin permissions to user management Lambda functions
+- [x] 3.7 Grant SES send email permissions to user management Lambda functions
+- [x] 3.8 Add CloudWatch alarms for user management Lambda functions
 
-- [x] 17. Write end-to-end tests for user workflows
-  - Test login and authentication flow
-  - Test creating and publishing a blog post
-  - Test uploading and managing media
-  - Test plugin installation and configuration
-  - Test public website content display
-  - _Requirements: All requirements_
+_Requirements: 21.1, 21.2, 21.3, 21.4, 21.5_
 
-- [x] 18. Create example plugin
-  - [x] 18.1 Create syntax highlighter plugin
-    - Write plugin.json with metadata and hooks
-    - Implement Lambda function for content_render_post hook
-    - Add syntax highlighting using Pygments
-    - Create configuration schema for theme and line numbers
-    - Package plugin for installation
-    - _Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 18.3, 20.3_
-  
-  - [x] 18.2 Create gallery enhancement plugin
-    - Write plugin.json for gallery transformation
-    - Implement Lambda function for content_render_gallery hook
-    - Add custom gallery layout and animations
-    - Create configuration options
-    - _Requirements: 17.1, 17.2, 17.3_
+**Status:** ✅ COMPLETE
 
-- [x] 19. Configure monitoring and logging
-  - [x] 19.1 Set up CloudWatch alarms
-    - Create alarms for Lambda errors
-    - Add alarms for Lambda duration
-    - Configure alarm notifications
-    - _Requirements: All requirements_
-  
-  - [x] 19.2 Implement structured logging
-    - Add structured logging to all Lambda functions
-    - Include request IDs and user context
-    - Log performance metrics
-    - _Requirements: All requirements_
+---
 
-- [x] 20. Create documentation
-  - [x] 20.1 Write API documentation
-    - Document all API endpoints
-    - Include request/response examples
-    - Add authentication requirements
-    - _Requirements: All API requirements_
-  
-  - [x] 20.2 Write plugin development guide
-    - Document plugin structure
-    - Explain available hooks
-    - Provide example plugins
-    - Document configuration schema format
-    - _Requirements: 16.1, 17.1, 18.1, 18.2, 18.3, 19.1, 20.1_
-  
-  - [x] 20.3 Write deployment guide
-    - Document infrastructure setup
-    - Explain environment configuration
-    - Provide deployment commands
-    - Add troubleshooting section
-    - _Requirements: All requirements_
+## Task 4: User Management Frontend - Admin Panel
+
+**Objective:** Build complete user management interface in admin panel
+
+**Subtasks:**
+- [x] 4.1 Create frontend/admin-panel/src/pages/Users.tsx with user list table
+- [x] 4.2 Create frontend/admin-panel/src/components/Users/ directory
+- [x] 4.3 Create frontend/admin-panel/src/components/Users/UserCreateModal.tsx with role selection
+- [x] 4.4 Create frontend/admin-panel/src/components/Users/UserEditModal.tsx
+- [x] 4.5 Create frontend/admin-panel/src/components/Users/PasswordResetModal.tsx
+- [x] 4.6 Create frontend/admin-panel/src/hooks/useUsers.ts for user management operations
+- [x] 4.7 Add user management API methods to frontend/admin-panel/src/services/api.ts
+- [x] 4.8 Add Users navigation link to admin layout
+- [x] 4.9 Implement search and filter functionality in Users page
+- [ ]* 4.10 Write frontend tests for user management components
+
+_Requirements: 21.1, 21.2, 21.3, 21.4, 21.5, 21.7, 21.8_
+
+**Status:** ✅ COMPLETE (tests pending)
+
+---
+
+## Task 5: Site Configuration Settings
+
+**Objective:** Add toggles for user registration, comments, and CAPTCHA in settings
+
+**Subtasks:**
+- [x] 5.1 Update frontend/admin-panel/src/pages/Settings.tsx with toggle switches
+- [x] 5.2 Update frontend/admin-panel/src/types/settings.ts to include new settings fields
+- [x] 5.3 Update lambda/settings/update.py to validate new settings keys
+- [x] 5.4 Add default settings initialization in CDK stack or deployment script
+- [x] 5.5 Update frontend/admin-panel/src/hooks/useSettings.ts if needed
+
+_Requirements: 22.1, 22.2, 22.3, 22.4, 22.5, 22.6, 22.7, 22.8, 22.9_
+
+**Status:** ✅ COMPLETE
+
+---
+
+## Task 6: Comments Database and Backend - Infrastructure
+
+**Objective:** Create DynamoDB comments table and Lambda functions
+
+**Subtasks:**
+- [x] 6.1 Add DynamoDB comments table to CDK stack with GSIs (content_id-created_at-index, status-created_at-index)
+- [x] 6.2 Create lambda/comments/ directory with __init__.py
+- [x] 6.3 Create lambda/comments/list.py - List comments by content_id or status with pagination
+- [x] 6.4 Create lambda/comments/create.py - Submit comment with validation, sanitization, and rate limiting
+- [x] 6.5 Create lambda/comments/update.py - Update comment status (approve, reject, spam)
+- [x] 6.6 Create lambda/comments/delete.py - Delete comment
+- [x] 6.7 Implement XSS sanitization in create.py using html.escape
+- [x] 6.8 Implement IP-based rate limiting (5 per hour) in create.py
+- [x] 6.9 Add support for threaded replies with parent_id field
+- [ ]* 6.10 Write integration tests for comment operations
+
+_Requirements: 24.1, 24.2, 24.3, 24.4, 24.5, 24.6, 24.7, 24.8, 24.9_
+
+**Status:** ✅ COMPLETE (tests pending)
+
+## Task 7: Comments Backend - CDK Infrastructure
+
+**Objective:** Add API Gateway routes for comments to CDK stack
+
+**Subtasks:**
+- [x] 7.1 Create Lambda functions in CDK for comment list, create, update, delete
+- [x] 7.2 Add GET /api/v1/content/{id}/comments endpoint (public)
+- [x] 7.3 Add POST /api/v1/content/{id}/comments endpoint (public if enabled)
+- [x] 7.4 Add GET /api/v1/comments endpoint for moderation (editor+ auth)
+- [x] 7.5 Add PUT /api/v1/comments/{id} endpoint (editor+ auth)
+- [x] 7.6 Add DELETE /api/v1/comments/{id} endpoint (editor+ auth)
+- [x] 7.7 Grant DynamoDB permissions to comment Lambda functions
+- [x] 7.8 Add CloudWatch alarms for comment Lambda functions
+
+_Requirements: 24.1, 24.2, 24.3, 24.4, 24.8_
+
+**Status:** ✅ COMPLETE
+
+---
+
+## Task 8: Comments Frontend - Public Website
+
+**Objective:** Add comment form and display to public website
+
+**Subtasks:**
+- [ ] 8.1 Create frontend/public-website/src/components/CommentForm.tsx with validation
+- [ ] 8.2 Create frontend/public-website/src/components/CommentList.tsx with threading
+- [ ] 8.3 Create frontend/public-website/src/components/Comment.tsx for individual comments
+- [ ] 8.4 Create frontend/public-website/src/hooks/useComments.ts
+- [ ] 8.5 Add comment API methods to frontend/public-website/src/services/api.ts
+- [ ] 8.6 Integrate comment components into frontend/public-website/src/pages/Post.tsx
+- [ ] 8.7 Add conditional rendering based on comments_enabled setting
+- [ ] 8.8 Implement loading and error states
+- [ ]* 8.9 Write frontend tests for comment components
+
+_Requirements: 24.1, 24.2, 24.3, 24.5, 24.6, 24.9_
+
+---
+
+## Task 9: Comment Moderation Interface - Admin Panel
+
+**Objective:** Build comment moderation interface in admin panel
+
+**Subtasks:**
+- [ ] 9.1 Create frontend/admin-panel/src/pages/Comments.tsx with comment list
+- [ ] 9.2 Create frontend/admin-panel/src/components/Comments/ directory
+- [ ] 9.3 Create frontend/admin-panel/src/components/Comments/CommentTable.tsx
+- [ ] 9.4 Create frontend/admin-panel/src/components/Comments/CommentActions.tsx
+- [ ] 9.5 Create frontend/admin-panel/src/hooks/useComments.ts for moderation
+- [ ] 9.6 Add comment moderation API methods to frontend/admin-panel/src/services/api.ts
+- [ ] 9.7 Implement status filters (pending, approved, spam, rejected)
+- [ ] 9.8 Add Comments navigation link to admin layout
+- [ ]* 9.9 Write frontend tests for moderation interface
+
+_Requirements: 24.4, 24.8_
+
+---
+
+## Task 10: AWS WAF and CAPTCHA Integration
+
+**Objective:** Configure AWS WAF with CAPTCHA for comment spam protection
+
+**Subtasks:**
+- [ ] 10.1 Add AWS WAF Web ACL to CDK stack
+- [ ] 10.2 Configure CAPTCHA challenge rule for comment endpoint in WAF
+- [ ] 10.3 Associate WAF with API Gateway stage in CDK stack
+- [ ] 10.4 Add WAF CAPTCHA widget to CommentForm.tsx
+- [ ] 10.5 Implement CAPTCHA token validation in lambda/comments/create.py
+- [ ] 10.6 Add conditional CAPTCHA rendering based on captcha_enabled setting
+- [ ] 10.7 Ensure rate limiting works as fallback when CAPTCHA disabled
+- [ ]* 10.8 Test CAPTCHA flow end-to-end
+
+_Requirements: 25.1, 25.2, 25.3, 25.4, 25.5, 25.6, 25.7, 25.8, 25.9_
+
+---
+
+## Task 11: User Registration System - Backend
+
+**Objective:** Implement self-service user registration with email verification
+
+**Subtasks:**
+- [ ] 11.1 Create lambda/auth/ directory with __init__.py
+- [ ] 11.2 Create lambda/auth/register.py - Handle registration with Cognito and send welcome email
+- [ ] 11.3 Create lambda/auth/verify_email.py - Handle email verification callback
+- [ ] 11.4 Implement email format and password strength validation in register.py
+- [ ] 11.5 Set default role to "viewer" for new registrations
+- [ ] 11.6 Prevent duplicate registrations with same email
+- [ ]* 11.7 Write integration tests for registration flow
+
+_Requirements: 26.1, 26.2, 26.3, 26.4, 26.5, 26.6, 26.7, 26.8, 26.9_
+
+---
+
+## Task 12: User Registration System - CDK Infrastructure
+
+**Objective:** Add API Gateway routes for registration to CDK stack
+
+**Subtasks:**
+- [ ] 12.1 Create Lambda functions in CDK for register and verify_email
+- [ ] 12.2 Add POST /api/v1/auth/register endpoint (public if enabled)
+- [ ] 12.3 Add POST /api/v1/auth/verify-email endpoint (public)
+- [ ] 12.4 Grant Cognito user creation permissions to register Lambda
+- [ ] 12.5 Grant SES send email permissions to register Lambda
+- [ ] 12.6 Add CloudWatch alarms for registration Lambda functions
+
+_Requirements: 26.1, 26.2, 26.3, 26.4, 26.5, 26.8_
+
+---
+
+## Task 13: User Registration System - Frontend
+
+**Objective:** Build registration and verification pages for public website
+
+**Subtasks:**
+- [ ] 13.1 Create frontend/public-website/src/pages/Register.tsx with form validation
+- [ ] 13.2 Create frontend/public-website/src/pages/VerifyEmail.tsx
+- [ ] 13.3 Add registration API methods to frontend/public-website/src/services/api.ts
+- [ ] 13.4 Add conditional registration link to frontend/public-website/src/pages/Login.tsx
+- [ ] 13.5 Add registration route to frontend/public-website/src/App.tsx
+- [ ] 13.6 Implement password strength indicator in Register.tsx
+- [ ]* 13.7 Write frontend tests for registration components
+
+_Requirements: 26.1, 26.2, 26.4, 26.5, 26.7_
+
+---
+
+## Task 14: Settings Middleware and Feature Gating
+
+**Objective:** Implement middleware to enforce settings across all endpoints
+
+**Subtasks:**
+- [ ] 14.1 Create lambda/shared/middleware.py with check_setting function
+- [ ] 14.2 Implement settings caching in middleware (5 minute TTL)
+- [ ] 14.3 Add registration check to lambda/auth/register.py
+- [ ] 14.4 Add comments check to lambda/comments/create.py
+- [ ] 14.5 Add CAPTCHA check to lambda/comments/create.py
+- [ ] 14.6 Update public website to fetch site settings on initial load
+- [ ]* 14.7 Test feature gating for all settings
+
+_Requirements: 22.2, 22.3, 22.4, 22.5, 22.6, 22.8_
+
+---
+
+## Task 15: Database Schema Documentation
+
+**Objective:** Update database schema documentation with Phase 2 tables
+
+**Subtasks:**
+- [x] 15.1 Add comments table schema to .kiro/steering/database-schema.md
+- [x] 15.2 Document comment status values and GSI usage patterns
+- [ ] 15.3 Update settings table documentation with new settings keys
+- [ ] 15.4 Document user table fields for Phase 2 (last_login, created_at)
+
+_Requirements: All Phase 2 requirements_
+
+**Status:** In Progress
+
+---
+
+## Task 16: API Documentation
+
+**Objective:** Document all Phase 2 API endpoints
+
+**Subtasks:**
+- [ ] 16.1 Add user management endpoints to API_DOCUMENTATION.md
+- [ ] 16.2 Add comment endpoints to API_DOCUMENTATION.md
+- [ ] 16.3 Add registration endpoints to API_DOCUMENTATION.md
+- [ ] 16.4 Document request/response formats for all new endpoints
+- [ ] 16.5 Document authentication requirements for each endpoint
+
+_Requirements: All Phase 2 requirements_
+
+---
+
+## Task 17: Monitoring and Alarms
+
+**Objective:** Set up CloudWatch monitoring for Phase 2 features
+
+**Subtasks:**
+- [ ] 17.1 Add CloudWatch dashboard for Phase 2 metrics to CDK stack
+- [ ] 17.2 Add alarm for email bounce rate (SES)
+- [ ] 17.3 Add alarm for failed CAPTCHA validations
+- [ ] 17.4 Add alarm for comment spam detection rate
+- [ ] 17.5 Add alarm for user creation failures
+- [ ] 17.6 Configure SNS notifications for Phase 2 alarms
+- [ ] 17.7 Update MONITORING.md with Phase 2 metrics and alarms
+
+_Requirements: 23.6, 25.2, 25.3_
+
+---
+
+## Task 18: Integration Testing
+
+**Objective:** Write comprehensive integration tests for Phase 2
+
+**Subtasks:**
+- [ ]* 18.1 Write tests/test_user_management.py for user CRUD operations
+- [ ]* 18.2 Write tests/test_comments.py for comment system
+- [ ]* 18.3 Write tests/test_registration.py for registration flow
+- [ ]* 18.4 Add Phase 2 E2E tests to tests/test_e2e_workflows.py
+- [ ]* 18.5 Add Phase 2 smoke tests to tests/smoke_tests.py
+- [ ]* 18.6 Update tests/conftest.py with Phase 2 fixtures
+
+_Requirements: All Phase 2 requirements_
+
+---
+
+## Task 19: Deployment Documentation
+
+**Objective:** Document Phase 2 deployment and configuration
+
+**Subtasks:**
+- [ ] 19.1 Create USER_MANAGEMENT_GUIDE.md with admin instructions
+- [ ] 19.2 Create COMMENT_MODERATION_GUIDE.md with moderation workflows
+- [ ] 19.3 Update DEPLOYMENT.md with SES setup instructions
+- [ ] 19.4 Update DEPLOYMENT.md with WAF configuration instructions
+- [ ] 19.5 Document DNS configuration for SES (SPF, DKIM, DMARC)
+- [ ] 19.6 Document moving SES out of sandbox mode
+
+_Requirements: 23.4, 23.5, 23.8, 27.2, 27.3, 27.4, 27.8_
+
+---
+
+## Summary
+
+**Phase 2 Status:** Not Started
+
+**Total Tasks:** 19 tasks with 150+ subtasks
+
+**Critical Path:**
+1. Task 1 (SES Setup) → Required for all email functionality
+2. Task 2-4 (User Management) → Core admin feature
+3. Task 5-7 (Comments Backend) → Required for frontend
+4. Task 8-9 (Comments Frontend) → User-facing feature
+5. Task 10 (WAF/CAPTCHA) → Spam protection
+6. Task 11-13 (Registration) → User onboarding
+7. Task 14 (Middleware) → Feature gating
+8. Task 15-19 (Documentation & Testing) → Production readiness
+
+**Parallel Work Opportunities:**
+- Task 5 (Settings) can be done in parallel with Task 1-4
+- Task 11-13 (Registration) can be done after Task 1-2
+- Task 9 (Moderation UI) can be done after Task 6-7
+- Task 14 (Middleware) can be done after Task 5-7
+- Task 15-19 (Docs/Testing) can be done in parallel with implementation
+
+**Estimated Effort:** 80-100 hours (~2-3 weeks for one developer)

@@ -145,6 +145,39 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
 }
 ```
 
+## Comments Table (`cms-comments-{env}`)
+
+**Primary Key:**
+- Partition Key: `id` (String) - UUID
+- Sort Key: `created_at` (Number) - Unix timestamp
+
+**Attributes:**
+```typescript
+{
+  id: string;                    // UUID
+  content_id: string;            // ID of the content being commented on
+  author_name: string;           // Commenter's name (sanitized)
+  author_email: string;          // Commenter's email (sanitized, not exposed in API)
+  comment_text: string;          // Comment content (sanitized, max 5000 chars)
+  parent_id?: string;            // ID of parent comment for threaded replies
+  status: string;                // 'pending' | 'approved' | 'rejected' | 'spam'
+  ip_address: string;            // For rate limiting (not exposed in API)
+  moderated_by?: string;         // User ID who moderated the comment
+  created_at: number;            // Unix timestamp
+  updated_at: number;            // Unix timestamp
+}
+```
+
+**Global Secondary Indexes:**
+1. `content_id-created_at-index`: Partition Key: `content_id`, Sort Key: `created_at`
+2. `status-created_at-index`: Partition Key: `status`, Sort Key: `created_at`
+
+**Status Values:**
+- `pending`: Awaiting moderation (default for new comments)
+- `approved`: Visible on public website
+- `rejected`: Hidden, not spam
+- `spam`: Marked as spam
+
 ## Important Notes
 
 ### Field Naming Conventions
@@ -170,6 +203,7 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
 
 ### Status Values
 - Content: `'draft'`, `'published'`, `'archived'`
+- Comments: `'pending'`, `'approved'`, `'rejected'`, `'spam'`
 - Use exact string matches in queries
 
 ### Metadata Fields
@@ -206,6 +240,18 @@ content_repo.get_scheduled_content(current_time)
 ```python
 user_repo.get_by_id(user_id)
 # Uses: Primary key
+```
+
+### List comments by content
+```python
+# Public endpoint - approved comments only
+# Uses: content_id-created_at-index
+```
+
+### List comments by status
+```python
+# Moderation endpoint
+# Uses: status-created_at-index
 ```
 
 ## Migration Notes

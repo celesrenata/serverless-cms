@@ -194,6 +194,32 @@ class ApiClient {
     return response.data;
   }
 
+  async createUser(data: {
+    email: string;
+    name: string;
+    role: string;
+    password: string;
+  }): Promise<User> {
+    const response = await this.client.post<User>('/users', data);
+    return response.data;
+  }
+
+  async updateUser(id: string, data: {
+    name: string;
+    role: string;
+  }): Promise<User> {
+    const response = await this.client.put<User>(`/users/${id}`, data);
+    return response.data;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await this.client.delete(`/users/${id}`);
+  }
+
+  async resetUserPassword(id: string): Promise<void> {
+    await this.client.post(`/users/${id}/reset-password`);
+  }
+
   // Settings API methods
   async getSettings(): Promise<SiteSettings> {
     const response = await this.client.get<SiteSettings>('/settings');

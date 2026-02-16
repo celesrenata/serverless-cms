@@ -24,6 +24,7 @@ def handler(event, context, user_id, role):
     Requirements:
     - 5.1: Admin can view all users
     - 5.2: Retrieve user data from DynamoDB
+    - 21.5: Include last_login and created_at timestamps
     """
     try:
         # Get query parameters

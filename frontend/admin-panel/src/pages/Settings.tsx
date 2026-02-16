@@ -12,6 +12,9 @@ export function Settings() {
   const [siteTitle, setSiteTitle] = useState('');
   const [siteDescription, setSiteDescription] = useState('');
   const [theme, setTheme] = useState('default');
+  const [registrationEnabled, setRegistrationEnabled] = useState(false);
+  const [commentsEnabled, setCommentsEnabled] = useState(false);
+  const [captchaEnabled, setCaptchaEnabled] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
   // Fetch users list (admin only)
@@ -27,6 +30,9 @@ export function Settings() {
       setSiteTitle(settings.site_title || '');
       setSiteDescription(settings.site_description || '');
       setTheme(settings.theme || 'default');
+      setRegistrationEnabled(settings.registration_enabled ?? false);
+      setCommentsEnabled(settings.comments_enabled ?? false);
+      setCaptchaEnabled(settings.captcha_enabled ?? false);
     }
   }, [settings]);
 
@@ -40,6 +46,9 @@ export function Settings() {
           site_title: siteTitle,
           site_description: siteDescription,
           theme: theme,
+          registration_enabled: registrationEnabled,
+          comments_enabled: commentsEnabled,
+          captcha_enabled: captchaEnabled,
         },
         {
           onSuccess: () => {
@@ -134,6 +143,98 @@ export function Settings() {
             <p className="mt-1 text-sm text-gray-500">
               Choose the visual theme for your public website
             </p>
+          </div>
+
+          {/* Feature Toggles Section */}
+          <div className="pt-6 border-t">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Feature Settings</h3>
+            
+            {/* User Registration Toggle */}
+            <div className="flex items-center justify-between py-4 border-b">
+              <div className="flex-1">
+                <label htmlFor="registration_enabled" className="block text-sm font-medium text-gray-700">
+                  User Registration
+                </label>
+                <p className="text-sm text-gray-500 mt-1">
+                  Allow new users to register accounts on your site
+                </p>
+              </div>
+              <div className="ml-4">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={registrationEnabled}
+                  onClick={() => setRegistrationEnabled(!registrationEnabled)}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    registrationEnabled ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      registrationEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* Comments Toggle */}
+            <div className="flex items-center justify-between py-4 border-b">
+              <div className="flex-1">
+                <label htmlFor="comments_enabled" className="block text-sm font-medium text-gray-700">
+                  Comments
+                </label>
+                <p className="text-sm text-gray-500 mt-1">
+                  Enable comments on blog posts and pages
+                </p>
+              </div>
+              <div className="ml-4">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={commentsEnabled}
+                  onClick={() => setCommentsEnabled(!commentsEnabled)}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    commentsEnabled ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      commentsEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* CAPTCHA Toggle */}
+            <div className="flex items-center justify-between py-4">
+              <div className="flex-1">
+                <label htmlFor="captcha_enabled" className="block text-sm font-medium text-gray-700">
+                  CAPTCHA Protection
+                </label>
+                <p className="text-sm text-gray-500 mt-1">
+                  Require CAPTCHA verification for comments to prevent spam
+                </p>
+              </div>
+              <div className="ml-4">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={captchaEnabled}
+                  onClick={() => setCaptchaEnabled(!captchaEnabled)}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    captchaEnabled ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      captchaEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Save Button */}

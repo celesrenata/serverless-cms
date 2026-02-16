@@ -1,268 +1,228 @@
-# Requirements Document
+# Requirements Document - Phase 2: User Management & Site Configuration
 
 ## Introduction
 
-The Serverless CMS System is a WordPress-equivalent content management system built entirely on AWS serverless infrastructure. The System enables content creators to manage posts, pages, media, and users through an admin panel while delivering content to end users via a public website. The System leverages DynamoDB for data storage, S3 for media files, Lambda for backend logic, Cognito for authentication, and CloudFront for content delivery.
+Phase 2 extends the Serverless CMS with comprehensive user management, site configuration controls, email notifications via AWS SES, and comment system with optional CAPTCHA protection using AWS WAF.
 
-## Glossary
+## New Requirements
 
-- **System**: The Serverless CMS System
-- **Admin Panel**: React-based web application for content management
-- **Public Website**: React-based web application for content consumption
-- **Content Item**: A post, page, gallery, or project stored in the System
-- **Media File**: An image, video, or document uploaded to the System
-- **User**: An authenticated person with a role (admin, editor, author, viewer)
-- **API Gateway**: AWS service that routes HTTP requests to Lambda functions
-- **Lambda Function**: Serverless compute function that processes requests
-- **DynamoDB**: NoSQL database service for storing structured data
-- **S3 Bucket**: Object storage service for media files and static assets
-- **Cognito**: AWS authentication and user management service
-- **CloudFront**: Content delivery network for serving static assets
-- **Content Status**: The publication state (draft, published, archived)
-- **Slug**: URL-friendly identifier for content items
-- **Thumbnail**: Resized version of an image for preview purposes
-- **Plugin**: A packaged extension that adds or modifies System functionality
-- **Hook**: An extension point where Plugins can register functions to modify System behavior
-- **Filter Function**: A Plugin function that transforms content or data before rendering or storage
+### Requirement 21: User Management
 
-## Requirements
-
-### Requirement 1
-
-**User Story:** As a content creator, I want to create and publish blog posts, so that I can share content with my audience
+**User Story:** As an administrator, I want to manage user accounts from the admin panel, so that I can add, edit, reset passwords, and delete users without using AWS Console
 
 #### Acceptance Criteria
 
-1. WHEN a User submits a new Content Item with title, content, and metadata, THE System SHALL store the Content Item in DynamoDB with a unique identifier
-2. WHEN a User sets Content Status to published, THE System SHALL record the publication timestamp and make the Content Item accessible via the Public Website
-3. WHEN a User provides a Slug for a Content Item, THE System SHALL validate uniqueness and reject duplicate Slug values
-4. WHERE a User has author role or higher, THE System SHALL permit creation of Content Items
-5. WHEN a User saves a Content Item as draft, THE System SHALL store the Content Item without making it visible on the Public Website
+1. WHEN an administrator accesses the Users page, THE System SHALL display a list of all users with email, name, role, and last login timestamp
+2. WHEN an administrator creates a new user, THE System SHALL create the user in Cognito and send a welcome email with temporary password
+3. WHEN an administrator resets a user password, THE System SHALL trigger Cognito password reset and send reset instructions via email
+4. WHEN an administrator updates a user's role, THE System SHALL update the role in DynamoDB and the change SHALL take effect on next login
+5. WHEN an administrator deletes a user, THE System SHALL remove the user from Cognito and mark associated content as "orphaned author"
+6. WHERE a User has admin role, THE System SHALL permit all user management operations
+7. WHEN an administrator edits a user, THE System SHALL allow updating name, email, and role fields
+8. THE System SHALL prevent administrators from deleting their own account
+9. THE System SHALL display user creation date and last login timestamp in the user list
 
-### Requirement 2
+### Requirement 22: Site Configuration Settings
 
-**User Story:** As a content creator, I want to upload and manage media files, so that I can include images and documents in my content
-
-#### Acceptance Criteria
-
-1. WHEN a User uploads a Media File, THE System SHALL store the file in the S3 Bucket and create a metadata record in DynamoDB
-2. WHEN a User uploads an image file, THE System SHALL generate Thumbnails in small, medium, and large sizes
-3. WHEN a User requests deletion of a Media File, THE System SHALL remove the file from S3 Bucket and delete the metadata record from DynamoDB
-4. WHERE a User has editor role or higher, THE System SHALL permit Media File uploads
-5. WHEN a Media File upload completes, THE System SHALL return the S3 URL to the User within 5 seconds
-
-### Requirement 3
-
-**User Story:** As a content creator, I want to edit existing content, so that I can update and improve published material
+**User Story:** As an administrator, I want to control site-wide features from the settings page, so that I can enable/disable user registration, comments, and CAPTCHA
 
 #### Acceptance Criteria
 
-1. WHEN a User requests a Content Item by identifier, THE System SHALL retrieve the Content Item from DynamoDB within 2 seconds
-2. WHEN a User submits updates to a Content Item, THE System SHALL validate the changes and update the DynamoDB record with a new timestamp
-3. WHERE a User is the author of a Content Item or has editor role or higher, THE System SHALL permit modifications to the Content Item
-4. WHEN a User updates a published Content Item, THE System SHALL maintain the original publication timestamp
-5. WHEN a User changes Content Status from published to draft, THE System SHALL remove the Content Item from Public Website visibility
+1. WHEN an administrator accesses the Settings page, THE System SHALL display toggles for user registration, comments, and CAPTCHA
+2. WHEN an administrator disables user registration, THE System SHALL hide the registration form on the public website and reject registration API requests
+3. WHEN an administrator enables user registration, THE System SHALL display the registration form and accept new user registrations
+4. WHEN an administrator disables comments, THE System SHALL hide comment forms and prevent new comment submissions
+5. WHEN an administrator enables comments, THE System SHALL display comment forms on published content
+6. WHEN an administrator enables CAPTCHA, THE System SHALL require CAPTCHA verification for comment submissions
+7. THE System SHALL store all site configuration settings in the DynamoDB settings table
+8. WHEN settings are updated, THE System SHALL apply changes immediately without requiring deployment
+9. WHERE a User has admin role, THE System SHALL permit modification of site configuration settings
 
-### Requirement 4
+### Requirement 23: Email Notifications via AWS SES
 
-**User Story:** As a website visitor, I want to view published blog posts, so that I can read content shared by creators
-
-#### Acceptance Criteria
-
-1. WHEN a visitor requests the blog listing page, THE System SHALL return all Content Items with Content Status set to published, sorted by publication timestamp in descending order
-2. WHEN a visitor requests a Content Item by Slug, THE System SHALL retrieve and display the Content Item within 2 seconds
-3. WHEN a visitor accesses the Public Website, THE System SHALL serve static assets via CloudFront with cache headers
-4. THE System SHALL display Content Items on the Public Website without requiring authentication
-5. WHEN a visitor requests a Content Item with Content Status set to draft, THE System SHALL return an error response
-
-### Requirement 5
-
-**User Story:** As an administrator, I want to manage user accounts and permissions, so that I can control who can access and modify content
+**User Story:** As an administrator, I want the system to send emails for user management actions, so that users receive welcome messages, password resets, and notifications
 
 #### Acceptance Criteria
 
-1. WHEN an administrator creates a User account, THE System SHALL register the User in Cognito with email verification
-2. WHEN an administrator assigns a role to a User, THE System SHALL store the role in DynamoDB and enforce role-based permissions
-3. WHERE a User has admin role, THE System SHALL permit access to all System functions including user management
-4. WHEN a User attempts an action, THE System SHALL verify the User role permits the action before processing
-5. WHEN a User authenticates, THE System SHALL issue a JWT token valid for 24 hours
+1. WHEN a new user is created, THE System SHALL send a welcome email from no-reply@celestium.life with login instructions
+2. WHEN a password reset is requested, THE System SHALL send a reset email with a secure reset link valid for 24 hours
+3. WHEN an administrator resets a user's password, THE System SHALL send an email notification to the user
+4. THE System SHALL use AWS SES to send all emails
+5. THE System SHALL configure SES to send from no-reply@celestium.life domain
+6. WHEN an email fails to send, THE System SHALL log the error and return a warning to the administrator
+7. THE System SHALL include unsubscribe links in notification emails where required by email regulations
+8. WHEN SES is in sandbox mode, THE System SHALL only send to verified email addresses
+9. THE System SHALL format emails with both HTML and plain text versions
 
-### Requirement 6
+### Requirement 24: Comment System
 
-**User Story:** As a content creator, I want to organize content with categories and tags, so that visitors can discover related content
-
-#### Acceptance Criteria
-
-1. WHEN a User assigns categories to a Content Item, THE System SHALL store the categories in the metadata field of the Content Item
-2. WHEN a User assigns tags to a Content Item, THE System SHALL store the tags in the metadata field of the Content Item
-3. WHEN a visitor filters Content Items by category, THE System SHALL return only Content Items containing the specified category
-4. WHEN a visitor filters Content Items by tag, THE System SHALL return only Content Items containing the specified tag
-5. THE System SHALL support multiple categories and tags per Content Item
-
-### Requirement 7
-
-**User Story:** As a content creator, I want to add SEO metadata to content, so that search engines can properly index my content
+**User Story:** As a website visitor, I want to leave comments on blog posts, so that I can engage with content and participate in discussions
 
 #### Acceptance Criteria
 
-1. WHEN a User provides SEO title and description for a Content Item, THE System SHALL store the values in the metadata field
-2. WHEN a visitor or search engine requests a Content Item, THE System SHALL include SEO metadata in the HTML response
-3. WHEN a User omits SEO title, THE System SHALL use the Content Item title as the default SEO title
-4. WHEN a User omits SEO description, THE System SHALL use the Content Item excerpt as the default SEO description
-5. THE System SHALL limit SEO title to 60 characters and SEO description to 160 characters
+1. WHEN comments are enabled, THE System SHALL display a comment form below published content
+2. WHEN a visitor submits a comment, THE System SHALL store the comment in DynamoDB with content ID, author name, email, comment text, and timestamp
+3. WHEN a visitor views a content item with comments, THE System SHALL display all approved comments sorted by timestamp
+4. WHEN an administrator views comments in the admin panel, THE System SHALL display pending, approved, and spam comments with moderation actions
+5. WHERE comments are disabled in settings, THE System SHALL hide comment forms and return error for comment submissions
+6. THE System SHALL validate comment submissions for required fields (name, email, comment text)
+7. WHEN a comment is submitted, THE System SHALL set initial status to "pending" for moderation
+8. WHERE a User has editor role or higher, THE System SHALL permit comment moderation (approve, reject, mark as spam, delete)
+9. THE System SHALL support threaded replies to comments (one level deep)
 
-### Requirement 8
+### Requirement 25: CAPTCHA Protection with AWS WAF
 
-**User Story:** As a content creator, I want to use a rich text editor, so that I can format content with headings, lists, and styling
-
-#### Acceptance Criteria
-
-1. WHEN a User accesses the content editor in the Admin Panel, THE System SHALL display a rich text editing interface
-2. WHEN a User applies formatting to content, THE System SHALL store the formatted content as HTML or Markdown
-3. WHEN a User inserts a Media File into content, THE System SHALL embed the S3 URL in the content markup
-4. THE System SHALL support text formatting including bold, italic, headings, lists, and links
-5. WHEN a User saves content, THE System SHALL preserve all formatting in the stored representation
-
-### Requirement 9
-
-**User Story:** As an administrator, I want to configure site settings, so that I can customize the website appearance and behavior
+**User Story:** As an administrator, I want to require CAPTCHA for comments, so that I can prevent spam and bot submissions
 
 #### Acceptance Criteria
 
-1. WHEN an administrator updates a site setting, THE System SHALL store the setting in the DynamoDB settings table
-2. WHERE a User has admin role, THE System SHALL permit modification of site settings
-3. WHEN the Public Website loads, THE System SHALL retrieve site settings from DynamoDB and apply them to the display
-4. THE System SHALL support settings for site title, site description, and theme selection
-5. WHEN an administrator updates a setting, THE System SHALL record the timestamp and User identifier
+1. WHEN CAPTCHA is enabled in settings, THE System SHALL display AWS WAF CAPTCHA challenge before comment submission
+2. WHEN a visitor completes CAPTCHA successfully, THE System SHALL accept the comment submission
+3. WHEN a visitor fails CAPTCHA verification, THE System SHALL reject the comment and display an error message
+4. THE System SHALL use AWS WAF CAPTCHA (AWS managed CAPTCHA service)
+5. WHERE CAPTCHA is disabled in settings, THE System SHALL accept comment submissions without CAPTCHA verification
+6. THE System SHALL configure WAF rules to protect the comment submission endpoint
+7. WHEN CAPTCHA is enabled, THE System SHALL include the CAPTCHA widget in the comment form
+8. THE System SHALL validate CAPTCHA tokens on the backend before storing comments
+9. THE System SHALL rate-limit comment submissions to 5 per IP address per hour when CAPTCHA is disabled
 
-### Requirement 10
+### Requirement 26: User Registration Control
 
-**User Story:** As a content creator, I want to preview content before publishing, so that I can verify appearance and correctness
-
-#### Acceptance Criteria
-
-1. WHEN a User activates preview mode in the Admin Panel, THE System SHALL render the Content Item using the Public Website template
-2. WHEN a User previews a draft Content Item, THE System SHALL display the content without changing Content Status
-3. WHEN a User previews content, THE System SHALL apply the current theme and styling
-4. THE System SHALL render preview content within 3 seconds of the preview request
-5. WHEN a User closes preview mode, THE System SHALL return to the content editor without data loss
-
-### Requirement 11
-
-**User Story:** As a website visitor, I want to view photo galleries, so that I can browse collections of images
+**User Story:** As an administrator, I want to control whether visitors can self-register, so that I can manage who has access to the system
 
 #### Acceptance Criteria
 
-1. WHEN a visitor requests a gallery Content Item, THE System SHALL display all associated Media Files in a grid layout
-2. WHEN a visitor selects an image in a gallery, THE System SHALL display the full-size image in a lightbox view
-3. WHEN the System displays gallery thumbnails, THE System SHALL use the medium-size Thumbnail for each Media File
-4. THE System SHALL load gallery thumbnails progressively to optimize page load time
-5. WHEN a visitor navigates between images in lightbox view, THE System SHALL transition between images within 1 second
+1. WHEN user registration is enabled, THE System SHALL display a registration link on the login page
+2. WHEN a visitor registers, THE System SHALL create a Cognito user with "viewer" role by default
+3. WHEN user registration is disabled, THE System SHALL hide the registration link and reject registration API requests
+4. THE System SHALL send email verification to new registrants via Cognito
+5. WHEN a user registers, THE System SHALL require email verification before allowing login
+6. THE System SHALL validate registration data (email format, password strength, required fields)
+7. WHERE user registration is enabled, THE System SHALL allow visitors to create accounts without administrator approval
+8. WHEN a user completes registration, THE System SHALL send a welcome email via SES
+9. THE System SHALL prevent duplicate registrations with the same email address
 
-### Requirement 12
+### Requirement 27: Email Domain Configuration
 
-**User Story:** As a content creator, I want to showcase code projects with syntax highlighting, so that technical content is readable
-
-#### Acceptance Criteria
-
-1. WHEN a User creates a project Content Item with code snippets, THE System SHALL store the code with language metadata
-2. WHEN the Public Website displays a project Content Item, THE System SHALL apply syntax highlighting based on the language metadata
-3. THE System SHALL support syntax highlighting for at least 10 programming languages including Python, JavaScript, and TypeScript
-4. WHEN a visitor views code snippets, THE System SHALL display line numbers and preserve indentation
-5. WHEN a User embeds code in content, THE System SHALL escape HTML characters to prevent code execution
-
-### Requirement 13
-
-**User Story:** As a content creator, I want to search for existing content, so that I can quickly find and edit specific items
+**User Story:** As a system administrator, I want to configure AWS SES to send from celestium.life domain, so that emails appear professional and trustworthy
 
 #### Acceptance Criteria
 
-1. WHEN a User enters a search query in the Admin Panel, THE System SHALL return Content Items matching the query in title or content fields
-2. WHEN a User applies filters to search results, THE System SHALL return only Content Items matching both the query and filter criteria
-3. THE System SHALL return search results within 3 seconds of query submission
-4. WHEN a User searches, THE System SHALL support filtering by Content Status, type, author, and date range
-5. THE System SHALL display search results with title, excerpt, author, and publication date
+1. THE System SHALL use AWS SES to send emails from no-reply@celestium.life
+2. THE System SHALL verify the celestium.life domain in AWS SES
+3. THE System SHALL configure SPF, DKIM, and DMARC records for celestium.life domain
+4. WHEN SES verification is complete, THE System SHALL move out of sandbox mode to send to any email address
+5. THE System SHALL handle SES bounce and complaint notifications
+6. THE System SHALL log all email sending attempts with status (sent, failed, bounced)
+7. THE System SHALL provide email templates for welcome, password reset, and notification emails
+8. WHERE SES is in sandbox mode, THE System SHALL display a warning in the admin panel
+9. THE System SHALL support both transactional emails (password reset) and notification emails (welcome)
 
-### Requirement 14
+## Database Schema Updates
 
-**User Story:** As an administrator, I want to view system activity and statistics, so that I can monitor usage and performance
+### Comments Table
 
-#### Acceptance Criteria
+```
+Table: cms-comments-{env}
+Primary Key: id (String - UUID)
+Sort Key: content_id#timestamp (String)
 
-1. WHEN an administrator accesses the dashboard, THE System SHALL display total counts of Content Items, Media Files, and Users
-2. WHEN an administrator views the dashboard, THE System SHALL display recent activity including latest Content Items and uploads
-3. THE System SHALL calculate and display statistics within 5 seconds of dashboard load
-4. WHEN an administrator requests activity data, THE System SHALL retrieve records from DynamoDB for the past 30 days
-5. THE System SHALL display quick action buttons for creating new Content Items and uploading Media Files
+Attributes:
+- id: String (UUID)
+- content_id: String (UUID of content item)
+- parent_id: String (UUID of parent comment for replies, null for top-level)
+- author_name: String
+- author_email: String
+- author_ip: String (for rate limiting)
+- comment_text: String
+- status: String (pending, approved, spam, rejected)
+- created_at: Number (Unix timestamp)
+- updated_at: Number (Unix timestamp)
+- moderated_by: String (User ID who moderated)
+- moderated_at: Number (Unix timestamp)
 
-### Requirement 15
+GSI: content_id-created_at-index
+  Partition Key: content_id
+  Sort Key: created_at
 
-**User Story:** As a content creator, I want to schedule content for future publication, so that I can plan content releases in advance
+GSI: status-created_at-index
+  Partition Key: status
+  Sort Key: created_at
+```
 
-#### Acceptance Criteria
+### Settings Table Updates
 
-1. WHEN a User sets a future publication timestamp for a Content Item, THE System SHALL store the timestamp and maintain Content Status as draft
-2. WHEN the current time reaches the scheduled publication timestamp, THE System SHALL change Content Status to published automatically
-3. THE System SHALL check for scheduled publications every 5 minutes
-4. WHEN a scheduled Content Item is published, THE System SHALL make the Content Item visible on the Public Website
-5. WHERE a User has author role or higher, THE System SHALL permit scheduling of Content Items
+New settings keys:
+- `user_registration_enabled`: Boolean
+- `comments_enabled`: Boolean
+- `captcha_enabled`: Boolean
+- `ses_verified`: Boolean
+- `ses_sandbox_mode`: Boolean
 
-### Requirement 16
+## API Endpoints
 
-**User Story:** As a developer, I want to install and activate plugins, so that I can extend the System functionality without modifying core code
+### User Management
+- `GET /api/v1/users` - List all users (admin only)
+- `POST /api/v1/users` - Create new user (admin only)
+- `GET /api/v1/users/{id}` - Get user details (admin only)
+- `PUT /api/v1/users/{id}` - Update user (admin only)
+- `DELETE /api/v1/users/{id}` - Delete user (admin only)
+- `POST /api/v1/users/{id}/reset-password` - Reset user password (admin only)
 
-#### Acceptance Criteria
+### Comments
+- `GET /api/v1/content/{id}/comments` - List comments for content (public)
+- `POST /api/v1/content/{id}/comments` - Submit comment (public, with optional CAPTCHA)
+- `PUT /api/v1/comments/{id}` - Update comment status (editor+ only)
+- `DELETE /api/v1/comments/{id}` - Delete comment (editor+ only)
+- `GET /api/v1/comments` - List all comments for moderation (editor+ only)
 
-1. WHEN an administrator uploads a Plugin package, THE System SHALL validate the Plugin structure and store the Plugin metadata in DynamoDB
-2. WHEN an administrator activates a Plugin, THE System SHALL register the Plugin hooks and make the Plugin functionality available
-3. WHERE a User has admin role, THE System SHALL permit installation, activation, and deactivation of Plugins
-4. WHEN an administrator deactivates a Plugin, THE System SHALL unregister the Plugin hooks without removing the Plugin files
-5. THE System SHALL maintain a registry of installed Plugins with activation status and version information
+### Registration
+- `POST /api/v1/auth/register` - Register new user (public, if enabled)
+- `POST /api/v1/auth/verify-email` - Verify email address (public)
 
-### Requirement 17
+## Infrastructure Updates
 
-**User Story:** As a developer, I want to create plugins that modify content rendering, so that I can customize how code blocks and galleries appear
+### AWS SES Configuration
+1. Verify celestium.life domain in SES
+2. Configure DKIM signing
+3. Set up SNS topics for bounce/complaint handling
+4. Request production access (move out of sandbox)
+5. Configure email templates
 
-#### Acceptance Criteria
+### AWS WAF Configuration
+1. Create WAF Web ACL for API Gateway
+2. Configure CAPTCHA challenge rule
+3. Set up rate limiting rules
+4. Associate WAF with API Gateway stage
 
-1. WHEN a Plugin registers a content filter hook, THE System SHALL execute the Plugin filter function before rendering Content Items on the Public Website
-2. WHEN the System renders a code block and a syntax highlighting Plugin is active, THE System SHALL apply the Plugin transformation to the code block markup
-3. WHEN the System renders a gallery and a gallery enhancement Plugin is active, THE System SHALL apply the Plugin transformation to the gallery layout
-4. THE System SHALL pass content markup to Plugin filter functions and accept modified markup as return values
-5. WHEN multiple Plugins register the same hook, THE System SHALL execute Plugin functions in priority order
+### Lambda Functions
+- `lambda/users/list.py` - List users
+- `lambda/users/create.py` - Create user
+- `lambda/users/update.py` - Update user
+- `lambda/users/delete.py` - Delete user
+- `lambda/users/reset_password.py` - Reset password
+- `lambda/comments/list.py` - List comments
+- `lambda/comments/create.py` - Create comment
+- `lambda/comments/update.py` - Update comment status
+- `lambda/comments/delete.py` - Delete comment
+- `lambda/auth/register.py` - User registration
+- `lambda/auth/verify_email.py` - Email verification
+- `lambda/shared/email.py` - SES email utilities
 
-### Requirement 18
+## Frontend Updates
 
-**User Story:** As a developer, I want to create plugins that add custom functionality to the Admin Panel, so that I can extend the editing experience
+### Admin Panel
+- New page: `/users` - User management interface
+- Update page: `/settings` - Add registration, comments, CAPTCHA toggles
+- New page: `/comments` - Comment moderation interface
+- Add user creation modal
+- Add user edit modal
+- Add password reset confirmation
+- Add comment moderation actions
 
-#### Acceptance Criteria
-
-1. WHEN a Plugin registers an Admin Panel extension, THE System SHALL display the Plugin interface elements in the designated Admin Panel location
-2. WHEN a Plugin adds custom fields to the content editor, THE System SHALL store the Plugin field values in the Content Item metadata
-3. WHEN a User interacts with Plugin-added UI components, THE System SHALL invoke the Plugin API endpoints
-4. THE System SHALL provide Plugin API endpoints access to DynamoDB and S3 Bucket with appropriate permissions
-5. WHERE a Plugin requires configuration, THE System SHALL provide a settings interface in the Admin Panel
-
-### Requirement 19
-
-**User Story:** As a developer, I want plugins to have access to system hooks and events, so that I can respond to content lifecycle events
-
-#### Acceptance Criteria
-
-1. WHEN the System creates a Content Item, THE System SHALL trigger the content creation hook for all active Plugins
-2. WHEN the System updates a Content Item, THE System SHALL trigger the content update hook for all active Plugins
-3. WHEN the System uploads a Media File, THE System SHALL trigger the media upload hook for all active Plugins
-4. WHEN a Plugin hook function executes, THE System SHALL provide event context including User identifier and affected resource identifiers
-5. IF a Plugin hook function fails, THEN THE System SHALL log the error and continue processing without blocking the core operation
-
-### Requirement 20
-
-**User Story:** As an administrator, I want to configure plugin settings, so that I can customize plugin behavior without modifying plugin code
-
-#### Acceptance Criteria
-
-1. WHEN a Plugin declares configuration options, THE System SHALL display a settings form in the Admin Panel
-2. WHEN an administrator updates Plugin settings, THE System SHALL store the settings in the DynamoDB settings table with a Plugin-specific key
-3. WHEN a Plugin executes, THE System SHALL provide the Plugin access to its stored configuration values
-4. THE System SHALL validate Plugin settings against the Plugin-declared schema before storing
-5. WHERE a User has admin role, THE System SHALL permit modification of Plugin settings
+### Public Website
+- Add comment form component (conditional on settings)
+- Add comment list component
+- Add CAPTCHA widget (conditional on settings)
+- Add registration form (conditional on settings)
+- Add email verification page

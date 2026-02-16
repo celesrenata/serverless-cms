@@ -16,6 +16,7 @@ import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatch_actions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as sns_subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as ses from 'aws-cdk-lib/aws-ses';
 import { Construct } from 'constructs';
 
 export interface ServerlessCmsStackProps extends cdk.StackProps {
@@ -23,6 +24,7 @@ export interface ServerlessCmsStackProps extends cdk.StackProps {
   domainName?: string;
   subdomain?: string;
   alarmEmail?: string; // Email address for alarm notifications
+  sesFromEmail?: string; // Email address for sending emails (e.g., no-reply@celestium.life)
 }
 
 export class ServerlessCmsStack extends cdk.Stack {
@@ -31,6 +33,7 @@ export class ServerlessCmsStack extends cdk.Stack {
   public readonly usersTable: dynamodb.ITable;
   public readonly settingsTable: dynamodb.ITable;
   public readonly pluginsTable: dynamodb.ITable;
+  public readonly commentsTable: dynamodb.Table;
   public readonly mediaBucket: s3.Bucket;
   public readonly adminBucket: s3.Bucket;
   public readonly publicBucket: s3.Bucket;
@@ -84,6 +87,49 @@ export class ServerlessCmsStack extends cdk.Stack {
       'PluginsTable',
       `cms-plugins-${props.environment}`
     );
+
+    // Comments Table - Create new table with GSIs
+    this.commentsTable = new dynamodb.Table(this, 'CommentsTable', {
+      tableName: `cms-comments-${props.environment}`,
+      partitionKey: {
+        name: 'id',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'created_at',
+        type: dynamodb.AttributeType.NUMBER,
+      },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
+    });
+
+    // GSI for querying comments by content_id
+    this.commentsTable.addGlobalSecondaryIndex({
+      indexName: 'content_id-created_at-index',
+      partitionKey: {
+        name: 'content_id',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'created_at',
+        type: dynamodb.AttributeType.NUMBER,
+      },
+    });
+
+    // GSI for querying comments by status (for moderation)
+    this.commentsTable.addGlobalSecondaryIndex({
+      indexName: 'status-created_at-index',
+      partitionKey: {
+        name: 'status',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'created_at',
+        type: dynamodb.AttributeType.NUMBER,
+      },
+    });
 
     // S3 Buckets
     // Note: Using RETAIN removal policy to prevent accidental deletion
@@ -268,6 +314,54 @@ export class ServerlessCmsStack extends cdk.Stack {
       description: 'Shared utilities for CMS Lambda functions',
     });
 
+    // AWS SES Configuration for email sending
+    const sesFromEmail = props.sesFromEmail || 'no-reply@celestium.life';
+    
+    // Create SES email identity
+    const emailIdentity = new ses.EmailIdentity(this, 'SesEmailIdentity', {
+      identity: ses.Identity.email(sesFromEmail),
+      mailFromDomain: props.domainName ? `mail.${props.domainName}` : undefined,
+    });
+
+    // Create SNS topics for SES bounce and complaint handling
+    const sesBouncesTopic = new sns.Topic(this, 'SesBouncesTopic', {
+      topicName: `cms-ses-bounces-${props.environment}`,
+      displayName: `CMS SES Bounces - ${props.environment}`,
+    });
+
+    const sesComplaintsTopic = new sns.Topic(this, 'SesComplaintsTopic', {
+      topicName: `cms-ses-complaints-${props.environment}`,
+      displayName: `CMS SES Complaints - ${props.environment}`,
+    });
+
+    // Subscribe alarm email to bounce/complaint topics if provided
+    if (props.alarmEmail) {
+      sesBouncesTopic.addSubscription(
+        new sns_subscriptions.EmailSubscription(props.alarmEmail)
+      );
+      sesComplaintsTopic.addSubscription(
+        new sns_subscriptions.EmailSubscription(props.alarmEmail)
+      );
+    }
+
+    // Create configuration set for tracking bounces and complaints
+    const sesConfigurationSet = new ses.ConfigurationSet(this, 'SesConfigurationSet', {
+      configurationSetName: `cms-emails-${props.environment}`,
+    });
+
+    // Add event destinations for bounces and complaints
+    sesConfigurationSet.addEventDestination('BounceDestination', {
+      destination: ses.EventDestination.snsTopic(sesBouncesTopic),
+      events: [ses.EmailSendingEvent.BOUNCE],
+      enabled: true,
+    });
+
+    sesConfigurationSet.addEventDestination('ComplaintDestination', {
+      destination: ses.EventDestination.snsTopic(sesComplaintsTopic),
+      events: [ses.EmailSendingEvent.COMPLAINT],
+      enabled: true,
+    });
+
     // Common environment variables for Lambda functions
     const commonEnv = {
       CONTENT_TABLE: this.contentTable.tableName,
@@ -275,11 +369,15 @@ export class ServerlessCmsStack extends cdk.Stack {
       USERS_TABLE: this.usersTable.tableName,
       SETTINGS_TABLE: this.settingsTable.tableName,
       PLUGINS_TABLE: this.pluginsTable.tableName,
+      COMMENTS_TABLE: this.commentsTable.tableName,
       MEDIA_BUCKET: this.mediaBucket.bucketName,
       COGNITO_REGION: this.region,
       USER_POOL_ID: this.userPool.userPoolId,
       USER_POOL_CLIENT_ID: this.userPoolClient.userPoolClientId,
       ENVIRONMENT: props.environment,
+      SES_FROM_EMAIL: sesFromEmail,
+      SES_CONFIGURATION_SET: sesConfigurationSet.configurationSetName,
+      SES_REGION: this.region,
     };
 
     // Content Lambda Functions
@@ -469,10 +567,59 @@ export class ServerlessCmsStack extends cdk.Stack {
       layers: [sharedLayer],
     });
 
+    // User Management Lambda Functions (Admin operations)
+    const userCreateFunction = new lambda.Function(this, 'UserCreateFunction', {
+      functionName: `cms-user-create-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'create.handler',
+      code: lambda.Code.fromAsset('lambda/users'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
+    const userUpdateFunction = new lambda.Function(this, 'UserUpdateFunction', {
+      functionName: `cms-user-update-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'update.handler',
+      code: lambda.Code.fromAsset('lambda/users'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
+    const userDeleteFunction = new lambda.Function(this, 'UserDeleteFunction', {
+      functionName: `cms-user-delete-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'delete.handler',
+      code: lambda.Code.fromAsset('lambda/users'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
+    const userResetPasswordFunction = new lambda.Function(this, 'UserResetPasswordFunction', {
+      functionName: `cms-user-reset-password-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'reset_password.handler',
+      code: lambda.Code.fromAsset('lambda/users'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
     // Grant permissions to user functions
     this.usersTable.grantReadWriteData(userGetMeFunction); // Need write for last_login update
     this.usersTable.grantReadWriteData(userUpdateMeFunction);
     this.usersTable.grantReadData(userListFunction);
+    this.usersTable.grantReadWriteData(userCreateFunction);
+    this.usersTable.grantReadWriteData(userUpdateFunction);
+    this.usersTable.grantReadWriteData(userDeleteFunction);
+    this.usersTable.grantReadData(userResetPasswordFunction);
     
     // Grant Cognito permissions for user profile sync
     userGetMeFunction.addToRolePolicy(new iam.PolicyStatement({
@@ -484,6 +631,44 @@ export class ServerlessCmsStack extends cdk.Stack {
     userUpdateMeFunction.addToRolePolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: ['cognito-idp:AdminGetUser', 'cognito-idp:AdminUpdateUserAttributes'],
+      resources: [this.userPool.userPoolArn],
+    }));
+
+    // Grant Cognito admin permissions for user management functions
+    userCreateFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'cognito-idp:AdminCreateUser',
+        'cognito-idp:AdminSetUserPassword',
+        'cognito-idp:AdminUpdateUserAttributes',
+      ],
+      resources: [this.userPool.userPoolArn],
+    }));
+
+    userUpdateFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'cognito-idp:AdminGetUser',
+        'cognito-idp:AdminUpdateUserAttributes',
+      ],
+      resources: [this.userPool.userPoolArn],
+    }));
+
+    userDeleteFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'cognito-idp:AdminGetUser',
+        'cognito-idp:AdminDeleteUser',
+      ],
+      resources: [this.userPool.userPoolArn],
+    }));
+
+    userResetPasswordFunction.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'cognito-idp:AdminGetUser',
+        'cognito-idp:AdminResetUserPassword',
+      ],
       resources: [this.userPool.userPoolArn],
     }));
 
@@ -590,6 +775,70 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.settingsTable.grantReadWriteData(pluginUpdateSettingsFunction);
     this.pluginsTable.grantReadData(pluginGetSettingsFunction);
 
+    // Comment Lambda Functions
+    const commentListFunction = new lambda.Function(this, 'CommentListFunction', {
+      functionName: `cms-comment-list-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'list.handler',
+      code: lambda.Code.fromAsset('lambda/comments'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
+    const commentCreateFunction = new lambda.Function(this, 'CommentCreateFunction', {
+      functionName: `cms-comment-create-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'create.handler',
+      code: lambda.Code.fromAsset('lambda/comments'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
+    const commentUpdateFunction = new lambda.Function(this, 'CommentUpdateFunction', {
+      functionName: `cms-comment-update-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'update.handler',
+      code: lambda.Code.fromAsset('lambda/comments'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
+    const commentDeleteFunction = new lambda.Function(this, 'CommentDeleteFunction', {
+      functionName: `cms-comment-delete-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'delete.handler',
+      code: lambda.Code.fromAsset('lambda/comments'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
+    // Grant permissions to comment functions
+    this.commentsTable.grantReadData(commentListFunction);
+    this.commentsTable.grantReadWriteData(commentCreateFunction);
+    this.commentsTable.grantReadWriteData(commentUpdateFunction);
+    this.commentsTable.grantReadWriteData(commentDeleteFunction);
+    
+    // Grant GSI query permissions for comments
+    commentListFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:Query'],
+      resources: [`${this.commentsTable.tableArn}/index/*`],
+    }));
+    
+    // Comment create needs to verify content exists
+    this.contentTable.grantReadData(commentCreateFunction);
+    
+    // Comment update and delete need user info for authorization
+    this.usersTable.grantReadData(commentUpdateFunction);
+    this.usersTable.grantReadData(commentDeleteFunction);
+
     // CloudWatch Monitoring and Alarms
 
     // Create SNS topic for alarm notifications
@@ -670,6 +919,10 @@ export class ServerlessCmsStack extends cdk.Stack {
     createLambdaAlarms(userGetMeFunction, 'UserGetMe');
     createLambdaAlarms(userUpdateMeFunction, 'UserUpdateMe');
     createLambdaAlarms(userListFunction, 'UserList');
+    createLambdaAlarms(userCreateFunction, 'UserCreate');
+    createLambdaAlarms(userUpdateFunction, 'UserUpdate');
+    createLambdaAlarms(userDeleteFunction, 'UserDelete');
+    createLambdaAlarms(userResetPasswordFunction, 'UserResetPassword');
     createLambdaAlarms(settingsGetFunction, 'SettingsGet');
     createLambdaAlarms(settingsUpdateFunction, 'SettingsUpdate');
     createLambdaAlarms(pluginInstallFunction, 'PluginInstall');
@@ -678,6 +931,10 @@ export class ServerlessCmsStack extends cdk.Stack {
     createLambdaAlarms(pluginListFunction, 'PluginList');
     createLambdaAlarms(pluginGetSettingsFunction, 'PluginGetSettings');
     createLambdaAlarms(pluginUpdateSettingsFunction, 'PluginUpdateSettings');
+    createLambdaAlarms(commentListFunction, 'CommentList');
+    createLambdaAlarms(commentCreateFunction, 'CommentCreate');
+    createLambdaAlarms(commentUpdateFunction, 'CommentUpdate');
+    createLambdaAlarms(commentDeleteFunction, 'CommentDelete');
 
     // API Gateway alarms
     const api4xxErrorAlarm = new cloudwatch.Alarm(this, 'Api4xxErrorAlarm', {
@@ -751,6 +1008,23 @@ export class ServerlessCmsStack extends cdk.Stack {
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     });
     contentTableSystemErrorsAlarm.addAlarmAction(alarmAction);
+
+    // Helper function to grant SES send email permissions to Lambda functions
+    const grantSesSendEmail = (fn: lambda.Function) => {
+      fn.addToRolePolicy(new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          'ses:SendEmail',
+          'ses:SendRawEmail',
+          'ses:SendTemplatedEmail',
+        ],
+        resources: ['*'], // SES doesn't support resource-level permissions for sending
+      }));
+    };
+
+    // Grant SES send email permissions to user management functions
+    grantSesSendEmail(userCreateFunction);
+    grantSesSendEmail(userResetPasswordFunction);
 
     // API Gateway Resources and Methods
 
@@ -840,6 +1114,34 @@ export class ServerlessCmsStack extends cdk.Stack {
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
+    // POST /api/v1/users - Create user (requires admin auth)
+    usersResource.addMethod('POST', new apigateway.LambdaIntegration(userCreateFunction), {
+      authorizer: this.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // User ID-specific endpoints: /api/v1/users/{id}
+    const userIdResource = usersResource.addResource('{id}');
+
+    // PUT /api/v1/users/{id} - Update user (requires admin auth)
+    userIdResource.addMethod('PUT', new apigateway.LambdaIntegration(userUpdateFunction), {
+      authorizer: this.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // DELETE /api/v1/users/{id} - Delete user (requires admin auth)
+    userIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(userDeleteFunction), {
+      authorizer: this.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // POST /api/v1/users/{id}/reset-password - Reset user password (requires admin auth)
+    const userResetPasswordResource = userIdResource.addResource('reset-password');
+    userResetPasswordResource.addMethod('POST', new apigateway.LambdaIntegration(userResetPasswordFunction), {
+      authorizer: this.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
     // Settings endpoints: /api/v1/settings
     const settingsResource = apiV1.addResource('settings');
 
@@ -891,6 +1193,35 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // PUT /api/v1/plugins/{id}/settings - Update plugin settings (requires auth)
     pluginSettingsResource.addMethod('PUT', new apigateway.LambdaIntegration(pluginUpdateSettingsFunction), {
+      authorizer: this.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // Comment endpoints: /api/v1/comments and /api/v1/content/{id}/comments
+    
+    // GET /api/v1/content/{id}/comments - List comments for content (public)
+    const contentIdCommentsResource = contentIdResource.addResource('comments');
+    contentIdCommentsResource.addMethod('GET', new apigateway.LambdaIntegration(commentListFunction));
+
+    // POST /api/v1/content/{id}/comments - Create comment for content (public if enabled)
+    contentIdCommentsResource.addMethod('POST', new apigateway.LambdaIntegration(commentCreateFunction));
+
+    // GET /api/v1/comments - List all comments for moderation (requires editor+ auth)
+    const commentsResource = apiV1.addResource('comments');
+    commentsResource.addMethod('GET', new apigateway.LambdaIntegration(commentListFunction), {
+      authorizer: this.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // PUT /api/v1/comments/{id} - Update comment status (requires editor+ auth)
+    const commentIdResource = commentsResource.addResource('{id}');
+    commentIdResource.addMethod('PUT', new apigateway.LambdaIntegration(commentUpdateFunction), {
+      authorizer: this.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // DELETE /api/v1/comments/{id} - Delete comment (requires editor+ auth)
+    commentIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(commentDeleteFunction), {
       authorizer: this.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
@@ -1418,6 +1749,27 @@ export class ServerlessCmsStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'AlarmTopicName', {
       value: alarmTopic.topicName,
       description: 'SNS Topic Name for CloudWatch Alarms',
+    });
+
+    // SES outputs
+    new cdk.CfnOutput(this, 'SesFromEmail', {
+      value: sesFromEmail,
+      description: 'SES From Email Address',
+    });
+
+    new cdk.CfnOutput(this, 'SesConfigurationSetName', {
+      value: sesConfigurationSet.configurationSetName,
+      description: 'SES Configuration Set Name',
+    });
+
+    new cdk.CfnOutput(this, 'SesBounceTopicArn', {
+      value: sesBouncesTopic.topicArn,
+      description: 'SNS Topic ARN for SES Bounces',
+    });
+
+    new cdk.CfnOutput(this, 'SesComplaintTopicArn', {
+      value: sesComplaintsTopic.topicArn,
+      description: 'SNS Topic ARN for SES Complaints',
     });
   }
 }
