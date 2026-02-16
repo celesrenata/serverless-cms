@@ -32,7 +32,7 @@ def handler(event, context):
         params = event.get('queryStringParameters', {}) or {}
         
         content_type = params.get('type', 'post')
-        status = params.get('status', 'published')
+        status = params.get('status')  # None means all statuses
         limit = int(params.get('limit', '20'))
         last_key_str = params.get('last_key')
         
