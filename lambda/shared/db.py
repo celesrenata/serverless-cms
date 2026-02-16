@@ -62,15 +62,27 @@ class ContentRepository:
     ) -> Dict[str, Any]:
         """List content by type with pagination."""
         try:
-            query_params = {
-                'IndexName': 'type-published_at-index',
-                'KeyConditionExpression': Key('type').eq(content_type),
-                'ScanIndexForward': False,  # Descending order
-                'Limit': limit
-            }
-            
-            if status:
-                query_params['FilterExpression'] = Attr('status').eq(status)
+            # For draft/archived content, use status-scheduled_at-index
+            # For published content, use type-published_at-index
+            if status in ['draft', 'archived']:
+                query_params = {
+                    'IndexName': 'status-scheduled_at-index',
+                    'KeyConditionExpression': Key('status').eq(status),
+                    'FilterExpression': Attr('type').eq(content_type),
+                    'ScanIndexForward': False,  # Descending order
+                    'Limit': limit
+                }
+            else:
+                query_params = {
+                    'IndexName': 'type-published_at-index',
+                    'KeyConditionExpression': Key('type').eq(content_type),
+                    'FilterExpression': Attr('status').eq(status) if status else None,
+                    'ScanIndexForward': False,  # Descending order
+                    'Limit': limit
+                }
+                # Remove FilterExpression if None
+                if not status:
+                    del query_params['FilterExpression']
             
             if last_key:
                 query_params['ExclusiveStartKey'] = last_key
