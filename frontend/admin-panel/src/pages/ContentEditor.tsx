@@ -14,6 +14,8 @@ export const ContentEditor: React.FC = () => {
 
   const { content, isLoading, create, update, isCreating, isUpdating } = useContent(id);
 
+  console.log('ContentEditor - id:', id, 'content:', content, 'isLoading:', isLoading);
+
   // Form state
   const [type, setType] = useState<ContentType>('post');
   const [title, setTitle] = useState('');
@@ -40,6 +42,7 @@ export const ContentEditor: React.FC = () => {
   // Load content data in edit mode
   useEffect(() => {
     if (content) {
+      console.log('Loading content into editor:', content);
       setType(content.type);
       setTitle(content.title);
       setSlug(content.slug);
