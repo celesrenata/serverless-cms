@@ -44,12 +44,27 @@ def handler(event, context):
             # For ID lookup, scan by id (consider adding id-only GSI in production)
             from boto3.dynamodb.conditions import Attr
             table = content_repo.table
-            response = table.scan(
-                FilterExpression=Attr('id').eq(content_id),
-                Limit=1
-            )
-            items = response.get('Items', [])
-            content = items[0] if items else None
+            
+            # Scan with pagination to find the item
+            content = None
+            scan_kwargs = {
+                'FilterExpression': Attr('id').eq(content_id),
+                'Limit': 100
+            }
+            
+            while True:
+                response = table.scan(**scan_kwargs)
+                items = response.get('Items', [])
+                if items:
+                    content = items[0]
+                    break
+                
+                # Check if there are more items to scan
+                last_key = response.get('LastEvaluatedKey')
+                if not last_key:
+                    break
+                    
+                scan_kwargs['ExclusiveStartKey'] = last_key
         
         if not content:
             return {
