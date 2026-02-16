@@ -49,13 +49,29 @@ def handler(event, context, user_id, role):
         
         # Get existing content to verify it exists and get composite key
         table = content_repo.table
-        response = table.scan(
-            FilterExpression=Attr('id').eq(content_id),
-            Limit=1
-        )
-        items = response.get('Items', [])
         
-        if not items:
+        # Scan with pagination to find the item
+        existing_content = None
+        scan_kwargs = {
+            'FilterExpression': Attr('id').eq(content_id),
+            'Limit': 100
+        }
+        
+        while True:
+            response = table.scan(**scan_kwargs)
+            items = response.get('Items', [])
+            if items:
+                existing_content = items[0]
+                break
+            
+            # Check if there are more items to scan
+            last_key = response.get('LastEvaluatedKey')
+            if not last_key:
+                break
+                
+            scan_kwargs['ExclusiveStartKey'] = last_key
+        
+        if not existing_content:
             return {
                 'statusCode': 404,
                 'headers': {
@@ -68,7 +84,7 @@ def handler(event, context, user_id, role):
                 })
             }
         
-        existing_content = items[0]
+        existing_content = existing_content
         type_timestamp = existing_content.get('type#timestamp')
         
         # Execute plugin hook for content_delete
