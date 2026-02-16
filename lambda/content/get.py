@@ -41,23 +41,15 @@ def handler(event, context):
         if slug:
             content = content_repo.get_by_slug(slug)
         elif content_id:
-            # For ID lookup, we need to query by id
-            # Since we have a composite key, we'll use query on the base table
-            # For now, use slug index as primary lookup method
-            # In production, you might want to add a GSI on just 'id'
-            content = content_repo.get_by_slug(content_id)
-            
-            # If not found by slug, try as actual ID with scan (less efficient)
-            if not content:
-                # This is a fallback - in production consider adding id-only GSI
-                from boto3.dynamodb.conditions import Attr
-                table = content_repo.table
-                response = table.scan(
-                    FilterExpression=Attr('id').eq(content_id),
-                    Limit=1
-                )
-                items = response.get('Items', [])
-                content = items[0] if items else None
+            # For ID lookup, scan by id (consider adding id-only GSI in production)
+            from boto3.dynamodb.conditions import Attr
+            table = content_repo.table
+            response = table.scan(
+                FilterExpression=Attr('id').eq(content_id),
+                Limit=1
+            )
+            items = response.get('Items', [])
+            content = items[0] if items else None
         
         if not content:
             return {
