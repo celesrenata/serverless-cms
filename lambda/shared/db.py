@@ -332,6 +332,10 @@ class SettingsRepository:
         except Exception as e:
             raise Exception(f"Failed to get setting: {str(e)}")
     
+    def get_setting(self, key: str) -> Optional[Dict[str, Any]]:
+        """Alias for get() method for backwards compatibility."""
+        return self.get(key)
+    
     def set(self, key: str, value: Any, updated_by: str, updated_at: int) -> Dict[str, Any]:
         """Set or update a setting."""
         try:
@@ -466,13 +470,29 @@ class CommentRepository:
         except Exception as e:
             raise Exception(f"Failed to create comment: {str(e)}")
     
-    def get_by_id(self, comment_id: str) -> Optional[Dict[str, Any]]:
-        """Get comment by ID."""
+    def get_by_id(self, comment_id: str, created_at: Optional[int] = None) -> Optional[Dict[str, Any]]:
+        """
+        Get comment by ID.
+        If created_at is not provided, will scan to find the comment (less efficient).
+        """
         try:
-            response = self.table.get_item(
-                Key={'id': comment_id}
-            )
-            return response.get('Item')
+            if created_at is not None:
+                # Efficient get with both keys
+                response = self.table.get_item(
+                    Key={
+                        'id': comment_id,
+                        'created_at': created_at
+                    }
+                )
+                return response.get('Item')
+            else:
+                # Fallback: scan to find by ID only (less efficient)
+                response = self.table.scan(
+                    FilterExpression=Attr('id').eq(comment_id),
+                    Limit=1
+                )
+                items = response.get('Items', [])
+                return items[0] if items else None
         except Exception as e:
             raise Exception(f"Failed to get comment: {str(e)}")
     
@@ -521,9 +541,19 @@ class CommentRepository:
         except Exception as e:
             raise Exception(f"Failed to list comments by status: {str(e)}")
     
-    def update(self, comment_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
-        """Update comment (typically for moderation)."""
+    def update(self, comment_id: str, updates: Dict[str, Any], created_at: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Update comment (typically for moderation).
+        If created_at is not provided, will first fetch the comment to get it.
+        """
         try:
+            # If created_at not provided, fetch it first
+            if created_at is None:
+                comment = self.get_by_id(comment_id)
+                if not comment:
+                    raise Exception(f"Comment {comment_id} not found")
+                created_at = comment['created_at']
+            
             update_expr_parts = []
             expr_attr_names = {}
             expr_attr_values = {}
@@ -538,7 +568,10 @@ class CommentRepository:
             update_expr = "SET " + ", ".join(update_expr_parts)
             
             response = self.table.update_item(
-                Key={'id': comment_id},
+                Key={
+                    'id': comment_id,
+                    'created_at': created_at
+                },
                 UpdateExpression=update_expr,
                 ExpressionAttributeNames=expr_attr_names,
                 ExpressionAttributeValues=expr_attr_values,
@@ -548,9 +581,24 @@ class CommentRepository:
         except Exception as e:
             raise Exception(f"Failed to update comment: {str(e)}")
     
-    def delete(self, comment_id: str) -> None:
-        """Delete comment."""
+    def delete(self, comment_id: str, created_at: Optional[int] = None) -> None:
+        """
+        Delete comment.
+        If created_at is not provided, will first fetch the comment to get it.
+        """
         try:
-            self.table.delete_item(Key={'id': comment_id})
+            # If created_at not provided, fetch it first
+            if created_at is None:
+                comment = self.get_by_id(comment_id)
+                if not comment:
+                    raise Exception(f"Comment {comment_id} not found")
+                created_at = comment['created_at']
+            
+            self.table.delete_item(
+                Key={
+                    'id': comment_id,
+                    'created_at': created_at
+                }
+            )
         except Exception as e:
             raise Exception(f"Failed to delete comment: {str(e)}")
