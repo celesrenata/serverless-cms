@@ -145,36 +145,38 @@ _Requirements: 24.1, 24.2, 24.3, 24.4, 24.8_
 **Objective:** Add comment form and display to public website
 
 **Subtasks:**
-- [ ] 8.1 Create frontend/public-website/src/components/CommentForm.tsx with validation
-- [ ] 8.2 Create frontend/public-website/src/components/CommentList.tsx with threading
-- [ ] 8.3 Create frontend/public-website/src/components/Comment.tsx for individual comments
-- [ ] 8.4 Create frontend/public-website/src/hooks/useComments.ts
-- [ ] 8.5 Add comment API methods to frontend/public-website/src/services/api.ts
-- [ ] 8.6 Integrate comment components into frontend/public-website/src/pages/Post.tsx
-- [ ] 8.7 Add conditional rendering based on comments_enabled setting
-- [ ] 8.8 Implement loading and error states
+- [x] 8.1 Create frontend/public-website/src/components/CommentForm.tsx with validation
+- [x] 8.2 Create frontend/public-website/src/components/CommentList.tsx with threading
+- [x] 8.3 Create frontend/public-website/src/components/Comment.tsx for individual comments
+- [x] 8.4 Create frontend/public-website/src/hooks/useComments.ts
+- [x] 8.5 Add comment API methods to frontend/public-website/src/services/api.ts
+- [x] 8.6 Integrate comment components into frontend/public-website/src/pages/Post.tsx
+- [x] 8.7 Add conditional rendering based on comments_enabled setting
+- [x] 8.8 Implement loading and error states
 - [ ]* 8.9 Write frontend tests for comment components
 
 _Requirements: 24.1, 24.2, 24.3, 24.5, 24.6, 24.9_
 
----
+**Status:** ✅ COMPLETE (tests pending)
 
 ## Task 9: Comment Moderation Interface - Admin Panel
 
 **Objective:** Build comment moderation interface in admin panel
 
 **Subtasks:**
-- [ ] 9.1 Create frontend/admin-panel/src/pages/Comments.tsx with comment list
-- [ ] 9.2 Create frontend/admin-panel/src/components/Comments/ directory
-- [ ] 9.3 Create frontend/admin-panel/src/components/Comments/CommentTable.tsx
-- [ ] 9.4 Create frontend/admin-panel/src/components/Comments/CommentActions.tsx
-- [ ] 9.5 Create frontend/admin-panel/src/hooks/useComments.ts for moderation
-- [ ] 9.6 Add comment moderation API methods to frontend/admin-panel/src/services/api.ts
-- [ ] 9.7 Implement status filters (pending, approved, spam, rejected)
-- [ ] 9.8 Add Comments navigation link to admin layout
+- [x] 9.1 Create frontend/admin-panel/src/pages/Comments.tsx with comment list
+- [x] 9.2 Create frontend/admin-panel/src/components/Comments/ directory
+- [x] 9.3 Create frontend/admin-panel/src/components/Comments/CommentTable.tsx
+- [x] 9.4 Create frontend/admin-panel/src/components/Comments/CommentActions.tsx
+- [x] 9.5 Create frontend/admin-panel/src/hooks/useComments.ts for moderation
+- [x] 9.6 Add comment moderation API methods to frontend/admin-panel/src/services/api.ts
+- [x] 9.7 Implement status filters (pending, approved, spam, rejected)
+- [x] 9.8 Add Comments navigation link to admin layout
 - [ ]* 9.9 Write frontend tests for moderation interface
 
 _Requirements: 24.4, 24.8_
+
+**Status:** ✅ COMPLETE (tests pending)
 
 ---
 
@@ -183,16 +185,18 @@ _Requirements: 24.4, 24.8_
 **Objective:** Configure AWS WAF with CAPTCHA for comment spam protection
 
 **Subtasks:**
-- [ ] 10.1 Add AWS WAF Web ACL to CDK stack
-- [ ] 10.2 Configure CAPTCHA challenge rule for comment endpoint in WAF
-- [ ] 10.3 Associate WAF with API Gateway stage in CDK stack
-- [ ] 10.4 Add WAF CAPTCHA widget to CommentForm.tsx
-- [ ] 10.5 Implement CAPTCHA token validation in lambda/comments/create.py
-- [ ] 10.6 Add conditional CAPTCHA rendering based on captcha_enabled setting
-- [ ] 10.7 Ensure rate limiting works as fallback when CAPTCHA disabled
+- [x] 10.1 Add AWS WAF Web ACL to CDK stack
+- [x] 10.2 Configure CAPTCHA challenge rule for comment endpoint in WAF
+- [x] 10.3 Associate WAF with API Gateway stage in CDK stack
+- [x] 10.4 Add WAF CAPTCHA widget to CommentForm.tsx
+- [x] 10.5 Implement CAPTCHA token validation in lambda/comments/create.py
+- [x] 10.6 Add conditional CAPTCHA rendering based on captcha_enabled setting
+- [x] 10.7 Ensure rate limiting works as fallback when CAPTCHA disabled
 - [ ]* 10.8 Test CAPTCHA flow end-to-end
 
 _Requirements: 25.1, 25.2, 25.3, 25.4, 25.5, 25.6, 25.7, 25.8, 25.9_
+
+**Status:** ✅ COMPLETE (testing pending)
 
 ---
 
@@ -201,15 +205,17 @@ _Requirements: 25.1, 25.2, 25.3, 25.4, 25.5, 25.6, 25.7, 25.8, 25.9_
 **Objective:** Implement self-service user registration with email verification
 
 **Subtasks:**
-- [ ] 11.1 Create lambda/auth/ directory with __init__.py
-- [ ] 11.2 Create lambda/auth/register.py - Handle registration with Cognito and send welcome email
-- [ ] 11.3 Create lambda/auth/verify_email.py - Handle email verification callback
-- [ ] 11.4 Implement email format and password strength validation in register.py
-- [ ] 11.5 Set default role to "viewer" for new registrations
-- [ ] 11.6 Prevent duplicate registrations with same email
-- [ ]* 11.7 Write integration tests for registration flow
+- [x] 11.1 Create lambda/auth/ directory with __init__.py
+- [x] 11.2 Create lambda/auth/register.py - Handle registration with Cognito and send welcome email
+- [x] 11.3 Create lambda/auth/verify_email.py - Handle email verification callback
+- [x] 11.4 Implement email format and password strength validation in register.py
+- [x] 11.5 Set default role to "viewer" for new registrations
+- [x] 11.6 Prevent duplicate registrations with same email
+- [x] 11.7 Write integration tests for registration flow
 
 _Requirements: 26.1, 26.2, 26.3, 26.4, 26.5, 26.6, 26.7, 26.8, 26.9_
+
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -218,14 +224,16 @@ _Requirements: 26.1, 26.2, 26.3, 26.4, 26.5, 26.6, 26.7, 26.8, 26.9_
 **Objective:** Add API Gateway routes for registration to CDK stack
 
 **Subtasks:**
-- [ ] 12.1 Create Lambda functions in CDK for register and verify_email
-- [ ] 12.2 Add POST /api/v1/auth/register endpoint (public if enabled)
-- [ ] 12.3 Add POST /api/v1/auth/verify-email endpoint (public)
-- [ ] 12.4 Grant Cognito user creation permissions to register Lambda
-- [ ] 12.5 Grant SES send email permissions to register Lambda
-- [ ] 12.6 Add CloudWatch alarms for registration Lambda functions
+- [x] 12.1 Create Lambda functions in CDK for register and verify_email
+- [x] 12.2 Add POST /api/v1/auth/register endpoint (public if enabled)
+- [x] 12.3 Add POST /api/v1/auth/verify-email endpoint (public)
+- [x] 12.4 Grant Cognito user creation permissions to register Lambda
+- [x] 12.5 Grant SES send email permissions to register Lambda
+- [x] 12.6 Add CloudWatch alarms for registration Lambda functions
 
 _Requirements: 26.1, 26.2, 26.3, 26.4, 26.5, 26.8_
+
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -234,15 +242,17 @@ _Requirements: 26.1, 26.2, 26.3, 26.4, 26.5, 26.8_
 **Objective:** Build registration and verification pages for public website
 
 **Subtasks:**
-- [ ] 13.1 Create frontend/public-website/src/pages/Register.tsx with form validation
-- [ ] 13.2 Create frontend/public-website/src/pages/VerifyEmail.tsx
-- [ ] 13.3 Add registration API methods to frontend/public-website/src/services/api.ts
-- [ ] 13.4 Add conditional registration link to frontend/public-website/src/pages/Login.tsx
-- [ ] 13.5 Add registration route to frontend/public-website/src/App.tsx
-- [ ] 13.6 Implement password strength indicator in Register.tsx
+- [x] 13.1 Create frontend/public-website/src/pages/Register.tsx with form validation
+- [x] 13.2 Create frontend/public-website/src/pages/VerifyEmail.tsx
+- [x] 13.3 Add registration API methods to frontend/public-website/src/services/api.ts
+- [x] 13.4 Add conditional registration link to frontend/public-website/src/pages/Login.tsx
+- [x] 13.5 Add registration route to frontend/public-website/src/App.tsx
+- [x] 13.6 Implement password strength indicator in Register.tsx
 - [ ]* 13.7 Write frontend tests for registration components
 
 _Requirements: 26.1, 26.2, 26.4, 26.5, 26.7_
+
+**Status:** ✅ COMPLETE (tests pending)
 
 ---
 
@@ -251,15 +261,17 @@ _Requirements: 26.1, 26.2, 26.4, 26.5, 26.7_
 **Objective:** Implement middleware to enforce settings across all endpoints
 
 **Subtasks:**
-- [ ] 14.1 Create lambda/shared/middleware.py with check_setting function
-- [ ] 14.2 Implement settings caching in middleware (5 minute TTL)
-- [ ] 14.3 Add registration check to lambda/auth/register.py
-- [ ] 14.4 Add comments check to lambda/comments/create.py
-- [ ] 14.5 Add CAPTCHA check to lambda/comments/create.py
-- [ ] 14.6 Update public website to fetch site settings on initial load
+- [x] 14.1 Create lambda/shared/middleware.py with check_setting function
+- [x] 14.2 Implement settings caching in middleware (5 minute TTL)
+- [x] 14.3 Add registration check to lambda/auth/register.py
+- [x] 14.4 Add comments check to lambda/comments/create.py
+- [x] 14.5 Add CAPTCHA check to lambda/comments/create.py
+- [x] 14.6 Update public website to fetch site settings on initial load
 - [ ]* 14.7 Test feature gating for all settings
 
 _Requirements: 22.2, 22.3, 22.4, 22.5, 22.6, 22.8_
+
+**Status:** ✅ COMPLETE (testing pending)
 
 ---
 
@@ -270,12 +282,12 @@ _Requirements: 22.2, 22.3, 22.4, 22.5, 22.6, 22.8_
 **Subtasks:**
 - [x] 15.1 Add comments table schema to .kiro/steering/database-schema.md
 - [x] 15.2 Document comment status values and GSI usage patterns
-- [ ] 15.3 Update settings table documentation with new settings keys
-- [ ] 15.4 Document user table fields for Phase 2 (last_login, created_at)
+- [x] 15.3 Update settings table documentation with new settings keys
+- [x] 15.4 Document user table fields for Phase 2 (last_login, created_at)
 
 _Requirements: All Phase 2 requirements_
 
-**Status:** In Progress
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -284,13 +296,15 @@ _Requirements: All Phase 2 requirements_
 **Objective:** Document all Phase 2 API endpoints
 
 **Subtasks:**
-- [ ] 16.1 Add user management endpoints to API_DOCUMENTATION.md
-- [ ] 16.2 Add comment endpoints to API_DOCUMENTATION.md
-- [ ] 16.3 Add registration endpoints to API_DOCUMENTATION.md
-- [ ] 16.4 Document request/response formats for all new endpoints
-- [ ] 16.5 Document authentication requirements for each endpoint
+- [x] 16.1 Add user management endpoints to API_DOCUMENTATION.md
+- [x] 16.2 Add comment endpoints to API_DOCUMENTATION.md
+- [x] 16.3 Add registration endpoints to API_DOCUMENTATION.md
+- [x] 16.4 Document request/response formats for all new endpoints
+- [x] 16.5 Document authentication requirements for each endpoint
 
 _Requirements: All Phase 2 requirements_
+
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -299,15 +313,17 @@ _Requirements: All Phase 2 requirements_
 **Objective:** Set up CloudWatch monitoring for Phase 2 features
 
 **Subtasks:**
-- [ ] 17.1 Add CloudWatch dashboard for Phase 2 metrics to CDK stack
-- [ ] 17.2 Add alarm for email bounce rate (SES)
-- [ ] 17.3 Add alarm for failed CAPTCHA validations
-- [ ] 17.4 Add alarm for comment spam detection rate
-- [ ] 17.5 Add alarm for user creation failures
-- [ ] 17.6 Configure SNS notifications for Phase 2 alarms
-- [ ] 17.7 Update MONITORING.md with Phase 2 metrics and alarms
+- [x] 17.1 Add CloudWatch dashboard for Phase 2 metrics to CDK stack
+- [x] 17.2 Add alarm for email bounce rate (SES)
+- [x] 17.3 Add alarm for failed CAPTCHA validations
+- [x] 17.4 Add alarm for comment spam detection rate
+- [x] 17.5 Add alarm for user creation failures
+- [x] 17.6 Configure SNS notifications for Phase 2 alarms
+- [x] 17.7 Update MONITORING.md with Phase 2 metrics and alarms
 
 _Requirements: 23.6, 25.2, 25.3_
+
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -316,14 +332,16 @@ _Requirements: 23.6, 25.2, 25.3_
 **Objective:** Write comprehensive integration tests for Phase 2
 
 **Subtasks:**
-- [ ]* 18.1 Write tests/test_user_management.py for user CRUD operations
-- [ ]* 18.2 Write tests/test_comments.py for comment system
-- [ ]* 18.3 Write tests/test_registration.py for registration flow
-- [ ]* 18.4 Add Phase 2 E2E tests to tests/test_e2e_workflows.py
-- [ ]* 18.5 Add Phase 2 smoke tests to tests/smoke_tests.py
-- [ ]* 18.6 Update tests/conftest.py with Phase 2 fixtures
+- [x] 18.1 Write tests/test_user_management.py for user CRUD operations
+- [x] 18.2 Write tests/test_comments.py for comment system
+- [x] 18.3 Write tests/test_registration.py for registration flow
+- [x] 18.4 Add Phase 2 E2E tests to tests/test_e2e_workflows.py
+- [x] 18.5 Add Phase 2 smoke tests to tests/smoke_tests.py
+- [x] 18.6 Update tests/conftest.py with Phase 2 fixtures
 
 _Requirements: All Phase 2 requirements_
+
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -332,14 +350,16 @@ _Requirements: All Phase 2 requirements_
 **Objective:** Document Phase 2 deployment and configuration
 
 **Subtasks:**
-- [ ] 19.1 Create USER_MANAGEMENT_GUIDE.md with admin instructions
-- [ ] 19.2 Create COMMENT_MODERATION_GUIDE.md with moderation workflows
-- [ ] 19.3 Update DEPLOYMENT.md with SES setup instructions
-- [ ] 19.4 Update DEPLOYMENT.md with WAF configuration instructions
-- [ ] 19.5 Document DNS configuration for SES (SPF, DKIM, DMARC)
-- [ ] 19.6 Document moving SES out of sandbox mode
+- [x] 19.1 Create USER_MANAGEMENT_GUIDE.md with admin instructions
+- [x] 19.2 Create COMMENT_MODERATION_GUIDE.md with moderation workflows
+- [x] 19.3 Update DEPLOYMENT.md with SES setup instructions
+- [x] 19.4 Update DEPLOYMENT.md with WAF configuration instructions
+- [x] 19.5 Document DNS configuration for SES (SPF, DKIM, DMARC)
+- [x] 19.6 Document moving SES out of sandbox mode
 
 _Requirements: 23.4, 23.5, 23.8, 27.2, 27.3, 27.4, 27.8_
+
+**Status:** ✅ COMPLETE
 
 ---
 
