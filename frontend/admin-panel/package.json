@@ -23,7 +23,8 @@
     "@tiptap/extension-code-block": "^2.1.13",
     "@tiptap/extension-link": "^2.1.13",
     "axios": "^1.6.2",
-    "amazon-cognito-identity-js": "^6.3.7"
+    "amazon-cognito-identity-js": "^6.3.7",
+    "lucide-react": "^0.294.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
