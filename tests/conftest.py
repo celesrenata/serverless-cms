@@ -504,10 +504,31 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lambda'))
     
     # Configure mock_cognito to return proper responses
+    created_users = {}  # Track created users by email
+    
+    # Pre-populate with test user email from test_user fixture
+    created_users['testuser@example.com'] = 'test-user-id'
+    
     def mock_admin_create_user(**kwargs):
+        email = None
+        for attr in kwargs.get('UserAttributes', []):
+            if attr['Name'] == 'email':
+                email = attr['Value']
+                break
+        
+        # Check for duplicate
+        if email and email in created_users:
+            raise mock_cognito.exceptions.UsernameExistsException(
+                {'Error': {'Code': 'UsernameExistsException', 'Message': 'User already exists'}}
+            )
+        
+        user_id = str(uuid.uuid4())
+        if email:
+            created_users[email] = user_id
+        
         return {
             'User': {
-                'Username': str(uuid.uuid4()),
+                'Username': user_id,
                 'Attributes': kwargs.get('UserAttributes', []),
                 'UserStatus': 'FORCE_CHANGE_PASSWORD'
             }
@@ -532,21 +553,55 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
     
     monkeypatch.setattr(boto3, 'client', mock_boto3_client)
     
-    # Mock the require_auth decorator to bypass authentication
+    # Mock the require_auth decorator to support role-based testing
     from shared import auth
     
     def mock_require_auth(roles=None):
-        """Mock decorator that bypasses auth and injects test user."""
+        """Mock decorator that checks token and injects appropriate user/role."""
         def decorator(func):
             def wrapper(event, context, *args, **kwargs):
-                # Inject mock user_id and role
-                test_user_id = 'test-admin-id'
-                test_role = 'admin'
+                # Extract token from Authorization header
+                headers = event.get('headers', {})
+                auth_header = headers.get('Authorization', '')
+                
+                # Determine role based on token
+                if 'admin' in auth_header.lower():
+                    test_user_id = 'test-admin-id'
+                    test_role = 'admin'
+                elif 'editor' in auth_header.lower():
+                    test_user_id = 'test-editor-id'
+                    test_role = 'editor'
+                elif 'author' in auth_header.lower():
+                    test_user_id = 'test-author-id'
+                    test_role = 'author'
+                else:
+                    # No valid token - return 401
+                    return {
+                        'statusCode': 401,
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*',
+                        },
+                        'body': json.dumps({'error': 'Unauthorized'})
+                    }
+                
+                # Check if user has required role
+                if roles and test_role not in roles:
+                    return {
+                        'statusCode': 403,
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*',
+                        },
+                        'body': json.dumps({'error': 'Forbidden'})
+                    }
+                
                 return func(event, context, test_user_id, test_role, *args, **kwargs)
             return wrapper
         return decorator
     
     monkeypatch.setattr(auth, 'require_auth', mock_require_auth)
+
     
     class MockResponse:
         def __init__(self, status_code, data):
