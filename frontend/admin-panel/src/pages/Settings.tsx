@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuthContext';
 import { useSettings } from '../hooks/useSettings';
 
 export function Settings() {
-  const { user } = useAuth();
   const { settings, isLoading, updateSettings, isUpdating } = useSettings();
   
   const [siteTitle, setSiteTitle] = useState('');
