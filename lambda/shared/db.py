@@ -346,6 +346,10 @@ class SettingsRepository:
         except Exception as e:
             raise Exception(f"Failed to set setting: {str(e)}")
     
+    def update_setting(self, key: str, value: Any, updated_by: str, updated_at: int) -> Dict[str, Any]:
+        """Alias for set() method for backwards compatibility."""
+        return self.set(key, value, updated_by, updated_at)
+    
     def get_all(self) -> List[Dict[str, Any]]:
         """Get all settings."""
         try:
