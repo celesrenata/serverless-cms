@@ -84,8 +84,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Parse request body
         body = json.loads(event.get('body', '{}'))
         
+        # Get content_id from path parameters or body
+        path_params = event.get('pathParameters', {})
+        content_id = path_params.get('content_id') or body.get('content_id', '').strip()
+        
         # Validate required fields
-        content_id = body.get('content_id', '').strip()
         author_name = body.get('author_name', '').strip()
         author_email = body.get('author_email', '').strip()
         comment_text = body.get('comment_text', '').strip()
@@ -119,8 +122,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         dynamodb = get_dynamodb_resource()
         content_table = dynamodb.Table(CONTENT_TABLE)
         
-        content_response = content_table.get_item(Key={'id': content_id})
-        if 'Item' not in content_response:
+        # Scan for content by ID (content table has composite key)
+        try:
+            content_response = content_table.scan(
+                FilterExpression='id = :id',
+                ExpressionAttributeValues={':id': content_id},
+                Limit=1
+            )
+            if not content_response.get('Items'):
+                return {
+                    'statusCode': 404,
+                    'body': json.dumps({'error': 'Content not found'})
+                }
+        except Exception:
             return {
                 'statusCode': 404,
                 'body': json.dumps({'error': 'Content not found'})
@@ -167,13 +181,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Return comment without sensitive data
         response_comment = {k: v for k, v in comment.items() if k not in ['ip_address', 'author_email']}
+        response_comment['message'] = 'Comment submitted successfully. It will appear after moderation.'
         
         return {
             'statusCode': 201,
-            'body': json.dumps({
-                'message': 'Comment submitted successfully. It will appear after moderation.',
-                'comment': response_comment
-            })
+            'body': json.dumps(response_comment)
         }
         
     except json.JSONDecodeError:

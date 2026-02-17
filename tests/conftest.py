@@ -507,8 +507,17 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
     import os
     import boto3
     import uuid
+    from datetime import datetime
     
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lambda'))
+    
+    # Enable comments and registration by default for tests
+    from shared.db import SettingsRepository
+    settings_repo = SettingsRepository()
+    now = int(datetime.now().timestamp())
+    settings_repo.set('comments_enabled', True, 'test-system', now)
+    settings_repo.set('registration_enabled', True, 'test-system', now)
+    settings_repo.set('captcha_enabled', False, 'test-system', now)
     
     # Configure mock_cognito to return proper responses
     created_users = {}  # Track created users by email
