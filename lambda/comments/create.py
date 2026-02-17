@@ -19,6 +19,12 @@ CONTENT_TABLE = os.environ['CONTENT_TABLE']
 RATE_LIMIT_WINDOW = 3600  # 1 hour in seconds
 RATE_LIMIT_MAX = 5
 
+# CORS headers
+CORS_HEADERS = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+}
+
 
 def decimal_to_int(obj):
     """Convert Decimal objects to int for JSON serialization."""
@@ -51,6 +57,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         except ValueError as e:
             return {
                 'statusCode': 403,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({
                     'error': 'Feature disabled',
                     'message': str(e)
@@ -84,6 +91,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             log.warning(f"Rate limit exceeded for IP: {source_ip}")
             return {
                 'statusCode': 429,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({
                     'error': 'Rate limit exceeded',
                     'message': 'Rate limit exceeded. Maximum 5 comments per hour.'
@@ -106,6 +114,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if not all([content_id, author_name, author_email, comment_text]):
             return {
                 'statusCode': 400,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({
                     'error': 'Validation error',
                     'message': 'Missing required fields: content_id, author_name, author_email, comment_text'
@@ -116,6 +125,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if '@' not in author_email or '.' not in author_email:
             return {
                 'statusCode': 400,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({
                     'error': 'Validation error',
                     'message': 'Invalid email format'
@@ -126,6 +136,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if len(comment_text) < 1 or len(comment_text) > 5000:
             return {
                 'statusCode': 400,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({
                     'error': 'Validation error',
                     'message': 'Comment text is too long. Maximum length is 5000 characters.'
@@ -146,6 +157,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if not content_response.get('Items'):
                 return {
                     'statusCode': 404,
+                    'headers': CORS_HEADERS,
                     'body': json.dumps({'error': 'Content not found'})
                 }
             
@@ -155,6 +167,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if content.get('status') != 'published':
                 return {
                     'statusCode': 403,
+                    'headers': CORS_HEADERS,
                     'body': json.dumps({
                         'error': 'Comments not allowed',
                         'message': 'Comments are only allowed on published content'
@@ -163,6 +176,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         except Exception:
             return {
                 'statusCode': 404,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({'error': 'Content not found'})
             }
         
@@ -174,6 +188,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if not parent_comment:
                 return {
                     'statusCode': 404,
+                    'headers': CORS_HEADERS,
                     'body': json.dumps({
                         'error': 'Not found',
                         'message': 'Parent comment not found'
@@ -218,18 +233,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         return {
             'statusCode': 201,
+            'headers': CORS_HEADERS,
             'body': json.dumps(response_comment)
         }
         
     except json.JSONDecodeError:
         return {
             'statusCode': 400,
+            'headers': CORS_HEADERS,
             'body': json.dumps({'error': 'Invalid JSON in request body'})
         }
     except Exception as e:
         log.error(f"Error creating comment: {str(e)}", error=str(e), error_type=type(e).__name__)
         return {
             'statusCode': 500,
+            'headers': CORS_HEADERS,
             'body': json.dumps({'error': 'Failed to create comment'})
         }
 

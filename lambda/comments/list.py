@@ -118,6 +118,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         return {
             'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
             'body': json.dumps(result)
         }
         
@@ -125,6 +129,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         log.error(f"Error listing comments: {str(e)}", error=str(e), error_type=type(e).__name__)
         return {
             'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
             'body': json.dumps({'error': 'Failed to list comments'})
         }
 
