@@ -59,6 +59,20 @@ def handler(event, context, user_id, role):
         # Parse request body
         body = json.loads(event.get('body', '{}'))
         
+        # Validate that at least one field is provided
+        if not body or not any(key in body for key in ['name', 'email', 'role', 'avatar_url', 'bio']):
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+                'body': json.dumps({
+                    'error': 'Bad request',
+                    'message': 'At least one field must be provided for update'
+                })
+            }
+        
         # Check if user exists
         existing_user = user_repo.get_by_id(target_user_id)
         if not existing_user:
