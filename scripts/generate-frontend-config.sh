@@ -29,6 +29,60 @@ USER_POOL_ARN=$(jq -r ".\"$STACK_NAME\".UserPoolArn" "$OUTPUTS_FILE")
 REGION=$(echo "$USER_POOL_ARN" | cut -d: -f4)
 MEDIA_BUCKET=$(jq -r ".\"$STACK_NAME\".MediaBucketName" "$OUTPUTS_FILE")
 
+# Check if values are null (CDK didn't detect changes and skipped deployment)
+if [ "$API_ENDPOINT" == "null" ] || [ -z "$API_ENDPOINT" ]; then
+  echo ""
+  echo "⚠️  WARNING: CDK outputs contain null values!"
+  echo "   This usually means CDK didn't detect infrastructure changes."
+  echo "   Attempting to retrieve values from existing stack..."
+  echo ""
+  
+  # Get stack name based on environment
+  CDK_STACK_NAME="ServerlessCmsStack-${ENVIRONMENT}"
+  
+  # Try to get outputs from CloudFormation stack
+  if aws cloudformation describe-stacks --stack-name "$CDK_STACK_NAME" &>/dev/null; then
+    echo "   Found existing stack: $CDK_STACK_NAME"
+    
+    API_ENDPOINT=$(aws cloudformation describe-stacks \
+      --stack-name "$CDK_STACK_NAME" \
+      --query "Stacks[0].Outputs[?OutputKey=='ApiEndpoint'].OutputValue" \
+      --output text)
+    
+    USER_POOL_ID=$(aws cloudformation describe-stacks \
+      --stack-name "$CDK_STACK_NAME" \
+      --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" \
+      --output text)
+    
+    USER_POOL_CLIENT_ID=$(aws cloudformation describe-stacks \
+      --stack-name "$CDK_STACK_NAME" \
+      --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" \
+      --output text)
+    
+    REGION=$(aws cloudformation describe-stacks \
+      --stack-name "$CDK_STACK_NAME" \
+      --query "Stacks[0].Outputs[?OutputKey=='Region'].OutputValue" \
+      --output text)
+    
+    MEDIA_BUCKET=$(aws cloudformation describe-stacks \
+      --stack-name "$CDK_STACK_NAME" \
+      --query "Stacks[0].Outputs[?OutputKey=='MediaBucketName'].OutputValue" \
+      --output text)
+    
+    echo "   ✓ Retrieved values from CloudFormation stack"
+  else
+    echo "   ❌ Error: Could not find CloudFormation stack: $CDK_STACK_NAME"
+    echo "   Please deploy the CDK stack first using ./scripts/deploy.sh"
+    exit 1
+  fi
+fi
+
+# Validate required values
+if [ "$API_ENDPOINT" == "null" ] || [ -z "$API_ENDPOINT" ]; then
+  echo "❌ Error: API_ENDPOINT is still null after fallback attempt"
+  exit 1
+fi
+
 # Use custom domain URLs if available, otherwise use CloudFront URLs
 ADMIN_URL=$(jq -r ".\"$STACK_NAME\".AdminCustomUrl // .\"$STACK_NAME\".AdminUrl" "$OUTPUTS_FILE")
 PUBLIC_URL=$(jq -r ".\"$STACK_NAME\".PublicCustomUrl // .\"$STACK_NAME\".PublicUrl" "$OUTPUTS_FILE")
