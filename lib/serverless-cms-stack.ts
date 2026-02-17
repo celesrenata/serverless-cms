@@ -17,6 +17,7 @@ import * as cloudwatch_actions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as sns_subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as ses from 'aws-cdk-lib/aws-ses';
+import * as wafv2 from 'aws-cdk-lib/aws-wafv2';
 import { Construct } from 'constructs';
 
 export interface ServerlessCmsStackProps extends cdk.StackProps {
@@ -695,9 +696,25 @@ export class ServerlessCmsStack extends cdk.Stack {
       layers: [sharedLayer],
     });
 
+    const settingsGetPublicFunction = new lambda.Function(this, 'SettingsGetPublicFunction', {
+      functionName: `cms-settings-get-public-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'get_public.handler',
+      code: lambda.Code.fromAsset('lambda/settings'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
     // Grant permissions to settings functions
     this.settingsTable.grantReadData(settingsGetFunction);
     this.settingsTable.grantReadWriteData(settingsUpdateFunction);
+    this.settingsTable.grantReadData(settingsGetPublicFunction);
+    
+    // Grant users table read access for auth (role checking)
+    this.usersTable.grantReadData(settingsGetFunction);
+    this.usersTable.grantReadData(settingsUpdateFunction);
 
     // Plugin Lambda Functions
     const pluginInstallFunction = new lambda.Function(this, 'PluginInstallFunction', {
@@ -839,6 +856,58 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.usersTable.grantReadData(commentUpdateFunction);
     this.usersTable.grantReadData(commentDeleteFunction);
 
+    // Registration Lambda Functions
+    const registerFunction = new lambda.Function(this, 'RegisterFunction', {
+      functionName: `cms-register-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'register.handler',
+      code: lambda.Code.fromAsset('lambda/auth'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
+    const verifyEmailFunction = new lambda.Function(this, 'VerifyEmailFunction', {
+      functionName: `cms-verify-email-${props.environment}`,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: 'verify_email.handler',
+      code: lambda.Code.fromAsset('lambda/auth'),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnv,
+      layers: [sharedLayer],
+    });
+
+    // Grant permissions to registration functions
+    this.usersTable.grantReadWriteData(registerFunction);
+    this.usersTable.grantReadData(verifyEmailFunction);
+    
+    // Grant Cognito permissions for user creation
+    registerFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: [
+        'cognito-idp:AdminCreateUser',
+        'cognito-idp:AdminSetUserPassword',
+        'cognito-idp:AdminUpdateUserAttributes',
+        'cognito-idp:ListUsers',
+      ],
+      resources: [this.userPool.userPoolArn],
+    }));
+    
+    verifyEmailFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: [
+        'cognito-idp:AdminConfirmSignUp',
+        'cognito-idp:AdminUpdateUserAttributes',
+      ],
+      resources: [this.userPool.userPoolArn],
+    }));
+    
+    // Grant SES permissions for sending welcome emails
+    registerFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+      resources: ['*'],
+    }));
+
     // CloudWatch Monitoring and Alarms
 
     // Create SNS topic for alarm notifications
@@ -925,6 +994,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     createLambdaAlarms(userResetPasswordFunction, 'UserResetPassword');
     createLambdaAlarms(settingsGetFunction, 'SettingsGet');
     createLambdaAlarms(settingsUpdateFunction, 'SettingsUpdate');
+    createLambdaAlarms(settingsGetPublicFunction, 'SettingsGetPublic');
     createLambdaAlarms(pluginInstallFunction, 'PluginInstall');
     createLambdaAlarms(pluginActivateFunction, 'PluginActivate');
     createLambdaAlarms(pluginDeactivateFunction, 'PluginDeactivate');
@@ -935,6 +1005,8 @@ export class ServerlessCmsStack extends cdk.Stack {
     createLambdaAlarms(commentCreateFunction, 'CommentCreate');
     createLambdaAlarms(commentUpdateFunction, 'CommentUpdate');
     createLambdaAlarms(commentDeleteFunction, 'CommentDelete');
+    createLambdaAlarms(registerFunction, 'Register');
+    createLambdaAlarms(verifyEmailFunction, 'VerifyEmail');
 
     // API Gateway alarms
     const api4xxErrorAlarm = new cloudwatch.Alarm(this, 'Api4xxErrorAlarm', {
@@ -1009,6 +1081,268 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
     contentTableSystemErrorsAlarm.addAlarmAction(alarmAction);
 
+    // Phase 2 Alarms - Email, CAPTCHA, Comments, User Management
+
+    // SES Bounce Rate Alarm
+    const sesBounceRateAlarm = new cloudwatch.Alarm(this, 'SesBounceRateAlarm', {
+      alarmName: `cms-ses-bounce-rate-${props.environment}`,
+      alarmDescription: 'Alert when SES bounce rate exceeds 5%',
+      metric: new cloudwatch.MathExpression({
+        expression: '(bounces / sends) * 100',
+        usingMetrics: {
+          bounces: new cloudwatch.Metric({
+            namespace: 'AWS/SES',
+            metricName: 'Reputation.BounceRate',
+            statistic: 'Average',
+            period: cdk.Duration.minutes(15),
+          }),
+          sends: new cloudwatch.Metric({
+            namespace: 'AWS/SES',
+            metricName: 'Send',
+            statistic: 'Sum',
+            period: cdk.Duration.minutes(15),
+          }),
+        },
+      }),
+      threshold: 5, // 5% bounce rate
+      evaluationPeriods: 2,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    sesBounceRateAlarm.addAlarmAction(alarmAction);
+
+    // SES Complaint Rate Alarm
+    const sesComplaintRateAlarm = new cloudwatch.Alarm(this, 'SesComplaintRateAlarm', {
+      alarmName: `cms-ses-complaint-rate-${props.environment}`,
+      alarmDescription: 'Alert when SES complaint rate exceeds 0.1%',
+      metric: new cloudwatch.MathExpression({
+        expression: '(complaints / sends) * 100',
+        usingMetrics: {
+          complaints: new cloudwatch.Metric({
+            namespace: 'AWS/SES',
+            metricName: 'Reputation.ComplaintRate',
+            statistic: 'Average',
+            period: cdk.Duration.minutes(15),
+          }),
+          sends: new cloudwatch.Metric({
+            namespace: 'AWS/SES',
+            metricName: 'Send',
+            statistic: 'Sum',
+            period: cdk.Duration.minutes(15),
+          }),
+        },
+      }),
+      threshold: 0.1, // 0.1% complaint rate
+      evaluationPeriods: 2,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    sesComplaintRateAlarm.addAlarmAction(alarmAction);
+
+    // User Creation Failure Alarm (monitors userCreateFunction errors)
+    const userCreationFailureAlarm = new cloudwatch.Alarm(this, 'UserCreationFailureAlarm', {
+      alarmName: `cms-user-creation-failures-${props.environment}`,
+      alarmDescription: 'Alert when user creation failures exceed threshold',
+      metric: userCreateFunction.metricErrors({
+        statistic: 'Sum',
+        period: cdk.Duration.minutes(15),
+      }),
+      threshold: 3,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    userCreationFailureAlarm.addAlarmAction(alarmAction);
+
+    // Comment Spam Detection Rate Alarm (monitors rejected/spam comments)
+    // This uses a custom metric that should be logged by the comment moderation Lambda
+    const commentSpamRateAlarm = new cloudwatch.Alarm(this, 'CommentSpamRateAlarm', {
+      alarmName: `cms-comment-spam-rate-${props.environment}`,
+      alarmDescription: 'Alert when comment spam detection rate is high',
+      metric: new cloudwatch.Metric({
+        namespace: 'ServerlessCMS',
+        metricName: 'CommentSpamDetected',
+        statistic: 'Sum',
+        period: cdk.Duration.hours(1),
+      }),
+      threshold: 20, // More than 20 spam comments per hour
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    commentSpamRateAlarm.addAlarmAction(alarmAction);
+
+    // CAPTCHA Validation Failure Alarm
+    // This monitors failed CAPTCHA validations which could indicate bot attacks
+    const captchaFailureAlarm = new cloudwatch.Alarm(this, 'CaptchaFailureAlarm', {
+      alarmName: `cms-captcha-failures-${props.environment}`,
+      alarmDescription: 'Alert when CAPTCHA validation failures exceed threshold',
+      metric: new cloudwatch.Metric({
+        namespace: 'ServerlessCMS',
+        metricName: 'CaptchaValidationFailed',
+        statistic: 'Sum',
+        period: cdk.Duration.minutes(15),
+      }),
+      threshold: 50, // More than 50 failed CAPTCHAs in 15 minutes
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    captchaFailureAlarm.addAlarmAction(alarmAction);
+
+    // Registration Failure Alarm
+    const registrationFailureAlarm = new cloudwatch.Alarm(this, 'RegistrationFailureAlarm', {
+      alarmName: `cms-registration-failures-${props.environment}`,
+      alarmDescription: 'Alert when user registration failures exceed threshold',
+      metric: registerFunction.metricErrors({
+        statistic: 'Sum',
+        period: cdk.Duration.minutes(15),
+      }),
+      threshold: 5,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    registrationFailureAlarm.addAlarmAction(alarmAction);
+
+    // CloudWatch Dashboard for Phase 2 Metrics
+    const phase2Dashboard = new cloudwatch.Dashboard(this, 'Phase2Dashboard', {
+      dashboardName: `cms-phase2-${props.environment}`,
+    });
+
+    // Add widgets to dashboard
+    phase2Dashboard.addWidgets(
+      // User Management Metrics
+      new cloudwatch.GraphWidget({
+        title: 'User Management',
+        left: [
+          userCreateFunction.metricInvocations({ label: 'User Creates' }),
+          userUpdateFunction.metricInvocations({ label: 'User Updates' }),
+          userDeleteFunction.metricInvocations({ label: 'User Deletes' }),
+          registerFunction.metricInvocations({ label: 'Registrations' }),
+        ],
+        right: [
+          userCreateFunction.metricErrors({ label: 'Create Errors', color: cloudwatch.Color.RED }),
+          registerFunction.metricErrors({ label: 'Registration Errors', color: cloudwatch.Color.ORANGE }),
+        ],
+        width: 12,
+      }),
+      
+      // Comment System Metrics
+      new cloudwatch.GraphWidget({
+        title: 'Comment System',
+        left: [
+          commentCreateFunction.metricInvocations({ label: 'Comments Created' }),
+          commentUpdateFunction.metricInvocations({ label: 'Comments Moderated' }),
+          commentListFunction.metricInvocations({ label: 'Comment Views' }),
+        ],
+        right: [
+          commentCreateFunction.metricErrors({ label: 'Create Errors', color: cloudwatch.Color.RED }),
+          new cloudwatch.Metric({
+            namespace: 'ServerlessCMS',
+            metricName: 'CommentSpamDetected',
+            statistic: 'Sum',
+            label: 'Spam Detected',
+            color: cloudwatch.Color.ORANGE,
+          }),
+        ],
+        width: 12,
+      })
+    );
+
+    phase2Dashboard.addWidgets(
+      // Email Metrics
+      new cloudwatch.GraphWidget({
+        title: 'Email Delivery (SES)',
+        left: [
+          new cloudwatch.Metric({
+            namespace: 'AWS/SES',
+            metricName: 'Send',
+            statistic: 'Sum',
+            label: 'Emails Sent',
+          }),
+          new cloudwatch.Metric({
+            namespace: 'AWS/SES',
+            metricName: 'Delivery',
+            statistic: 'Sum',
+            label: 'Delivered',
+            color: cloudwatch.Color.GREEN,
+          }),
+        ],
+        right: [
+          new cloudwatch.Metric({
+            namespace: 'AWS/SES',
+            metricName: 'Bounce',
+            statistic: 'Sum',
+            label: 'Bounces',
+            color: cloudwatch.Color.RED,
+          }),
+          new cloudwatch.Metric({
+            namespace: 'AWS/SES',
+            metricName: 'Complaint',
+            statistic: 'Sum',
+            label: 'Complaints',
+            color: cloudwatch.Color.ORANGE,
+          }),
+        ],
+        width: 12,
+      }),
+
+      // CAPTCHA Metrics
+      new cloudwatch.GraphWidget({
+        title: 'CAPTCHA Protection',
+        left: [
+          new cloudwatch.Metric({
+            namespace: 'ServerlessCMS',
+            metricName: 'CaptchaValidationSuccess',
+            statistic: 'Sum',
+            label: 'Successful Validations',
+            color: cloudwatch.Color.GREEN,
+          }),
+          new cloudwatch.Metric({
+            namespace: 'ServerlessCMS',
+            metricName: 'CaptchaValidationFailed',
+            statistic: 'Sum',
+            label: 'Failed Validations',
+            color: cloudwatch.Color.RED,
+          }),
+        ],
+        width: 12,
+      })
+    );
+
+    phase2Dashboard.addWidgets(
+      // Lambda Performance Overview
+      new cloudwatch.GraphWidget({
+        title: 'Phase 2 Lambda Duration',
+        left: [
+          userCreateFunction.metricDuration({ label: 'User Create', statistic: 'Average' }),
+          registerFunction.metricDuration({ label: 'Registration', statistic: 'Average' }),
+          commentCreateFunction.metricDuration({ label: 'Comment Create', statistic: 'Average' }),
+          commentUpdateFunction.metricDuration({ label: 'Comment Moderate', statistic: 'Average' }),
+        ],
+        width: 12,
+      }),
+
+      // Comments Table Metrics
+      new cloudwatch.GraphWidget({
+        title: 'Comments Table Performance',
+        left: [
+          this.commentsTable.metricConsumedReadCapacityUnits({ label: 'Read Capacity' }),
+          this.commentsTable.metricConsumedWriteCapacityUnits({ label: 'Write Capacity' }),
+        ],
+        right: [
+          this.commentsTable.metricUserErrors({ label: 'User Errors', color: cloudwatch.Color.RED }),
+          this.commentsTable.metricSystemErrorsForOperations({
+            operations: [dynamodb.Operation.PUT_ITEM, dynamodb.Operation.QUERY],
+            label: 'System Errors',
+            color: cloudwatch.Color.ORANGE,
+          }),
+        ],
+        width: 12,
+      })
+    );
+
     // Helper function to grant SES send email permissions to Lambda functions
     const grantSesSendEmail = (fn: lambda.Function) => {
       fn.addToRolePolicy(new iam.PolicyStatement({
@@ -1025,6 +1359,22 @@ export class ServerlessCmsStack extends cdk.Stack {
     // Grant SES send email permissions to user management functions
     grantSesSendEmail(userCreateFunction);
     grantSesSendEmail(userResetPasswordFunction);
+    grantSesSendEmail(registerFunction);
+
+    // Helper function to grant CloudWatch PutMetricData permissions
+    const grantCloudWatchMetrics = (fn: lambda.Function) => {
+      fn.addToRolePolicy(new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['cloudwatch:PutMetricData'],
+        resources: ['*'],
+      }));
+    };
+
+    // Grant CloudWatch metrics permissions to Phase 2 functions
+    grantCloudWatchMetrics(commentCreateFunction);
+    grantCloudWatchMetrics(commentUpdateFunction);
+    grantCloudWatchMetrics(userCreateFunction);
+    grantCloudWatchMetrics(registerFunction);
 
     // API Gateway Resources and Methods
 
@@ -1145,14 +1495,21 @@ export class ServerlessCmsStack extends cdk.Stack {
     // Settings endpoints: /api/v1/settings
     const settingsResource = apiV1.addResource('settings');
 
-    // GET /api/v1/settings - Get settings (public)
-    settingsResource.addMethod('GET', new apigateway.LambdaIntegration(settingsGetFunction));
+    // GET /api/v1/settings - Get settings (requires auth for admin)
+    settingsResource.addMethod('GET', new apigateway.LambdaIntegration(settingsGetFunction), {
+      authorizer: this.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
 
     // PUT /api/v1/settings - Update settings (requires auth)
     settingsResource.addMethod('PUT', new apigateway.LambdaIntegration(settingsUpdateFunction), {
       authorizer: this.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
+
+    // GET /api/v1/settings/public - Get public settings (no auth required)
+    const settingsPublicResource = settingsResource.addResource('public');
+    settingsPublicResource.addMethod('GET', new apigateway.LambdaIntegration(settingsGetPublicFunction));
 
     // Plugin endpoints: /api/v1/plugins
     const pluginsResource = apiV1.addResource('plugins');
@@ -1225,6 +1582,150 @@ export class ServerlessCmsStack extends cdk.Stack {
       authorizer: this.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
+
+    // Auth/Registration endpoints: /api/v1/auth
+    const authResource = apiV1.addResource('auth');
+
+    // POST /api/v1/auth/register - Register new user (public if enabled)
+    const registerResource = authResource.addResource('register');
+    registerResource.addMethod('POST', new apigateway.LambdaIntegration(registerFunction));
+
+    // POST /api/v1/auth/verify-email - Verify email address (public)
+    const verifyEmailResource = authResource.addResource('verify-email');
+    verifyEmailResource.addMethod('POST', new apigateway.LambdaIntegration(verifyEmailFunction));
+
+    // AWS WAF Web ACL for API protection and CAPTCHA
+    const webAcl = new wafv2.CfnWebACL(this, 'ApiWebAcl', {
+      name: `cms-api-waf-${props.environment}`,
+      description: 'WAF for CMS API with CAPTCHA protection on comment endpoints',
+      scope: 'REGIONAL', // For API Gateway (use CLOUDFRONT for CloudFront distributions)
+      defaultAction: { allow: {} },
+      visibilityConfig: {
+        sampledRequestsEnabled: true,
+        cloudWatchMetricsEnabled: true,
+        metricName: `cms-api-waf-${props.environment}`,
+      },
+      rules: [
+        {
+          name: 'RateLimitRule',
+          priority: 1,
+          statement: {
+            rateBasedStatement: {
+              limit: 2000, // 2000 requests per 5 minutes per IP
+              aggregateKeyType: 'IP',
+            },
+          },
+          action: { block: {} },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: `cms-rate-limit-${props.environment}`,
+          },
+        },
+        {
+          name: 'CommentCaptchaRule',
+          priority: 2,
+          statement: {
+            andStatement: {
+              statements: [
+                {
+                  byteMatchStatement: {
+                    searchString: '/api/v1/content/',
+                    fieldToMatch: { uriPath: {} },
+                    textTransformations: [{ priority: 0, type: 'LOWERCASE' }],
+                    positionalConstraint: 'STARTS_WITH',
+                  },
+                },
+                {
+                  byteMatchStatement: {
+                    searchString: '/comments',
+                    fieldToMatch: { uriPath: {} },
+                    textTransformations: [{ priority: 0, type: 'LOWERCASE' }],
+                    positionalConstraint: 'ENDS_WITH',
+                  },
+                },
+                {
+                  byteMatchStatement: {
+                    searchString: 'POST',
+                    fieldToMatch: { method: {} },
+                    textTransformations: [{ priority: 0, type: 'NONE' }],
+                    positionalConstraint: 'EXACTLY',
+                  },
+                },
+              ],
+            },
+          },
+          action: {
+            captcha: {
+              customRequestHandling: {
+                insertHeaders: [
+                  {
+                    name: 'x-captcha-verified',
+                    value: 'true',
+                  },
+                ],
+              },
+            },
+          },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: `cms-comment-captcha-${props.environment}`,
+          },
+          captchaConfig: {
+            immunityTimeProperty: {
+              immunityTime: 300, // 5 minutes immunity after solving CAPTCHA
+            },
+          },
+        },
+        {
+          name: 'AWSManagedRulesCommonRuleSet',
+          priority: 3,
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesCommonRuleSet',
+              excludedRules: [
+                { name: 'SizeRestrictions_BODY' }, // Allow larger request bodies for content
+                { name: 'GenericRFI_BODY' }, // Can cause false positives with user content
+              ],
+            },
+          },
+          overrideAction: { none: {} },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: `cms-aws-common-rules-${props.environment}`,
+          },
+        },
+        {
+          name: 'AWSManagedRulesKnownBadInputsRuleSet',
+          priority: 4,
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesKnownBadInputsRuleSet',
+            },
+          },
+          overrideAction: { none: {} },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: `cms-aws-bad-inputs-${props.environment}`,
+          },
+        },
+      ],
+    });
+
+    // Associate WAF with API Gateway
+    const webAclAssociation = new wafv2.CfnWebACLAssociation(this, 'ApiWebAclAssociation', {
+      resourceArn: `arn:aws:apigateway:${this.region}::/restapis/${this.api.restApiId}/stages/${props.environment}`,
+      webAclArn: webAcl.attrArn,
+    });
+
+    // Ensure WAF is created before association
+    webAclAssociation.node.addDependency(webAcl);
+    webAclAssociation.node.addDependency(this.api);
 
     // Custom Domain and SSL Configuration (optional)
     if (props.domainName) {
@@ -1770,6 +2271,23 @@ export class ServerlessCmsStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'SesComplaintTopicArn', {
       value: sesComplaintsTopic.topicArn,
       description: 'SNS Topic ARN for SES Complaints',
+    });
+
+    // WAF outputs
+    new cdk.CfnOutput(this, 'WebAclArn', {
+      value: webAcl.attrArn,
+      description: 'WAF Web ACL ARN',
+    });
+
+    new cdk.CfnOutput(this, 'WebAclId', {
+      value: webAcl.attrId,
+      description: 'WAF Web ACL ID',
+    });
+
+    // Phase 2 Dashboard output
+    new cdk.CfnOutput(this, 'Phase2DashboardName', {
+      value: phase2Dashboard.dashboardName,
+      description: 'CloudWatch Dashboard for Phase 2 Metrics',
     });
   }
 }
