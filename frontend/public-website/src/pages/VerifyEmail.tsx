@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
 
@@ -10,6 +10,21 @@ export function VerifyEmail() {
   const [message, setMessage] = useState('');
   const email = location.state?.email || '';
 
+  const verifyEmail = useCallback(async (email: string, code: string) => {
+    setStatus('verifying');
+    setMessage('Verifying your email...');
+
+    try {
+      await api.verifyEmail(email, code);
+      setStatus('success');
+      setMessage('Email verified successfully! Redirecting to login...');
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (error) {
+      setStatus('error');
+      setMessage(error instanceof Error ? error.message : 'Failed to verify email');
+    }
+  }, [navigate]);
+
   useEffect(() => {
     const code = searchParams.get('code');
     const emailParam = searchParams.get('email');
@@ -17,26 +32,7 @@ export function VerifyEmail() {
     if (code && emailParam) {
       verifyEmail(emailParam, code);
     }
-  }, [searchParams]);
-
-  const verifyEmail = async (email: string, code: string) => {
-    setStatus('verifying');
-    setMessage('Verifying your email...');
-
-    try {
-      await api.verifyEmail(email, code);
-      setStatus('success');
-      setMessage('Email verified successfully! You can now sign in.');
-      
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
-    } catch (err: any) {
-      setStatus('error');
-      setMessage(err.response?.data?.error || 'Verification failed. The link may be invalid or expired.');
-    }
-  };
+  }, [searchParams, verifyEmail]);
 
   const resendVerification = async () => {
     if (!email) {
@@ -48,8 +44,8 @@ export function VerifyEmail() {
       setMessage('Sending verification email...');
       await api.resendVerification(email);
       setMessage('Verification email sent! Please check your inbox.');
-    } catch (err: any) {
-      setMessage(err.response?.data?.error || 'Failed to resend verification email.');
+    } catch (err: unknown) {
+      setMessage(err instanceof Error ? err.message : 'Failed to resend verification email.');
     }
   };
 
