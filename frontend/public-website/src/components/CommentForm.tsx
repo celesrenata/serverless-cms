@@ -38,6 +38,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const captchaContainerRef = useRef<HTMLDivElement>(null);
+  const [captchaLoaded, setCaptchaLoaded] = useState(false);
 
   useEffect(() => {
     // Load AWS WAF CAPTCHA SDK if CAPTCHA is enabled
@@ -53,17 +54,27 @@ export const CommentForm: React.FC<CommentFormProps> = ({
       script.src = captchaScriptUrl;
       script.async = true;
       script.defer = true;
+      
+      script.onload = () => {
+        setCaptchaLoaded(true);
+      };
+      
       document.head.appendChild(script);
 
       return () => {
-        document.head.removeChild(script);
+        if (document.head.contains(script)) {
+          document.head.removeChild(script);
+        }
       };
+    } else if (captchaEnabled && window.AwsWafCaptcha) {
+      // Script already loaded
+      setCaptchaLoaded(true);
     }
   }, [captchaEnabled]);
 
   useEffect(() => {
     // Render CAPTCHA widget when SDK is loaded
-    if (captchaEnabled && window.AwsWafCaptcha && captchaContainerRef.current) {
+    if (captchaEnabled && captchaLoaded && window.AwsWafCaptcha && captchaContainerRef.current) {
       const captchaApiKey = import.meta.env.VITE_CAPTCHA_API_KEY;
       if (!captchaApiKey) {
         console.error('CAPTCHA is enabled but VITE_CAPTCHA_API_KEY is not configured');
@@ -88,7 +99,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
         setError('Failed to load CAPTCHA. Please refresh the page and try again.');
       }
     }
-  }, [captchaEnabled]);
+  }, [captchaEnabled, captchaLoaded]);
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
