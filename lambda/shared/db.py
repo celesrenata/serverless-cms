@@ -487,9 +487,11 @@ class CommentRepository:
                 return response.get('Item')
             else:
                 # Fallback: scan to find by ID only (less efficient)
+                # Use query on GSI if available, otherwise scan
                 response = self.table.scan(
                     FilterExpression=Attr('id').eq(comment_id),
-                    Limit=1
+                    Limit=1,
+                    ConsistentRead=False  # Eventually consistent for better performance
                 )
                 items = response.get('Items', [])
                 return items[0] if items else None

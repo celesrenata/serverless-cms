@@ -429,7 +429,7 @@ class TestCompleteContentLifecycle:
 class TestUserManagementWorkflow:
     """Test complete user management workflow (Phase 2)."""
     
-    def test_admin_creates_and_manages_users(self, dynamodb_mock, test_user_id):
+    def test_admin_creates_and_manages_users(self, dynamodb_mock, admin_user):
         """Test admin creating users, updating roles, and resetting passwords."""
         user_repo = UserRepository()
         
@@ -554,7 +554,7 @@ class TestCommentModerationWorkflow:
             'moderated_by': test_user_id,
             'updated_at': now + 200
         }
-        approved_comment = comment_repo.update(comment_id, approval_updates)
+        approved_comment = comment_repo.update(comment_id, approval_updates, created_at=now + 100)
         assert approved_comment['status'] == 'approved'
         assert approved_comment['moderated_by'] == test_user_id
         
@@ -584,7 +584,7 @@ class TestCommentModerationWorkflow:
             'moderated_by': test_user_id,
             'updated_at': now + 400
         }
-        spam_comment = comment_repo.update(spam_id, spam_updates)
+        spam_comment = comment_repo.update(spam_id, spam_updates, created_at=now + 300)
         assert spam_comment['status'] == 'spam'
         
         # Step 8: Spam comment not visible to public
@@ -851,7 +851,7 @@ class TestCompleteUserJourney:
             'status': 'approved',
             'moderated_by': test_user_id,
             'updated_at': now + 300
-        })
+        }, created_at=now + 200)
         
         # Step 6: User sees their approved comment
         approved_comments = comment_repo.list_by_content(post_id, status='approved')
@@ -879,7 +879,7 @@ class TestCompleteUserJourney:
             'status': 'approved',
             'moderated_by': test_user_id,
             'updated_at': now + 500
-        })
+        }, created_at=now + 400)
         
         # Step 9: Verify threaded comments are visible
         all_comments = comment_repo.list_by_content(post_id, status='approved')
