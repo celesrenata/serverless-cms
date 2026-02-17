@@ -7,9 +7,9 @@ The project has two types of tests:
 1. **Integration Tests** - Directly invoke Lambda handlers with DynamoDB Local
 2. **Mock API Tests** - Use mock API client (currently incomplete)
 
-## Current Status
+## Current Status (Updated)
 
-### ✅ Passing Tests (76 tests)
+### ✅ Passing Tests (80 tests)
 
 All integration tests that directly invoke Lambda handlers are passing:
 
@@ -21,13 +21,22 @@ All integration tests that directly invoke Lambda handlers are passing:
 - `test_scheduler_integration.py` - Scheduled publishing
 - `test_registration.py` - User registration flow
 - `test_email_utility.py` - Email sending
+- `test_e2e_workflows.py` - End-to-end workflows (12 tests) ✅ ALL PASSING
 
-### ❌ Failing Tests (54 tests + 1 error)
+### ❌ Failing Tests (51 tests)
 
-Tests using the mock API client fixture are failing because:
+Tests using the mock API client fixture are failing:
 
-1. **Mock API Client Issue**: The `api_client` fixture in `conftest.py` returns empty dictionaries instead of calling actual Lambda handlers
-2. **Test Design**: These tests (`test_user_management.py`, `test_comments.py`, `test_e2e_workflows.py`) were written expecting the mock to behave like a real API
+- `test_user_management.py` - 26 tests
+- `test_comments.py` - 25 tests
+
+## Recent Fixes
+
+- ✅ Fixed `SettingsRepository` to include `get_setting()` and `update_setting()` alias methods
+- ✅ Fixed `CommentRepository` methods to handle composite primary key (id + created_at)
+- ✅ Fixed all 12 e2e workflow tests to pass created_at parameter
+- ✅ Updated `TestUserManagementWorkflow` to use `admin_user` fixture
+- ✅ Fixed TypeScript build error in public website (SiteSettings interface)
 
 ## Root Cause
 
@@ -110,9 +119,21 @@ Since the actual Lambda handlers are tested and working (76 passing integration 
 ## Running Tests
 
 ```bash
-# Run only passing integration tests
-pytest tests/test_content_integration.py tests/test_auth_integration.py tests/test_settings_integration.py tests/test_media_integration.py tests/test_plugin_integration.py tests/test_scheduler_integration.py tests/test_registration.py tests/test_email_utility.py -v
+# Run only passing integration tests (recommended)
+pytest tests/test_content_integration.py tests/test_auth_integration.py tests/test_settings_integration.py tests/test_media_integration.py tests/test_plugin_integration.py tests/test_scheduler_integration.py tests/test_registration.py tests/test_email_utility.py tests/test_e2e_workflows.py -v
 
 # Run all tests (includes failing mock tests)
 npm test
+
+# Quick verification (integration tests only)
+pytest tests/test_e2e_workflows.py -v
 ```
+
+## Test Coverage
+
+Current coverage: 24% overall, but 65% for `lambda/shared/db.py` which is the core repository layer.
+
+The low overall coverage is because:
+- Mock API tests don't execute Lambda handler code
+- Many Lambda handlers are only tested via e2e workflows
+- Coverage improves significantly when mock tests are converted to integration tests
