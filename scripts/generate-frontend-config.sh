@@ -63,12 +63,18 @@ cat > "$PUBLIC_ENV_FILE" << EOF
 
 VITE_API_ENDPOINT=$API_ENDPOINT
 VITE_ENVIRONMENT=$ENVIRONMENT
-
-# AWS WAF CAPTCHA Configuration (optional)
-# Set via GitHub Secrets: CAPTCHA_SCRIPT_URL and CAPTCHA_API_KEY
-${CAPTCHA_SCRIPT_URL:+VITE_CAPTCHA_SCRIPT_URL=$CAPTCHA_SCRIPT_URL}
-${CAPTCHA_API_KEY:+VITE_CAPTCHA_API_KEY=$CAPTCHA_API_KEY}
 EOF
+
+# Add CAPTCHA configuration if secrets are provided
+if [ -n "$CAPTCHA_SCRIPT_URL" ]; then
+  echo "" >> "$PUBLIC_ENV_FILE"
+  echo "# AWS WAF CAPTCHA Configuration" >> "$PUBLIC_ENV_FILE"
+  echo "VITE_CAPTCHA_SCRIPT_URL=$CAPTCHA_SCRIPT_URL" >> "$PUBLIC_ENV_FILE"
+fi
+
+if [ -n "$CAPTCHA_API_KEY" ]; then
+  echo "VITE_CAPTCHA_API_KEY=$CAPTCHA_API_KEY" >> "$PUBLIC_ENV_FILE"
+fi
 
 echo "✅ Public Website configuration created"
 
