@@ -190,8 +190,8 @@ class ApiClient {
   }
 
   async listUsers(): Promise<User[]> {
-    const response = await this.client.get<User[]>('/users');
-    return response.data;
+    const response = await this.client.get<{ items: User[]; last_key: string | null }>('/users');
+    return response.data.items;
   }
 
   async createUser(data: {
@@ -274,6 +274,30 @@ class ApiClient {
       settings
     );
     return response.data;
+  }
+
+  // Comment moderation API methods
+  async getCommentsForModeration(status?: string): Promise<{ comments: Array<{
+    id: string;
+    content_id: string;
+    author_name: string;
+    comment_text: string;
+    status: string;
+    created_at: number;
+    parent_id?: string;
+  }> }> {
+    const response = await this.client.get('/comments', {
+      params: status ? { status } : undefined,
+    });
+    return response.data;
+  }
+
+  async updateCommentStatus(id: string, status: string): Promise<void> {
+    await this.client.put(`/comments/${id}`, { status });
+  }
+
+  async deleteComment(id: string): Promise<void> {
+    await this.client.delete(`/comments/${id}`);
   }
 }
 
