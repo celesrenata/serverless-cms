@@ -28,20 +28,6 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
     log = create_logger(event, context, user_id=user_id, user_role=role)
     
     try:
-            return {
-                'statusCode': 401,
-                'body': json.dumps({'error': 'Unauthorized'})
-            }
-        
-        # Check user role (editor or admin required)
-        if user_role not in ['editor', 'admin']:
-            return {
-                'statusCode': 403,
-                'body': json.dumps({
-                    'error': 'Insufficient permissions. Editor or admin role required.'
-                })
-            }
-        
         # Get comment ID from path
         comment_id = event.get('pathParameters', {}).get('id')
         if not comment_id:
