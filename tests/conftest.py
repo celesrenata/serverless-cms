@@ -611,9 +611,9 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
             parts = path.split('/')
             params = {}
             
-            # Extract user_id from /api/v1/users/{user_id}
-            if len(parts) >= 5 and parts[3] == 'users' and parts[4]:
-                params['user_id'] = parts[4]
+            # Extract user id from /api/v1/users/{id}
+            if len(parts) >= 5 and parts[3] == 'users' and parts[4] and parts[4] != 'reset-password':
+                params['id'] = parts[4]
             
             # Extract content_id and comment_id
             if 'comments' in path:
@@ -624,7 +624,7 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
                     if len(content_and_rest) > 1 and content_and_rest[1]:
                         comment_id = content_and_rest[1].strip('/')
                         if comment_id:
-                            params['comment_id'] = comment_id
+                            params['id'] = comment_id
             
             return params
         
