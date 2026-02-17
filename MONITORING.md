@@ -4,7 +4,7 @@ This document describes the monitoring and logging infrastructure for the Server
 
 ## CloudWatch Alarms
 
-The system includes comprehensive CloudWatch alarms for all Lambda functions, API Gateway, and DynamoDB tables.
+The system includes comprehensive CloudWatch alarms for all Lambda functions, API Gateway, DynamoDB tables, and Phase 2 features (email, CAPTCHA, comments, user management).
 
 ### Alarm Configuration
 
@@ -15,7 +15,7 @@ Alarms are automatically created during CDK deployment and send notifications to
 To receive alarm notifications via email, set the `ALARM_EMAIL` environment variable before deployment:
 
 ```bash
-export ALARM_EMAIL="your-email@example.com"
+export ALARM_EMAIL="celes@celestium.life"
 cdk deploy
 ```
 
@@ -77,6 +77,56 @@ For the content table (most critical):
    - Monitors GET_ITEM, PUT_ITEM, and QUERY operations
    - Threshold: 5 errors
    - Evaluation period: 1 x 5 minutes
+
+### Phase 2 Alarms
+
+#### Email Delivery (SES)
+
+1. **Bounce Rate Alarm**
+   - Triggers when email bounce rate exceeds 5%
+   - Monitors email deliverability
+   - Threshold: 5% bounce rate
+   - Evaluation period: 2 x 15 minutes
+   - Critical for maintaining SES reputation
+
+2. **Complaint Rate Alarm**
+   - Triggers when complaint rate exceeds 0.1%
+   - Monitors spam complaints
+   - Threshold: 0.1% complaint rate
+   - Evaluation period: 2 x 15 minutes
+   - Critical for avoiding SES suspension
+
+#### User Management
+
+1. **User Creation Failure Alarm**
+   - Triggers when user creation failures exceed threshold
+   - Monitors registration and admin user creation
+   - Threshold: 3 errors in 15 minutes
+   - Evaluation period: 1 x 15 minutes
+
+2. **Registration Failure Alarm**
+   - Triggers when self-service registration failures exceed threshold
+   - Monitors user registration endpoint
+   - Threshold: 5 errors in 15 minutes
+   - Evaluation period: 1 x 15 minutes
+
+#### Comment System
+
+1. **Comment Spam Detection Rate Alarm**
+   - Triggers when spam detection rate is high
+   - Monitors comments marked as spam
+   - Threshold: 20 spam comments per hour
+   - Evaluation period: 1 x 1 hour
+   - Indicates potential spam attack
+
+#### CAPTCHA Protection
+
+1. **CAPTCHA Validation Failure Alarm**
+   - Triggers when CAPTCHA validation failures exceed threshold
+   - Monitors failed CAPTCHA attempts
+   - Threshold: 50 failures in 15 minutes
+   - Evaluation period: 1 x 15 minutes
+   - Indicates potential bot attack
 
 ## Structured Logging
 
@@ -140,6 +190,16 @@ The logger automatically tracks and logs:
 - **Plugin hook duration**: Time spent executing plugin hooks
 - **Query duration**: Time spent on specific queries
 
+### Custom Metrics (Phase 2)
+
+The system emits custom CloudWatch metrics for Phase 2 features:
+
+- **CaptchaValidationSuccess**: Count of successful CAPTCHA validations
+- **CaptchaValidationFailed**: Count of failed CAPTCHA validations
+- **CommentSpamDetected**: Count of comments marked as spam
+
+These metrics are automatically emitted by Lambda functions and can be viewed in CloudWatch Metrics under the `ServerlessCMS` namespace.
+
 ### Searching Logs
 
 Use CloudWatch Logs Insights to search and analyze logs:
@@ -172,9 +232,71 @@ fields @timestamp, message, hook, error
 | sort @timestamp desc
 ```
 
+#### Monitor CAPTCHA failures:
+```
+fields @timestamp, message, ip_address
+| filter metric_name = "CaptchaValidationFailed"
+| stats count() by bin(5m)
+```
+
+#### Track spam detection:
+```
+fields @timestamp, comment_id, content_id
+| filter metric_name = "CommentSpamDetected"
+| sort @timestamp desc
+```
+
+#### Monitor email delivery issues:
+```
+fields @timestamp, message, error, recipient
+| filter level = "ERROR" and message like /email/
+| sort @timestamp desc
+```
+
 ## CloudWatch Dashboards
 
-You can create custom CloudWatch dashboards to visualize metrics:
+The system includes two CloudWatch dashboards for monitoring:
+
+### Phase 2 Dashboard
+
+A comprehensive dashboard for Phase 2 features is automatically created during deployment:
+
+**Dashboard Name:** `cms-phase2-{environment}`
+
+**Widgets:**
+
+1. **User Management**
+   - User creation, update, and deletion invocations
+   - Registration invocations
+   - Error rates for user operations
+
+2. **Comment System**
+   - Comment creation, moderation, and view metrics
+   - Comment creation errors
+   - Spam detection count
+
+3. **Email Delivery (SES)**
+   - Emails sent and delivered
+   - Bounce and complaint counts
+   - Delivery success rate
+
+4. **CAPTCHA Protection**
+   - Successful CAPTCHA validations
+   - Failed CAPTCHA validations
+   - Bot detection metrics
+
+5. **Phase 2 Lambda Performance**
+   - Average duration for user creation, registration, comment operations
+   - Performance trends over time
+
+6. **Comments Table Performance**
+   - Read and write capacity consumption
+   - User errors and system errors
+   - Throttling metrics
+
+### Creating Custom Dashboards
+
+You can create custom CloudWatch dashboards to visualize additional metrics:
 
 1. Go to CloudWatch Console → Dashboards
 2. Create a new dashboard
@@ -183,6 +305,8 @@ You can create custom CloudWatch dashboards to visualize metrics:
    - API Gateway request count and latency
    - DynamoDB read/write capacity
    - Custom metrics from structured logs
+   - SES email metrics
+   - WAF CAPTCHA metrics
 
 ## Log Retention
 
@@ -229,6 +353,28 @@ const contentCreateFunction = new lambda.Function(this, 'ContentCreateFunction',
 1. Verify Lambda functions have CloudWatch Logs permissions
 2. Check log retention settings
 3. Ensure LOG_LEVEL environment variable is set correctly
+
+### Email Delivery Issues
+
+1. Check SES bounce and complaint rates in CloudWatch
+2. Review SES reputation dashboard in AWS Console
+3. Verify email addresses are verified in SES
+4. Check if SES is still in sandbox mode (limits to verified addresses)
+5. Review SNS topics for bounce/complaint notifications
+
+### CAPTCHA Issues
+
+1. Check CAPTCHA validation failure rate in Phase 2 dashboard
+2. Review WAF Web ACL metrics
+3. Verify CAPTCHA is properly configured in frontend
+4. Check if rate limiting is working as fallback
+
+### Comment Spam
+
+1. Monitor spam detection rate in Phase 2 dashboard
+2. Review comments marked as spam in admin panel
+3. Adjust CAPTCHA settings if spam rate is high
+4. Consider enabling CAPTCHA if currently disabled
 
 ## Cost Optimization
 

@@ -51,6 +51,47 @@ class ApiClient {
     const response = await this.client.get('/settings');
     return response.data;
   }
+
+  async getPublicSettings(): Promise<SiteSettings> {
+    const response = await this.client.get('/settings/public');
+    return response.data;
+  }
+
+  // Comments endpoints
+  async getComments(contentId: string) {
+    const response = await this.client.get(`/content/${contentId}/comments`);
+    return response.data;
+  }
+
+  async createComment(contentId: string, data: {
+    author_name: string;
+    author_email: string;
+    comment_text: string;
+    parent_id?: string;
+  }) {
+    const response = await this.client.post(`/content/${contentId}/comments`, data);
+    return response.data;
+  }
+
+  // Registration endpoints
+  async register(data: {
+    email: string;
+    password: string;
+    name: string;
+  }) {
+    const response = await this.client.post('/auth/register', data);
+    return response.data;
+  }
+
+  async verifyEmail(email: string, code: string) {
+    const response = await this.client.post('/auth/verify-email', { email, code });
+    return response.data;
+  }
+
+  async resendVerification(email: string) {
+    const response = await this.client.post('/auth/resend-verification', { email });
+    return response.data;
+  }
 }
 
 export const api = new ApiClient();

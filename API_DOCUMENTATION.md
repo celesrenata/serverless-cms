@@ -18,6 +18,9 @@ Authorization: Bearer <your-jwt-token>
 - [Content Endpoints](#content-endpoints)
 - [Media Endpoints](#media-endpoints)
 - [User Endpoints](#user-endpoints)
+- [User Management Endpoints](#user-management-endpoints)
+- [Comment Endpoints](#comment-endpoints)
+- [Registration Endpoints](#registration-endpoints)
 - [Settings Endpoints](#settings-endpoints)
 - [Plugin Endpoints](#plugin-endpoints)
 - [Error Responses](#error-responses)
@@ -583,6 +586,578 @@ Retrieve a list of all users (admin only).
 
 ---
 
+## User Management Endpoints
+
+### Create User
+
+Create a new user account (admin only).
+
+**Endpoint:** `POST /users`
+
+**Authentication:** Required (admin only)
+
+**Request Body:**
+
+```json
+{
+  "email": "newuser@example.com",
+  "name": "Jane Smith",
+  "role": "author",
+  "temporary_password": "TempPass123!"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| email | string | Yes | User's email address (must be valid format) |
+| name | string | Yes | User's display name |
+| role | string | No | User role: "admin", "editor", "author", "viewer" (default: "viewer") |
+| temporary_password | string | No | Temporary password (auto-generated if omitted) |
+
+**Response:** `201 Created`
+
+```json
+{
+  "id": "user-456",
+  "email": "newuser@example.com",
+  "name": "Jane Smith",
+  "role": "author",
+  "created_at": 1735689600,
+  "message": "User created successfully. Welcome email sent."
+}
+```
+
+**Email Notification:**
+
+A welcome email is automatically sent to the new user with:
+- Temporary password (if auto-generated)
+- Login instructions
+- Link to admin panel
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid email format or missing required fields
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions (not admin)
+- `409 Conflict` - User with email already exists
+
+---
+
+### Update User
+
+Update an existing user's details (admin only).
+
+**Endpoint:** `PUT /users/{id}`
+
+**Authentication:** Required (admin only)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | User UUID |
+
+**Request Body:**
+
+```json
+{
+  "name": "Jane Doe",
+  "role": "editor",
+  "email": "updated@example.com"
+}
+```
+
+All fields are optional. Only provided fields will be updated.
+
+**Request Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | string | User's display name |
+| role | string | User role: "admin", "editor", "author", "viewer" |
+| email | string | User's email address |
+
+**Response:** `200 OK`
+
+```json
+{
+  "id": "user-456",
+  "email": "updated@example.com",
+  "name": "Jane Doe",
+  "role": "editor",
+  "created_at": 1735689600,
+  "updated_at": 1735693200,
+  "last_login": 1735689600
+}
+```
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid data
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions (not admin)
+- `404 Not Found` - User not found
+- `409 Conflict` - Email already in use
+
+---
+
+### Delete User
+
+Delete a user account (admin only).
+
+**Endpoint:** `DELETE /users/{id}`
+
+**Authentication:** Required (admin only)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | User UUID |
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "User deleted successfully"
+}
+```
+
+**Important Notes:**
+
+- Users cannot delete themselves
+- User's content is marked as orphaned (author field remains but user is deleted)
+- This action is irreversible
+
+**Error Responses:**
+
+- `400 Bad Request` - Attempting to delete self
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions (not admin)
+- `404 Not Found` - User not found
+
+---
+
+### Reset User Password
+
+Trigger a password reset for a user (admin only).
+
+**Endpoint:** `POST /users/{id}/reset-password`
+
+**Authentication:** Required (admin only)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | User UUID |
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "Password reset email sent successfully"
+}
+```
+
+**Email Notification:**
+
+A password reset email is sent to the user with:
+- Temporary verification code
+- Instructions to reset password
+- Link to password reset page
+
+**Error Responses:**
+
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions (not admin)
+- `404 Not Found` - User not found
+- `500 Internal Server Error` - Failed to send email
+
+---
+
+## Comment Endpoints
+
+### List Comments by Content
+
+Retrieve comments for a specific content item (public endpoint).
+
+**Endpoint:** `GET /content/{id}/comments`
+
+**Authentication:** Not required
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Content UUID |
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| limit | number | 50 | Number of comments to return (max: 100) |
+| last_key | string | - | Pagination token from previous response |
+
+**Response:** `200 OK`
+
+```json
+{
+  "items": [
+    {
+      "id": "comment-123",
+      "content_id": "550e8400-e29b-41d4-a716-446655440000",
+      "author_name": "John Commenter",
+      "comment_text": "Great article! Very informative.",
+      "parent_id": null,
+      "status": "approved",
+      "created_at": 1735689600,
+      "replies": [
+        {
+          "id": "comment-124",
+          "content_id": "550e8400-e29b-41d4-a716-446655440000",
+          "author_name": "Jane Reply",
+          "comment_text": "I agree!",
+          "parent_id": "comment-123",
+          "status": "approved",
+          "created_at": 1735689700
+        }
+      ]
+    }
+  ],
+  "last_key": "comment-123"
+}
+```
+
+**Notes:**
+
+- Only approved comments are returned
+- Comments are sorted by creation date (newest first)
+- Threaded replies are nested under parent comments
+- Author email and IP address are never exposed
+
+---
+
+### Create Comment
+
+Submit a new comment on a content item (public endpoint if comments enabled).
+
+**Endpoint:** `POST /content/{id}/comments`
+
+**Authentication:** Not required
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Content UUID |
+
+**Request Body:**
+
+```json
+{
+  "author_name": "John Commenter",
+  "author_email": "john@example.com",
+  "comment_text": "Great article! Very informative.",
+  "parent_id": null
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| author_name | string | Yes | Commenter's name (max 100 chars) |
+| author_email | string | Yes | Commenter's email (valid format required) |
+| comment_text | string | Yes | Comment content (max 5000 chars) |
+| parent_id | string | No | Parent comment ID for threaded replies |
+
+**Response:** `201 Created`
+
+```json
+{
+  "id": "comment-125",
+  "content_id": "550e8400-e29b-41d4-a716-446655440000",
+  "author_name": "John Commenter",
+  "comment_text": "Great article! Very informative.",
+  "parent_id": null,
+  "status": "pending",
+  "created_at": 1735689800,
+  "message": "Comment submitted successfully. It will appear after moderation."
+}
+```
+
+**Rate Limiting:**
+
+- 5 comments per hour per IP address
+- Returns `429 Too Many Requests` if limit exceeded
+
+**CAPTCHA Protection:**
+
+If CAPTCHA is enabled in site settings, this endpoint requires AWS WAF CAPTCHA token validation.
+
+**Content Sanitization:**
+
+All comment text is automatically sanitized to prevent XSS attacks:
+- HTML tags are escaped
+- Scripts are removed
+- URLs are preserved but sanitized
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid data or missing required fields
+- `403 Forbidden` - Comments disabled in site settings
+- `404 Not Found` - Content not found
+- `429 Too Many Requests` - Rate limit exceeded
+
+---
+
+### List All Comments (Moderation)
+
+Retrieve all comments for moderation (admin/editor only).
+
+**Endpoint:** `GET /comments`
+
+**Authentication:** Required (editor or admin)
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| status | string | "pending" | Filter by status: "pending", "approved", "rejected", "spam" |
+| limit | number | 50 | Number of comments to return (max: 100) |
+| last_key | string | - | Pagination token from previous response |
+
+**Response:** `200 OK`
+
+```json
+{
+  "items": [
+    {
+      "id": "comment-126",
+      "content_id": "550e8400-e29b-41d4-a716-446655440000",
+      "author_name": "Suspicious User",
+      "author_email": "spam@example.com",
+      "comment_text": "Check out my website!",
+      "status": "pending",
+      "created_at": 1735689900
+    }
+  ],
+  "last_key": "comment-126"
+}
+```
+
+**Notes:**
+
+- Returns comments of all statuses based on filter
+- Includes author email for moderation purposes
+- Sorted by creation date (newest first)
+
+**Error Responses:**
+
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions (not editor or admin)
+
+---
+
+### Update Comment Status
+
+Update a comment's moderation status (admin/editor only).
+
+**Endpoint:** `PUT /comments/{id}`
+
+**Authentication:** Required (editor or admin)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Comment UUID |
+
+**Request Body:**
+
+```json
+{
+  "status": "approved"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| status | string | Yes | New status: "approved", "rejected", "spam" |
+
+**Response:** `200 OK`
+
+```json
+{
+  "id": "comment-126",
+  "content_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "approved",
+  "moderated_by": "user-123",
+  "updated_at": 1735690000,
+  "message": "Comment status updated successfully"
+}
+```
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid status value
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions (not editor or admin)
+- `404 Not Found` - Comment not found
+
+---
+
+### Delete Comment
+
+Delete a comment permanently (admin/editor only).
+
+**Endpoint:** `DELETE /comments/{id}`
+
+**Authentication:** Required (editor or admin)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Comment UUID |
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "Comment deleted successfully"
+}
+```
+
+**Notes:**
+
+- This action is irreversible
+- Deleting a parent comment does not delete replies
+
+**Error Responses:**
+
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions (not editor or admin)
+- `404 Not Found` - Comment not found
+
+---
+
+## Registration Endpoints
+
+### Register New User
+
+Create a new user account via self-registration (public endpoint if enabled).
+
+**Endpoint:** `POST /auth/register`
+
+**Authentication:** Not required
+
+**Request Body:**
+
+```json
+{
+  "email": "newuser@example.com",
+  "password": "SecurePass123!",
+  "name": "New User"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| email | string | Yes | Valid email address |
+| password | string | Yes | Password (min 8 chars, must include uppercase, lowercase, number, special char) |
+| name | string | Yes | User's display name |
+
+**Password Requirements:**
+
+- Minimum 8 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
+- At least one special character
+
+**Response:** `201 Created`
+
+```json
+{
+  "message": "Registration successful. Please check your email to verify your account.",
+  "email": "newuser@example.com"
+}
+```
+
+**Email Verification:**
+
+A verification email is sent with:
+- Verification code
+- Link to verify email
+- Instructions
+
+**Default Role:**
+
+All self-registered users are assigned the "viewer" role by default. Admins can upgrade roles later.
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid email, weak password, or missing fields
+- `403 Forbidden` - Registration disabled in site settings
+- `409 Conflict` - Email already registered
+- `500 Internal Server Error` - Failed to create account or send email
+
+---
+
+### Verify Email
+
+Verify a user's email address after registration.
+
+**Endpoint:** `POST /auth/verify-email`
+
+**Authentication:** Not required
+
+**Request Body:**
+
+```json
+{
+  "email": "newuser@example.com",
+  "code": "123456"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| code | string | Yes | 6-digit verification code from email |
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "Email verified successfully. You can now log in."
+}
+```
+
+**Notes:**
+
+- Verification codes expire after 24 hours
+- Users cannot log in until email is verified
+- After verification, users can log in with their credentials
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid or expired verification code
+- `404 Not Found` - User not found
+- `500 Internal Server Error` - Verification failed
+
+---
+
 ## Settings Endpoints
 
 ### Get Settings
@@ -600,10 +1175,24 @@ Retrieve all site settings.
   "site_title": "My Awesome Blog",
   "site_description": "A blog about technology and life",
   "theme": "default",
+  "registration_enabled": false,
+  "comments_enabled": true,
+  "captcha_enabled": false,
   "updated_at": 1735689600,
   "updated_by": "user-123"
 }
 ```
+
+**Settings Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| site_title | string | Website title displayed in header and meta tags |
+| site_description | string | Website description for SEO |
+| theme | string | Active theme identifier |
+| registration_enabled | boolean | Allow new user self-registration (default: false) |
+| comments_enabled | boolean | Allow public comments on content (default: false) |
+| captcha_enabled | boolean | Require CAPTCHA for comment submission (default: false) |
 
 ---
 
@@ -621,13 +1210,24 @@ Update site settings (admin only).
 {
   "site_title": "Updated Blog Title",
   "site_description": "Updated description",
-  "theme": "dark"
+  "theme": "dark",
+  "registration_enabled": true,
+  "comments_enabled": true,
+  "captcha_enabled": true
 }
 ```
+
+All fields are optional. Only provided fields will be updated.
 
 **Response:** `200 OK`
 
 Returns the updated settings (same format as "Get Settings").
+
+**Important Notes:**
+
+- `registration_enabled`: Controls whether `/auth/register` endpoint accepts new registrations
+- `comments_enabled`: Controls whether `/content/{id}/comments` POST endpoint accepts new comments
+- `captcha_enabled`: Controls whether AWS WAF CAPTCHA challenge is required for comment submission
 
 **Error Responses:**
 
@@ -916,14 +1516,26 @@ All error responses follow a consistent format:
 | INVALID_INPUT | Request data is invalid |
 | MISSING_REQUIRED_FIELD | Required field is missing |
 | INVALID_SLUG | Slug format is invalid |
+| INVALID_EMAIL | Email format is invalid |
+| WEAK_PASSWORD | Password does not meet requirements |
 | NOT_FOUND | Resource not found |
 | CONTENT_NOT_FOUND | Content item not found |
 | MEDIA_NOT_FOUND | Media file not found |
+| USER_NOT_FOUND | User not found |
+| COMMENT_NOT_FOUND | Comment not found |
 | DUPLICATE_SLUG | Slug already exists |
+| DUPLICATE_EMAIL | Email already registered |
 | RESOURCE_CONFLICT | Resource conflict |
+| RATE_LIMIT_EXCEEDED | Too many requests from IP address |
+| REGISTRATION_DISABLED | User registration is disabled |
+| COMMENTS_DISABLED | Comments are disabled |
+| CAPTCHA_REQUIRED | CAPTCHA validation required |
+| INVALID_VERIFICATION_CODE | Email verification code is invalid or expired |
+| CANNOT_DELETE_SELF | Users cannot delete their own account |
 | INTERNAL_ERROR | Internal server error |
 | DATABASE_ERROR | Database operation failed |
 | S3_ERROR | S3 operation failed |
+| EMAIL_ERROR | Failed to send email |
 | PLUGIN_ERROR | Plugin execution failed |
 
 ### Example Error Response
@@ -947,6 +1559,7 @@ The API implements rate limiting to prevent abuse:
 
 - **Authenticated requests:** 1000 requests per hour per user
 - **Unauthenticated requests:** 100 requests per hour per IP address
+- **Comment submissions:** 5 comments per hour per IP address
 
 Rate limit information is included in response headers:
 
@@ -957,6 +1570,13 @@ X-RateLimit-Reset: 1735693200
 ```
 
 When rate limit is exceeded, the API returns `429 Too Many Requests`.
+
+**Comment Rate Limiting:**
+
+Comment submissions have a stricter rate limit to prevent spam:
+- 5 comments per hour per IP address
+- Tracked independently from general API rate limits
+- Can be supplemented with CAPTCHA protection when enabled
 
 ---
 

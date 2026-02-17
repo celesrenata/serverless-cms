@@ -62,10 +62,20 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
   role: string;                  // 'admin' | 'editor' | 'author' | 'viewer'
   avatar_url?: string;           // S3 URL or external URL
   bio?: string;
-  created_at: number;            // Unix timestamp
-  last_login: number;            // Unix timestamp
+  created_at: number;            // Unix timestamp - when user account was created
+  last_login: number;            // Unix timestamp - last successful login time
 }
 ```
+
+**Role Hierarchy:**
+- `admin`: Full system access, can manage users, settings, and all content
+- `editor`: Can manage all content and comments, cannot manage users or settings
+- `author`: Can create and manage own content
+- `viewer`: Read-only access (default for new registrations)
+
+**Phase 2 Fields:**
+- `created_at`: Added in Phase 2 for user management tracking
+- `last_login`: Added in Phase 2 for activity monitoring
 
 **Note:** When creating/updating users, always set both `name` and `display_name` for compatibility.
 
@@ -118,10 +128,18 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
 ```
 
 **Common Keys:**
-- `site_title`: string
-- `site_description`: string
-- `theme`: string
+- `site_title`: string - Website title displayed in header and meta tags
+- `site_description`: string - Website description for SEO
+- `theme`: string - Active theme identifier
+- `registration_enabled`: boolean - Allow new user self-registration (default: false)
+- `comments_enabled`: boolean - Allow public comments on content (default: false)
+- `captcha_enabled`: boolean - Require CAPTCHA for comment submission (default: false)
 - Custom settings as needed
+
+**Phase 2 Settings:**
+- `registration_enabled`: Controls whether the `/api/v1/auth/register` endpoint accepts new registrations
+- `comments_enabled`: Controls whether the `/api/v1/content/{id}/comments` POST endpoint accepts new comments
+- `captcha_enabled`: Controls whether AWS WAF CAPTCHA challenge is required for comment submission
 
 ## Plugins Table (`cms-plugins-{env}`)
 

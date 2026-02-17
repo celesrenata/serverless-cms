@@ -8,9 +8,8 @@ import uuid
 import html
 from typing import Any, Dict
 from shared.db import get_dynamodb_resource
-from shared.logger import get_logger
-
-logger = get_logger(__name__)
+from shared.logger import create_logger
+from shared.middleware import require_setting, check_setting
 
 COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
 CONTENT_TABLE = os.environ['CONTENT_TABLE']
@@ -31,13 +30,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     - comment_text: Comment content (required)
     - parent_id: ID of parent comment for replies (optional)
     """
+    log = create_logger(event, context)
+    
     try:
+        # Check if comments are enabled
+        try:
+            require_setting('comments_enabled', 'Comments')
+        except ValueError as e:
+            return {
+                'statusCode': 403,
+                'body': json.dumps({'error': str(e)})
+            }
+        
         # Get client IP for rate limiting
         source_ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
         
-        # Check rate limit
-        if not check_rate_limit(source_ip):
-            logger.warning(f"Rate limit exceeded for IP: {source_ip}")
+        # Check if CAPTCHA is enabled and required
+        captcha_enabled = check_setting('captcha_enabled', False)
+        captcha_verified = False
+        
+        if captcha_enabled:
+            # Check if CAPTCHA was verified by WAF
+            # WAF adds x-captcha-verified header when CAPTCHA is solved
+            headers = event.get('headers', {})
+            captcha_verified = headers.get('x-captcha-verified') == 'true'
+            
+            if not captcha_verified:
+                # Emit CAPTCHA failure metric
+                log.metric('CaptchaValidationFailed', 1, 'Count')
+                log.warning('CAPTCHA verification failed', ip_address=source_ip)
+                
+                return {
+                    'statusCode': 403,
+                    'body': json.dumps({
+                        'error': 'CAPTCHA verification required'
+                    })
+                }
+            else:
+                # Emit CAPTCHA success metric
+                log.metric('CaptchaValidationSuccess', 1, 'Count')
+                log.info('CAPTCHA verification successful', ip_address=source_ip)
+        
+        # If CAPTCHA is not enabled or verified, check rate limit as fallback
+        if not captcha_verified and not check_rate_limit(source_ip, log):
+            log.warning(f"Rate limit exceeded for IP: {source_ip}")
             return {
                 'statusCode': 429,
                 'body': json.dumps({
@@ -126,7 +162,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         comments_table = dynamodb.Table(COMMENTS_TABLE)
         comments_table.put_item(Item=comment)
         
-        logger.info(f"Created comment {comment_id} for content {content_id}")
+        log.info(f"Created comment {comment_id} for content {content_id}", 
+                comment_id=comment_id, content_id=content_id)
         
         # Return comment without sensitive data
         response_comment = {k: v for k, v in comment.items() if k not in ['ip_address', 'author_email']}
@@ -145,14 +182,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Invalid JSON in request body'})
         }
     except Exception as e:
-        logger.error(f"Error creating comment: {str(e)}", exc_info=True)
+        log.error(f"Error creating comment: {str(e)}", error=str(e), error_type=type(e).__name__)
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Failed to create comment'})
         }
 
 
-def check_rate_limit(ip_address: str) -> bool:
+def check_rate_limit(ip_address: str, log) -> bool:
     """
     Check if IP address has exceeded rate limit
     Returns True if within limit, False if exceeded
@@ -178,6 +215,6 @@ def check_rate_limit(ip_address: str) -> bool:
         return comment_count < RATE_LIMIT_MAX
         
     except Exception as e:
-        logger.error(f"Error checking rate limit: {str(e)}")
+        log.error(f"Error checking rate limit: {str(e)}", error=str(e))
         # Allow comment on error to avoid blocking legitimate users
         return True

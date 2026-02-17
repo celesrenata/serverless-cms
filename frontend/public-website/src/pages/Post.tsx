@@ -1,11 +1,26 @@
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { useState } from 'react';
 import { useContentBySlug, useContentList } from '../hooks/useContent';
+import { useComments } from '../hooks/useComments';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { CommentForm } from '../components/CommentForm';
+import { CommentList } from '../components/CommentList';
 import { Content } from '../types';
 
 export const Post = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading, error } = useContentBySlug(slug || '');
+  const { data: settings } = useSiteSettings();
+  const [replyToId, setReplyToId] = useState<string | undefined>();
+  
+  // Fetch comments for this post
+  const {
+    comments,
+    loading: commentsLoading,
+    error: commentsError,
+    createComment,
+  } = useComments(post?.id || '');
   
   // Fetch related posts (same type, different slug)
   const { data: relatedPostsData } = useContentList({
@@ -162,6 +177,54 @@ export const Post = () => {
                     </p>
                   </Link>
                 ))}
+              </div>
+            </section>
+          )}
+
+          {/* Comments Section */}
+          {settings?.comments_enabled && (
+            <section className="border-t border-gray-200 pt-12 mt-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Comments
+              </h2>
+
+              {/* Comment Form */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Leave a Comment
+                </h3>
+                <CommentForm
+                  onSubmit={createComment}
+                  parentId={replyToId}
+                  onCancel={replyToId ? () => setReplyToId(undefined) : undefined}
+                  captchaEnabled={settings?.captcha_enabled || false}
+                />
+              </div>
+
+              {/* Comments List */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  {comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}
+                </h3>
+                
+                {commentsLoading && (
+                  <div className="flex justify-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                )}
+
+                {commentsError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    {commentsError}
+                  </div>
+                )}
+
+                {!commentsLoading && !commentsError && (
+                  <CommentList
+                    comments={comments}
+                    onReply={(commentId) => setReplyToId(commentId)}
+                  />
+                )}
               </div>
             </section>
           )}

@@ -6,10 +6,8 @@ import os
 import time
 from typing import Any, Dict
 from shared.db import get_dynamodb_resource
-from shared.logger import get_logger
+from shared.logger import create_logger
 from shared.auth import get_user_from_event
-
-logger = get_logger(__name__)
 
 COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
 
@@ -26,9 +24,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Request body:
     - status: New status (pending, approved, rejected, spam)
     """
+    # Get authenticated user first for logger context
+    user = get_user_from_event(event)
+    user_id = user.get('id') if user else None
+    user_role = user.get('role') if user else None
+    
+    log = create_logger(event, context, user_id=user_id, user_role=user_role)
+    
     try:
-        # Get authenticated user
-        user = get_user_from_event(event)
         if not user:
             return {
                 'statusCode': 401,
@@ -36,7 +39,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         # Check user role (editor or admin required)
-        user_role = user.get('role', 'viewer')
         if user_role not in ['editor', 'admin']:
             return {
                 'statusCode': 403,
@@ -83,6 +85,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         comment = response['Item']
+        old_status = comment.get('status', 'pending')
         
         # Update status
         updated_at = int(time.time())
@@ -98,7 +101,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         )
         
-        logger.info(f"Updated comment {comment_id} status to {new_status} by user {user['id']}")
+        # Emit spam detection metric if comment is marked as spam
+        if new_status == 'spam' and old_status != 'spam':
+            log.metric('CommentSpamDetected', 1, 'Count', 
+                      comment_id=comment_id, 
+                      content_id=comment.get('content_id'))
+            log.info('Comment marked as spam', 
+                    comment_id=comment_id, 
+                    old_status=old_status, 
+                    new_status=new_status)
+        
+        log.info(f"Updated comment {comment_id} status to {new_status}",
+                comment_id=comment_id, 
+                old_status=old_status, 
+                new_status=new_status)
         
         # Return updated comment
         comment['status'] = new_status
@@ -119,7 +135,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Invalid JSON in request body'})
         }
     except Exception as e:
-        logger.error(f"Error updating comment: {str(e)}", exc_info=True)
+        log.error(f"Error updating comment: {str(e)}", 
+                 error=str(e), 
+                 error_type=type(e).__name__)
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Failed to update comment'})

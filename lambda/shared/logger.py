@@ -11,10 +11,14 @@ import time
 from typing import Any, Dict, Optional
 from functools import wraps
 import os
+import boto3
 
 # Configure logger
 logger = logging.getLogger()
 logger.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
+
+# CloudWatch client for custom metrics
+cloudwatch = boto3.client('cloudwatch')
 
 
 class StructuredLogger:
@@ -76,14 +80,15 @@ class StructuredLogger:
         log_entry = self._format_log('DEBUG', message, **kwargs)
         logger.debug(json.dumps(log_entry))
     
-    def metric(self, metric_name: str, value: float, unit: str = 'None', **kwargs):
+    def metric(self, metric_name: str, value: float, unit: str = 'None', emit_cloudwatch: bool = True, **kwargs):
         """
-        Log a custom metric.
+        Log a custom metric and optionally emit to CloudWatch.
         
         Args:
             metric_name: Name of the metric
             value: Metric value
             unit: Unit of measurement (Count, Milliseconds, Bytes, etc.)
+            emit_cloudwatch: Whether to emit metric to CloudWatch (default: True)
             **kwargs: Additional metric dimensions
         """
         log_entry = self._format_log('METRIC', f'Metric: {metric_name}', 
@@ -92,6 +97,31 @@ class StructuredLogger:
                                      metric_unit=unit,
                                      **kwargs)
         logger.info(json.dumps(log_entry))
+        
+        # Emit to CloudWatch if enabled
+        if emit_cloudwatch:
+            try:
+                dimensions = []
+                if self.environment:
+                    dimensions.append({'Name': 'Environment', 'Value': self.environment})
+                
+                # Add custom dimensions from kwargs
+                for key, val in kwargs.items():
+                    if isinstance(val, (str, int, float)):
+                        dimensions.append({'Name': key, 'Value': str(val)})
+                
+                cloudwatch.put_metric_data(
+                    Namespace='ServerlessCMS',
+                    MetricData=[{
+                        'MetricName': metric_name,
+                        'Value': value,
+                        'Unit': unit,
+                        'Dimensions': dimensions[:10]  # CloudWatch allows max 10 dimensions
+                    }]
+                )
+            except Exception as e:
+                # Don't fail the request if metric emission fails
+                logger.warning(f'Failed to emit CloudWatch metric: {str(e)}')
 
 
 def log_performance(log: StructuredLogger):

@@ -12,6 +12,11 @@ from decimal import Decimal
 dynamodb = boto3.resource('dynamodb')
 
 
+def get_dynamodb_resource():
+    """Get the DynamoDB resource."""
+    return dynamodb
+
+
 class ContentRepository:
     """Repository for content management operations."""
     
@@ -439,3 +444,109 @@ class PluginRepository:
             self.table.delete_item(Key={'id': plugin_id})
         except Exception as e:
             raise Exception(f"Failed to delete plugin: {str(e)}")
+
+
+
+class CommentRepository:
+    """Repository for comment management operations (Phase 2)."""
+    
+    def __init__(self):
+        table_name = os.environ.get('COMMENTS_TABLE', 'cms-comments-dev')
+        self.table = dynamodb.Table(table_name)
+    
+    def create(self, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Create a new comment."""
+        try:
+            self.table.put_item(Item=item)
+            return item
+        except Exception as e:
+            raise Exception(f"Failed to create comment: {str(e)}")
+    
+    def get_by_id(self, comment_id: str) -> Optional[Dict[str, Any]]:
+        """Get comment by ID."""
+        try:
+            response = self.table.get_item(
+                Key={'id': comment_id}
+            )
+            return response.get('Item')
+        except Exception as e:
+            raise Exception(f"Failed to get comment: {str(e)}")
+    
+    def list_by_content(self, content_id: str, status: str = 'approved', limit: int = 50, last_key: Optional[Dict] = None) -> Dict[str, Any]:
+        """List comments for a specific content item."""
+        try:
+            query_params = {
+                'IndexName': 'content_id-created_at-index',
+                'KeyConditionExpression': Key('content_id').eq(content_id),
+                'Limit': limit,
+                'ScanIndexForward': False  # Most recent first
+            }
+            
+            if status:
+                query_params['FilterExpression'] = Attr('status').eq(status)
+            
+            if last_key:
+                query_params['ExclusiveStartKey'] = last_key
+            
+            response = self.table.query(**query_params)
+            return {
+                'items': response.get('Items', []),
+                'last_key': response.get('LastEvaluatedKey')
+            }
+        except Exception as e:
+            raise Exception(f"Failed to list comments by content: {str(e)}")
+    
+    def list_by_status(self, status: str, limit: int = 50, last_key: Optional[Dict] = None) -> Dict[str, Any]:
+        """List comments by status for moderation."""
+        try:
+            query_params = {
+                'IndexName': 'status-created_at-index',
+                'KeyConditionExpression': Key('status').eq(status),
+                'Limit': limit,
+                'ScanIndexForward': False  # Most recent first
+            }
+            
+            if last_key:
+                query_params['ExclusiveStartKey'] = last_key
+            
+            response = self.table.query(**query_params)
+            return {
+                'items': response.get('Items', []),
+                'last_key': response.get('LastEvaluatedKey')
+            }
+        except Exception as e:
+            raise Exception(f"Failed to list comments by status: {str(e)}")
+    
+    def update(self, comment_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        """Update comment (typically for moderation)."""
+        try:
+            update_expr_parts = []
+            expr_attr_names = {}
+            expr_attr_values = {}
+            
+            for key, value in updates.items():
+                attr_name = f"#{key}"
+                attr_value = f":{key}"
+                update_expr_parts.append(f"{attr_name} = {attr_value}")
+                expr_attr_names[attr_name] = key
+                expr_attr_values[attr_value] = value
+            
+            update_expr = "SET " + ", ".join(update_expr_parts)
+            
+            response = self.table.update_item(
+                Key={'id': comment_id},
+                UpdateExpression=update_expr,
+                ExpressionAttributeNames=expr_attr_names,
+                ExpressionAttributeValues=expr_attr_values,
+                ReturnValues='ALL_NEW'
+            )
+            return response.get('Attributes')
+        except Exception as e:
+            raise Exception(f"Failed to update comment: {str(e)}")
+    
+    def delete(self, comment_id: str) -> None:
+        """Delete comment."""
+        try:
+            self.table.delete_item(Key={'id': comment_id})
+        except Exception as e:
+            raise Exception(f"Failed to delete comment: {str(e)}")
