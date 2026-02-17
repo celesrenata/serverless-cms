@@ -887,6 +887,7 @@ def disable_comments(dynamodb_mock):
     
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lambda'))
     from shared.db import SettingsRepository
+    from shared.middleware import clear_settings_cache
     
     settings_repo = SettingsRepository()
     now = int(datetime.now().timestamp())
@@ -898,6 +899,9 @@ def disable_comments(dynamodb_mock):
         updated_at=now
     )
     
+    # Clear cache so the new setting is picked up
+    clear_settings_cache()
+    
     yield
     
     # Re-enable after test
@@ -907,6 +911,47 @@ def disable_comments(dynamodb_mock):
         updated_by='test-admin',
         updated_at=now
     )
+    
+    # Clear cache again
+    clear_settings_cache()
+
+
+@pytest.fixture
+def enable_captcha(dynamodb_mock):
+    """Enable CAPTCHA in settings for rate limiting tests."""
+    import sys
+    import os
+    from datetime import datetime
+    
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lambda'))
+    from shared.db import SettingsRepository
+    from shared.middleware import clear_settings_cache
+    
+    settings_repo = SettingsRepository()
+    now = int(datetime.now().timestamp())
+    
+    settings_repo.update_setting(
+        'captcha_enabled',
+        True,
+        updated_by='test-admin',
+        updated_at=now
+    )
+    
+    # Clear cache so the new setting is picked up
+    clear_settings_cache()
+    
+    yield
+    
+    # Disable after test
+    settings_repo.update_setting(
+        'captcha_enabled',
+        False,
+        updated_by='test-admin',
+        updated_at=now
+    )
+    
+    # Clear cache again
+    clear_settings_cache()
 
 
 @pytest.fixture

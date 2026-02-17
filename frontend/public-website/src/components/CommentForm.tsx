@@ -42,8 +42,15 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   useEffect(() => {
     // Load AWS WAF CAPTCHA SDK if CAPTCHA is enabled
     if (captchaEnabled && !window.AwsWafCaptcha) {
+      const captchaScriptUrl = import.meta.env.VITE_CAPTCHA_SCRIPT_URL;
+      if (!captchaScriptUrl) {
+        console.error('CAPTCHA is enabled but VITE_CAPTCHA_SCRIPT_URL is not configured');
+        setError('CAPTCHA configuration error. Please contact the site administrator.');
+        return;
+      }
+
       const script = document.createElement('script');
-      script.src = 'https://b82b1763d1f3.us-east-1.captcha-sdk.awswaf.com/b82b1763d1f3/jsapi.js';
+      script.src = captchaScriptUrl;
       script.async = true;
       script.defer = true;
       document.head.appendChild(script);
@@ -57,11 +64,19 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   useEffect(() => {
     // Render CAPTCHA widget when SDK is loaded
     if (captchaEnabled && window.AwsWafCaptcha && captchaContainerRef.current) {
+      const captchaApiKey = import.meta.env.VITE_CAPTCHA_API_KEY;
+      if (!captchaApiKey) {
+        console.error('CAPTCHA is enabled but VITE_CAPTCHA_API_KEY is not configured');
+        setError('CAPTCHA configuration error. Please contact the site administrator.');
+        return;
+      }
+
       try {
         window.AwsWafCaptcha.renderCaptcha(captchaContainerRef.current, {
-          apiKey: 'YOUR_WAF_CAPTCHA_API_KEY', // This will be replaced with actual API key from WAF
+          apiKey: captchaApiKey,
           onSuccess: (token: string) => {
             setCaptchaToken(token);
+            setError(null); // Clear any previous errors
           },
           onError: (error: Error) => {
             console.error('CAPTCHA error:', error);
@@ -70,6 +85,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
         });
       } catch (err) {
         console.error('Failed to render CAPTCHA:', err);
+        setError('Failed to load CAPTCHA. Please refresh the page and try again.');
       }
     }
   }, [captchaEnabled]);

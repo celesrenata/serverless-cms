@@ -60,7 +60,7 @@ class ApiClient {
   // Comments endpoints
   async getComments(contentId: string) {
     const response = await this.client.get(`/content/${contentId}/comments`);
-    return response.data;
+    return response.data.comments || [];
   }
 
   async createComment(contentId: string, data: {
@@ -69,8 +69,14 @@ class ApiClient {
     comment_text: string;
     parent_id?: string;
   }) {
-    const response = await this.client.post(`/content/${contentId}/comments`, data);
-    return response.data;
+    try {
+      const response = await this.client.post(`/content/${contentId}/comments`, data);
+      return response.data;
+    } catch (error: any) {
+      // Extract error message from API response
+      const message = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to submit comment';
+      throw new Error(message);
+    }
   }
 
   // Registration endpoints

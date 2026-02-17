@@ -1,9 +1,25 @@
 # AWS WAF CAPTCHA Setup Guide
 
-## Overview
-Task 10 has implemented AWS WAF with CAPTCHA protection for comment submissions. After deploying the infrastructure, you'll need to obtain the CAPTCHA API key and update the frontend.
+## Quick Setup (Recommended)
 
-## Deployment Steps
+We've created an automated script to help you configure CAPTCHA:
+
+```bash
+# Run the setup script
+./scripts/setup-captcha.sh dev
+```
+
+This script will:
+1. ✓ Verify your WAF is deployed
+2. ✓ Guide you through generating the CAPTCHA API key
+3. ✓ Automatically update your frontend .env file
+4. ✓ Show you the next steps
+
+**Note**: AWS doesn't provide an API to generate CAPTCHA keys programmatically, so you'll need to manually generate it through the AWS Console (the script will guide you).
+
+## Manual Setup
+
+If you prefer to set up manually, follow these steps:
 
 ### 1. Deploy Infrastructure
 ```bash

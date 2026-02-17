@@ -3,11 +3,24 @@ List comments by content_id or status with pagination
 """
 import json
 import os
+from decimal import Decimal
 from typing import Any, Dict, Optional
+from boto3.dynamodb.conditions import Key, Attr
 from shared.db import get_dynamodb_resource
 from shared.logger import create_logger
 
 COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
+
+
+def decimal_to_int(obj):
+    """Convert Decimal objects to int for JSON serialization."""
+    if isinstance(obj, dict):
+        return {k: decimal_to_int(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [decimal_to_int(item) for item in obj]
+    elif isinstance(obj, Decimal):
+        return int(obj)
+    return obj
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -28,7 +41,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Get query parameters
         params = event.get('queryStringParameters') or {}
-        content_id = params.get('content_id')
+        path_params = event.get('pathParameters') or {}
+        
+        # content_id can come from path or query params
+        content_id = path_params.get('content_id') or params.get('content_id')
         status = params.get('status')
         limit = min(int(params.get('limit', 50)), 100)
         last_key_str = params.get('last_key')
@@ -39,7 +55,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             try:
                 exclusive_start_key = json.loads(last_key_str)
             except json.JSONDecodeError:
-                logger.warning(f"Invalid last_key format: {last_key_str}")
+                log.warning(f"Invalid last_key format: {last_key_str}")
         
         # Build query parameters
         query_params = {
@@ -55,22 +71,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Public endpoint - list comments for a specific content item
             # Only show approved comments
             query_params['IndexName'] = 'content_id-created_at-index'
-            query_params['KeyConditionExpression'] = 'content_id = :content_id'
-            query_params['FilterExpression'] = '#status = :status'
-            query_params['ExpressionAttributeNames'] = {'#status': 'status'}
-            query_params['ExpressionAttributeValues'] = {
-                ':content_id': content_id,
-                ':status': 'approved'
-            }
+            query_params['KeyConditionExpression'] = Key('content_id').eq(content_id)
+            query_params['FilterExpression'] = Attr('status').eq('approved')
             response = table.query(**query_params)
             
         elif status:
             # Moderation endpoint - list comments by status
             # Requires authentication (checked by API Gateway)
             query_params['IndexName'] = 'status-created_at-index'
-            query_params['KeyConditionExpression'] = '#status = :status'
-            query_params['ExpressionAttributeNames'] = {'#status': 'status'}
-            query_params['ExpressionAttributeValues'] = {':status': status}
+            query_params['KeyConditionExpression'] = Key('status').eq(status)
             response = table.query(**query_params)
             
         else:
@@ -82,6 +91,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             } if exclusive_start_key else {'Limit': limit})
         
         items = response.get('Items', [])
+        
+        # Convert Decimals to int for JSON serialization
+        items = decimal_to_int(items)
+        
+        # Remove sensitive fields from public listing (before building tree)
+        if content_id:
+            # Public endpoint - remove sensitive data
+            items = [{k: v for k, v in item.items() if k not in ['author_email', 'ip_address']} for item in items]
         
         # Build threaded structure if listing by content_id
         if content_id:
@@ -97,7 +114,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if 'LastEvaluatedKey' in response:
             result['last_key'] = json.dumps(response['LastEvaluatedKey'])
         
-        logger.info(f"Listed {len(items)} comments")
+        log.info(f"Listed {len(items)} comments")
         
         return {
             'statusCode': 200,
@@ -105,7 +122,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         
     except Exception as e:
-        logger.error(f"Error listing comments: {str(e)}", exc_info=True)
+        log.error(f"Error listing comments: {str(e)}", error=str(e), error_type=type(e).__name__)
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Failed to list comments'})

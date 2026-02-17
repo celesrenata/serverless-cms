@@ -6,39 +6,22 @@ import os
 from typing import Any, Dict
 from shared.db import get_dynamodb_resource
 from shared.logger import create_logger
-from shared.auth import extract_user_from_event
+from shared.auth import require_auth
 
 COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
 
 
-def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+@require_auth(roles=['admin', 'editor'])
+def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dict[str, Any]:
     """
     Delete a comment
     
     Path parameters:
     - id: Comment ID
     """
-    log = create_logger(event, context)
+    log = create_logger(event, context, user_id=user_id, user_role=role)
     
     try:
-        # Get authenticated user
-        user = extract_user_from_event(event)
-        if not user:
-            return {
-                'statusCode': 401,
-                'body': json.dumps({'error': 'Unauthorized'})
-            }
-        
-        # Check user role (editor or admin required)
-        user_role = user.get('role', 'viewer')
-        if user_role not in ['editor', 'admin']:
-            return {
-                'statusCode': 403,
-                'body': json.dumps({
-                    'error': 'Insufficient permissions. Editor or admin role required.'
-                })
-            }
-        
         # Get comment ID from path
         comment_id = event.get('pathParameters', {}).get('id')
         if not comment_id:
@@ -47,21 +30,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Comment ID is required'})
             }
         
-        # Get comment from database to verify it exists
-        dynamodb = get_dynamodb_resource()
-        table = dynamodb.Table(COMMENTS_TABLE)
+        # Get comment from database to verify it exists and get created_at
+        from shared.db import CommentRepository
+        comment_repo = CommentRepository()
         
-        response = table.get_item(Key={'id': comment_id})
-        if 'Item' not in response:
+        comment = comment_repo.get_by_id(comment_id)
+        if not comment:
             return {
                 'statusCode': 404,
                 'body': json.dumps({'error': 'Comment not found'})
             }
         
-        # Delete comment
-        table.delete_item(Key={'id': comment_id})
+        # Delete comment using composite key
+        comment_repo.delete(comment_id, created_at=comment['created_at'])
         
-        logger.info(f"Deleted comment {comment_id} by user {user['id']}")
+        log.info(f"Deleted comment {comment_id} by user {user_id}")
         
         return {
             'statusCode': 200,
@@ -69,7 +52,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         
     except Exception as e:
-        logger.error(f"Error deleting comment: {str(e)}", exc_info=True)
+        log.error(f"Error deleting comment: {str(e)}", error=str(e), error_type=type(e).__name__)
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Failed to delete comment'})

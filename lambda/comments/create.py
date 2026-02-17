@@ -6,6 +6,7 @@ import os
 import time
 import uuid
 import html
+from decimal import Decimal
 from typing import Any, Dict
 from shared.db import get_dynamodb_resource
 from shared.logger import create_logger
@@ -17,6 +18,17 @@ CONTENT_TABLE = os.environ['CONTENT_TABLE']
 # Rate limiting: 5 comments per hour per IP
 RATE_LIMIT_WINDOW = 3600  # 1 hour in seconds
 RATE_LIMIT_MAX = 5
+
+
+def decimal_to_int(obj):
+    """Convert Decimal objects to int for JSON serialization."""
+    if isinstance(obj, dict):
+        return {k: decimal_to_int(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [decimal_to_int(item) for item in obj]
+    elif isinstance(obj, Decimal):
+        return int(obj)
+    return obj
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -39,7 +51,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         except ValueError as e:
             return {
                 'statusCode': 403,
-                'body': json.dumps({'error': str(e)})
+                'body': json.dumps({
+                    'error': 'Feature disabled',
+                    'message': str(e)
+                })
             }
         
         # Get client IP for rate limiting
@@ -55,29 +70,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             headers = event.get('headers', {})
             captcha_verified = headers.get('x-captcha-verified') == 'true'
             
-            if not captcha_verified:
-                # Emit CAPTCHA failure metric
-                log.metric('CaptchaValidationFailed', 1, 'Count')
-                log.warning('CAPTCHA verification failed', ip_address=source_ip)
-                
-                return {
-                    'statusCode': 403,
-                    'body': json.dumps({
-                        'error': 'CAPTCHA verification required'
-                    })
-                }
-            else:
+            if captcha_verified:
                 # Emit CAPTCHA success metric
                 log.metric('CaptchaValidationSuccess', 1, 'Count')
                 log.info('CAPTCHA verification successful', ip_address=source_ip)
         
-        # If CAPTCHA is not enabled or verified, check rate limit as fallback
-        if not captcha_verified and not check_rate_limit(source_ip, log):
+        # Check rate limiting
+        # - If CAPTCHA is enabled and verified, skip rate limiting (CAPTCHA is primary protection)
+        # - Otherwise, check rate limit
+        should_check_rate_limit = not (captcha_enabled and captcha_verified)
+        
+        if should_check_rate_limit and not check_rate_limit(source_ip, log):
             log.warning(f"Rate limit exceeded for IP: {source_ip}")
             return {
                 'statusCode': 429,
                 'body': json.dumps({
-                    'error': 'Rate limit exceeded. Maximum 5 comments per hour.'
+                    'error': 'Rate limit exceeded',
+                    'message': 'Rate limit exceeded. Maximum 5 comments per hour.'
                 })
             }
         
@@ -98,7 +107,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 400,
                 'body': json.dumps({
-                    'error': 'Missing required fields: content_id, author_name, author_email, comment_text'
+                    'error': 'Validation error',
+                    'message': 'Missing required fields: content_id, author_name, author_email, comment_text'
                 })
             }
         
@@ -106,7 +116,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if '@' not in author_email or '.' not in author_email:
             return {
                 'statusCode': 400,
-                'body': json.dumps({'error': 'Invalid email format'})
+                'body': json.dumps({
+                    'error': 'Validation error',
+                    'message': 'Invalid email format'
+                })
             }
         
         # Validate comment length
@@ -114,11 +127,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 400,
                 'body': json.dumps({
-                    'error': 'Comment must be between 1 and 5000 characters'
+                    'error': 'Validation error',
+                    'message': 'Comment text is too long. Maximum length is 5000 characters.'
                 })
             }
         
-        # Verify content exists
+        # Verify content exists and is published
         dynamodb = get_dynamodb_resource()
         content_table = dynamodb.Table(CONTENT_TABLE)
         
@@ -134,6 +148,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 404,
                     'body': json.dumps({'error': 'Content not found'})
                 }
+            
+            content = content_response['Items'][0]
+            
+            # Check if content is published
+            if content.get('status') != 'published':
+                return {
+                    'statusCode': 403,
+                    'body': json.dumps({
+                        'error': 'Comments not allowed',
+                        'message': 'Comments are only allowed on published content'
+                    })
+                }
         except Exception:
             return {
                 'statusCode': 404,
@@ -142,12 +168,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Verify parent comment exists if provided
         if parent_id:
-            comments_table = dynamodb.Table(COMMENTS_TABLE)
-            parent_response = comments_table.get_item(Key={'id': parent_id})
-            if 'Item' not in parent_response:
+            from shared.db import CommentRepository
+            comment_repo = CommentRepository()
+            parent_comment = comment_repo.get_by_id(parent_id)
+            if not parent_comment:
                 return {
                     'statusCode': 404,
-                    'body': json.dumps({'error': 'Parent comment not found'})
+                    'body': json.dumps({
+                        'error': 'Not found',
+                        'message': 'Parent comment not found'
+                    })
                 }
         
         # Sanitize input to prevent XSS
@@ -182,6 +212,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Return comment without sensitive data
         response_comment = {k: v for k, v in comment.items() if k not in ['ip_address', 'author_email']}
         response_comment['message'] = 'Comment submitted successfully. It will appear after moderation.'
+        
+        # Convert Decimals to int for JSON serialization
+        response_comment = decimal_to_int(response_comment)
         
         return {
             'statusCode': 201,

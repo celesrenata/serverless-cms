@@ -143,7 +143,7 @@ class TestCommentCreation:
         
         assert response.status_code == 404
 
-    def test_create_comment_rate_limiting(self, api_client, published_post):
+    def test_create_comment_rate_limiting(self, api_client, published_post, enable_captcha):
         """Test IP-based rate limiting (5 comments per hour)."""
         comment_data = {
             "author_name": "Rate Test",
@@ -151,6 +151,7 @@ class TestCommentCreation:
             "comment_text": "Rate limit test"
         }
         
+        # Don't pass CAPTCHA verification header so rate limiting is checked
         # Create 5 comments (should succeed)
         for i in range(5):
             comment_data["comment_text"] = f"Comment {i}"
@@ -248,8 +249,11 @@ class TestCommentListing:
         has_reply = any(c.get("parent_id") == approved_comment["id"] for c in data["comments"])
         # May not be approved yet, so just check structure is valid
 
-    def test_list_comments_pagination(self, api_client, published_post, admin_token):
+    def test_list_comments_pagination(self, api_client, published_post, admin_token, enable_captcha):
         """Test comment pagination."""
+        # Headers to simulate CAPTCHA verification (to bypass rate limiting)
+        headers_captcha = {"x-captcha-verified": "true"}
+        
         # Create multiple comments
         for i in range(15):
             comment_data = {
@@ -260,7 +264,8 @@ class TestCommentListing:
             
             response = api_client.post(
                 f"/api/v1/content/{published_post['id']}/comments",
-                json=comment_data
+                json=comment_data,
+                headers=headers_captcha
             )
             
             # Approve each comment
