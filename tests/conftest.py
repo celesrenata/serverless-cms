@@ -660,8 +660,9 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
                 ('POST', '/api/v1/users/reset-password'): reset_password_handler,
                 ('POST', '/api/v1/content/comments'): create_comment_handler,
                 ('GET', '/api/v1/content/comments'): list_comments_handler,
-                ('PUT', '/api/v1/content/comments'): update_comment_handler,
-                ('DELETE', '/api/v1/content/comments'): delete_comment_handler,
+                ('GET', '/api/v1/comments'): list_comments_handler,  # Moderation listing
+                ('PUT', '/api/v1/comments'): update_comment_handler,  # Moderation update
+                ('DELETE', '/api/v1/comments'): delete_comment_handler,  # Moderation delete
             }
         
         def _create_event(self, method, path, json_data=None, headers=None, query_params=None):
@@ -692,8 +693,12 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
             if len(parts) >= 5 and parts[3] == 'users' and parts[4] and parts[4] != 'reset-password':
                 params['id'] = parts[4]
             
-            # Extract content_id and comment_id
-            if 'comments' in path:
+            # Extract comment id from /api/v1/comments/{id}
+            if len(parts) >= 5 and parts[3] == 'comments' and parts[4]:
+                params['id'] = parts[4]
+            
+            # Extract content_id and comment_id from /api/v1/content/{content_id}/comments
+            if 'content' in path and 'comments' in path:
                 content_parts = path.split('/content/')
                 if len(content_parts) > 1:
                     content_and_rest = content_parts[1].split('/comments')
@@ -783,6 +788,8 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
             # Handle parameterized paths
             if '/content/' in base_path and '/comments' in base_path:
                 lookup_path = '/api/v1/content/comments'
+            elif '/comments/' in base_path:
+                lookup_path = '/api/v1/comments'
             elif '/users/' in base_path:
                 lookup_path = '/api/v1/users'
             else:
@@ -800,7 +807,10 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
                 import json as json_module
                 response = handler(event, {})
                 body = response.get('body', {})
-                if isinstance(body, str):
+                # Handle empty body (e.g., 204 No Content)
+                if body == '' or body is None:
+                    body = {}
+                elif isinstance(body, str):
                     body = json_module.loads(body)
                 return MockResponse(response.get('statusCode', 200), body)
             except Exception as e:
@@ -816,6 +826,8 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
             # Handle parameterized paths
             if '/content/' in base_path and '/comments' in base_path:
                 lookup_path = '/api/v1/content/comments'
+            elif '/comments/' in base_path:
+                lookup_path = '/api/v1/comments'
             elif '/users/' in base_path:
                 lookup_path = '/api/v1/users'
             else:

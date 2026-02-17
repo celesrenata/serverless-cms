@@ -7,14 +7,15 @@ import time
 from typing import Any, Dict
 from shared.db import get_dynamodb_resource
 from shared.logger import create_logger
-from shared.auth import extract_user_from_event
+from shared.auth import require_auth
 
 COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
 
 VALID_STATUSES = ['pending', 'approved', 'rejected', 'spam']
 
 
-def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+@require_auth(roles=['admin', 'editor'])
+def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dict[str, Any]:
     """
     Update comment status
     
@@ -24,15 +25,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Request body:
     - status: New status (pending, approved, rejected, spam)
     """
-    # Get authenticated user first for logger context
-    user = extract_user_from_event(event)
-    user_id = user.get('id') if user else None
-    user_role = user.get('role') if user else None
-    
-    log = create_logger(event, context, user_id=user_id, user_role=user_role)
+    log = create_logger(event, context, user_id=user_id, user_role=role)
     
     try:
-        if not user:
             return {
                 'statusCode': 401,
                 'body': json.dumps({'error': 'Unauthorized'})
