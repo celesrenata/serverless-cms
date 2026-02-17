@@ -5,10 +5,8 @@ import json
 import os
 from typing import Any, Dict
 from shared.db import get_dynamodb_resource
-from shared.logger import get_logger
-from shared.auth import get_user_from_event
-
-logger = get_logger(__name__)
+from shared.logger import create_logger
+from shared.auth import extract_user_from_event
 
 COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
 
@@ -20,9 +18,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Path parameters:
     - id: Comment ID
     """
+    log = create_logger(event, context)
+    
     try:
         # Get authenticated user
-        user = get_user_from_event(event)
+        user = extract_user_from_event(event)
         if not user:
             return {
                 'statusCode': 401,

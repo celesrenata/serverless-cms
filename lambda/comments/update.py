@@ -7,7 +7,7 @@ import time
 from typing import Any, Dict
 from shared.db import get_dynamodb_resource
 from shared.logger import create_logger
-from shared.auth import get_user_from_event
+from shared.auth import extract_user_from_event
 
 COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
 
@@ -25,7 +25,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     - status: New status (pending, approved, rejected, spam)
     """
     # Get authenticated user first for logger context
-    user = get_user_from_event(event)
+    user = extract_user_from_event(event)
     user_id = user.get('id') if user else None
     user_role = user.get('role') if user else None
     

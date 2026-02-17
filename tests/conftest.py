@@ -493,13 +493,61 @@ def admin_user(dynamodb_mock):
 
 
 @pytest.fixture
-def api_client():
-    """Mock API client for testing."""
-    from unittest.mock import MagicMock
+def api_client(dynamodb_mock, mock_cognito, monkeypatch):
+    """API client that invokes actual Lambda handlers."""
+    import json
+    import sys
+    import os
+    import boto3
+    import uuid
     
-    client = MagicMock()
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lambda'))
     
-    # Mock response object
+    # Configure mock_cognito to return proper responses
+    def mock_admin_create_user(**kwargs):
+        return {
+            'User': {
+                'Username': str(uuid.uuid4()),
+                'Attributes': kwargs.get('UserAttributes', []),
+                'UserStatus': 'FORCE_CHANGE_PASSWORD'
+            }
+        }
+    
+    mock_cognito.admin_create_user.side_effect = mock_admin_create_user
+    mock_cognito.admin_delete_user.return_value = {}
+    
+    # Save original boto3.client before patching
+    original_boto3_client = boto3.client
+    
+    # Mock boto3 Cognito client
+    def mock_boto3_client(service_name, *args, **kwargs):
+        if service_name == 'cognito-idp':
+            return mock_cognito
+        elif service_name == 'ses':
+            # Mock SES for email sending
+            from unittest.mock import MagicMock
+            return MagicMock()
+        # Use original client for other services
+        return original_boto3_client(service_name, *args, **kwargs)
+    
+    monkeypatch.setattr(boto3, 'client', mock_boto3_client)
+    
+    # Mock the require_auth decorator to bypass authentication
+    from shared import auth
+    
+    def mock_require_auth(roles=None):
+        """Mock decorator that bypasses auth and injects test user."""
+        def decorator(func):
+            def wrapper(event, context, *args, **kwargs):
+                # Inject mock user_id and role
+                test_user_id = 'test-admin-id'
+                test_role = 'admin'
+                return func(event, context, test_user_id, test_role, *args, **kwargs)
+            return wrapper
+        return decorator
+    
+    monkeypatch.setattr(auth, 'require_auth', mock_require_auth)
+    
     class MockResponse:
         def __init__(self, status_code, data):
             self.status_code = status_code
@@ -508,13 +556,216 @@ def api_client():
         def json(self):
             return self._data
     
-    # Configure mock methods to return MockResponse
-    client.get.return_value = MockResponse(200, {})
-    client.post.return_value = MockResponse(201, {})
-    client.put.return_value = MockResponse(200, {})
-    client.delete.return_value = MockResponse(200, {})
+    class ApiClient:
+        def __init__(self):
+            self.handlers = {}
+            self._load_handlers()
+        
+        def _load_handlers(self):
+            """Load Lambda handlers for different endpoints."""
+            # Import handlers
+            from users.create import handler as create_user_handler
+            from users.update import handler as update_user_handler
+            from users.delete import handler as delete_user_handler
+            from users.list import handler as list_users_handler
+            from users.reset_password import handler as reset_password_handler
+            from comments.create import handler as create_comment_handler
+            from comments.list import handler as list_comments_handler
+            from comments.update import handler as update_comment_handler
+            from comments.delete import handler as delete_comment_handler
+            
+            # Map endpoints to handlers
+            self.handlers = {
+                ('POST', '/api/v1/users'): create_user_handler,
+                ('PUT', '/api/v1/users'): update_user_handler,
+                ('DELETE', '/api/v1/users'): delete_user_handler,
+                ('GET', '/api/v1/users'): list_users_handler,
+                ('POST', '/api/v1/users/reset-password'): reset_password_handler,
+                ('POST', '/api/v1/content/comments'): create_comment_handler,
+                ('GET', '/api/v1/content/comments'): list_comments_handler,
+                ('PUT', '/api/v1/content/comments'): update_comment_handler,
+                ('DELETE', '/api/v1/content/comments'): delete_comment_handler,
+            }
+        
+        def _create_event(self, method, path, json_data=None, headers=None, query_params=None):
+            """Create a Lambda event from request parameters."""
+            event = {
+                'httpMethod': method,
+                'path': path,
+                'headers': headers or {},
+                'queryStringParameters': query_params or {},
+                'requestContext': {
+                    'identity': {
+                        'sourceIp': '127.0.0.1'
+                    }
+                }
+            }
+            
+            if json_data:
+                event['body'] = json.dumps(json_data)
+            
+            return event
+        
+        def _extract_path_params(self, path):
+            """Extract path parameters from URL."""
+            parts = path.split('/')
+            params = {}
+            
+            # Extract user_id from /api/v1/users/{user_id}
+            if len(parts) >= 5 and parts[3] == 'users' and parts[4]:
+                params['user_id'] = parts[4]
+            
+            # Extract content_id and comment_id
+            if 'comments' in path:
+                content_parts = path.split('/content/')
+                if len(content_parts) > 1:
+                    content_and_rest = content_parts[1].split('/comments')
+                    params['content_id'] = content_and_rest[0]
+                    if len(content_and_rest) > 1 and content_and_rest[1]:
+                        comment_id = content_and_rest[1].strip('/')
+                        if comment_id:
+                            params['comment_id'] = comment_id
+            
+            return params
+        
+        def post(self, path, data=None, headers=None, json=None):
+            """Handle POST requests."""
+            # Support both 'data' and 'json' parameters for compatibility
+            json_data = json if json is not None else data
+            
+            # Normalize path for handler lookup
+            base_path = path.split('?')[0]
+            
+            # Handle parameterized paths
+            if '/content/' in base_path and '/comments' in base_path:
+                lookup_path = '/api/v1/content/comments'
+            elif base_path.startswith('/api/v1/users/') and 'reset-password' in base_path:
+                lookup_path = '/api/v1/users/reset-password'
+            else:
+                lookup_path = base_path
+            
+            handler = self.handlers.get(('POST', lookup_path))
+            if not handler:
+                return MockResponse(404, {'error': 'Not found'})
+            
+            event = self._create_event('POST', path, json_data, headers)
+            path_params = self._extract_path_params(path)
+            event['pathParameters'] = path_params
+            
+            try:
+                import json as json_module
+                response = handler(event, {})
+                body = response.get('body', {})
+                if isinstance(body, str):
+                    body = json_module.loads(body)
+                return MockResponse(response.get('statusCode', 200), body)
+            except Exception as e:
+                print(f"Error in POST {path}: {e}")
+                import traceback
+                traceback.print_exc()
+                return MockResponse(500, {'error': str(e)})
+        
+        def get(self, path, headers=None, params=None):
+            """Handle GET requests."""
+            base_path = path.split('?')[0]
+            
+            # Handle parameterized paths
+            if '/content/' in base_path and '/comments' in base_path:
+                lookup_path = '/api/v1/content/comments'
+            else:
+                lookup_path = base_path
+            
+            handler = self.handlers.get(('GET', lookup_path))
+            if not handler:
+                return MockResponse(404, {'error': 'Not found'})
+            
+            event = self._create_event('GET', path, headers=headers, query_params=params)
+            path_params = self._extract_path_params(path)
+            event['pathParameters'] = path_params
+            
+            try:
+                import json as json_module
+                response = handler(event, {})
+                body = response.get('body', {})
+                if isinstance(body, str):
+                    body = json_module.loads(body)
+                return MockResponse(response.get('statusCode', 200), body)
+            except Exception as e:
+                print(f"Error in GET {path}: {e}")
+                import traceback
+                traceback.print_exc()
+                return MockResponse(500, {'error': str(e)})
+        
+        def put(self, path, data=None, headers=None, json=None):
+            """Handle PUT requests."""
+            # Support both 'data' and 'json' parameters for compatibility
+            json_data = json if json is not None else data
+            
+            base_path = path.split('?')[0]
+            
+            # Handle parameterized paths
+            if '/content/' in base_path and '/comments' in base_path:
+                lookup_path = '/api/v1/content/comments'
+            elif '/users/' in base_path:
+                lookup_path = '/api/v1/users'
+            else:
+                lookup_path = base_path
+            
+            handler = self.handlers.get(('PUT', lookup_path))
+            if not handler:
+                return MockResponse(404, {'error': 'Not found'})
+            
+            event = self._create_event('PUT', path, json_data, headers)
+            path_params = self._extract_path_params(path)
+            event['pathParameters'] = path_params
+            
+            try:
+                import json as json_module
+                response = handler(event, {})
+                body = response.get('body', {})
+                if isinstance(body, str):
+                    body = json_module.loads(body)
+                return MockResponse(response.get('statusCode', 200), body)
+            except Exception as e:
+                print(f"Error in PUT {path}: {e}")
+                import traceback
+                traceback.print_exc()
+                return MockResponse(500, {'error': str(e)})
+        
+        def delete(self, path, headers=None):
+            """Handle DELETE requests."""
+            base_path = path.split('?')[0]
+            
+            # Handle parameterized paths
+            if '/content/' in base_path and '/comments' in base_path:
+                lookup_path = '/api/v1/content/comments'
+            elif '/users/' in base_path:
+                lookup_path = '/api/v1/users'
+            else:
+                lookup_path = base_path
+            
+            handler = self.handlers.get(('DELETE', lookup_path))
+            if not handler:
+                return MockResponse(404, {'error': 'Not found'})
+            
+            event = self._create_event('DELETE', path, headers=headers)
+            path_params = self._extract_path_params(path)
+            event['pathParameters'] = path_params
+            
+            try:
+                import json as json_module
+                response = handler(event, {})
+                body = response.get('body', {})
+                if isinstance(body, str):
+                    body = json_module.loads(body)
+                return MockResponse(response.get('statusCode', 200), body)
+            except Exception as e:
+                print(f"Error in DELETE {path}: {e}")
+                import traceback
+                traceback.print_exc()
+                return MockResponse(500, {'error': str(e)})
     
-    return client
+    return ApiClient()
 
 
 @pytest.fixture

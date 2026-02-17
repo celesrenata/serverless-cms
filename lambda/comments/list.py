@@ -5,9 +5,7 @@ import json
 import os
 from typing import Any, Dict, Optional
 from shared.db import get_dynamodb_resource
-from shared.logger import get_logger
-
-logger = get_logger(__name__)
+from shared.logger import create_logger
 
 COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
 
@@ -22,6 +20,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     - limit: Number of results per page (default 50, max 100)
     - last_key: Pagination token
     """
+    log = create_logger(event, context)
+    
     try:
         dynamodb = get_dynamodb_resource()
         table = dynamodb.Table(COMMENTS_TABLE)
