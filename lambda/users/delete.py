@@ -50,14 +50,14 @@ def handler(event, context, user_id, role):
         # Prevent self-deletion
         if target_user_id == user_id:
             return {
-                'statusCode': 403,
+                'statusCode': 400,
                 'headers': {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*',
                 },
                 'body': json.dumps({
-                    'error': 'Forbidden',
-                    'message': 'Cannot delete your own account'
+                    'error': 'Bad request',
+                    'message': 'Cannot delete yourself'
                 })
             }
         
@@ -121,12 +121,14 @@ def handler(event, context, user_id, role):
         # This is intentional to preserve content history
         
         return {
-            'statusCode': 204,
+            'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
             },
-            'body': ''
+            'body': json.dumps({
+                'message': 'User deleted successfully'
+            })
         }
     
     except Exception as e:

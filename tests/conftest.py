@@ -467,7 +467,7 @@ def test_user(dynamodb_mock):
 
 
 @pytest.fixture
-def admin_user(dynamodb_mock):
+def admin_user(dynamodb_mock, api_client):
     """Create an admin user for testing."""
     import sys
     import os
@@ -489,7 +489,14 @@ def admin_user(dynamodb_mock):
         'last_login': now
     }
     
-    return user_repo.create(user_data)
+    created_user = user_repo.create(user_data)
+    
+    # Store admin user ID for self-deletion prevention test
+    # Access the holder from api_client's closure
+    if hasattr(api_client, '_admin_user_id_holder'):
+        api_client._admin_user_id_holder['id'] = user_id
+    
+    return created_user
 
 
 @pytest.fixture
@@ -556,6 +563,9 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
     # Mock the require_auth decorator to support role-based testing
     from shared import auth
     
+    # Store admin user ID for self-deletion prevention test
+    admin_user_id_holder = {'id': None}
+    
     def mock_require_auth(roles=None):
         """Mock decorator that checks token and injects appropriate user/role."""
         def decorator(func):
@@ -564,9 +574,10 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
                 headers = event.get('headers', {})
                 auth_header = headers.get('Authorization', '')
                 
-                # Determine role based on token
+                # Determine role and user_id based on token
                 if 'admin' in auth_header.lower():
-                    test_user_id = 'test-admin-id'
+                    # Use the actual admin user ID if available
+                    test_user_id = admin_user_id_holder.get('id') or 'test-admin-id'
                     test_role = 'admin'
                 elif 'editor' in auth_header.lower():
                     test_user_id = 'test-editor-id'
@@ -615,6 +626,8 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
         def __init__(self):
             self.handlers = {}
             self._load_handlers()
+            # Expose admin_user_id_holder for admin_user fixture
+            self._admin_user_id_holder = admin_user_id_holder
         
         def _load_handlers(self):
             """Load Lambda handlers for different endpoints."""
@@ -811,7 +824,10 @@ def api_client(dynamodb_mock, mock_cognito, monkeypatch):
                 import json as json_module
                 response = handler(event, {})
                 body = response.get('body', {})
-                if isinstance(body, str):
+                # Handle empty body (e.g., 204 No Content)
+                if body == '' or body is None:
+                    body = {}
+                elif isinstance(body, str):
                     body = json_module.loads(body)
                 return MockResponse(response.get('statusCode', 200), body)
             except Exception as e:
