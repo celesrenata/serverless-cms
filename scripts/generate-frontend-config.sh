@@ -56,6 +56,19 @@ echo "✅ Admin Panel configuration created"
 PUBLIC_ENV_FILE="frontend/public-website/.env"
 echo "📝 Writing Public Website config to $PUBLIC_ENV_FILE"
 
+# Debug: Check if CAPTCHA secrets are available
+if [ -n "$CAPTCHA_SCRIPT_URL" ]; then
+  echo "   ✓ CAPTCHA_SCRIPT_URL is set"
+else
+  echo "   ⚠ CAPTCHA_SCRIPT_URL is not set (CAPTCHA will be disabled)"
+fi
+
+if [ -n "$CAPTCHA_API_KEY" ]; then
+  echo "   ✓ CAPTCHA_API_KEY is set"
+else
+  echo "   ⚠ CAPTCHA_API_KEY is not set (CAPTCHA will be disabled)"
+fi
+
 cat > "$PUBLIC_ENV_FILE" << EOF
 # Auto-generated environment configuration
 # Generated on: $(date)
