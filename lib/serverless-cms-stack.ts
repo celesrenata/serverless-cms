@@ -1558,6 +1558,11 @@ export class ServerlessCmsStack extends cdk.Stack {
     
     // GET /api/v1/content/{id}/comments - List comments for content (public)
     const contentIdCommentsResource = contentIdResource.addResource('comments');
+    contentIdCommentsResource.addCorsPreflight({
+      allowOrigins: ['*'],
+      allowMethods: ['GET', 'POST', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key', 'X-Amz-Security-Token'],
+    });
     contentIdCommentsResource.addMethod('GET', new apigateway.LambdaIntegration(commentListFunction));
 
     // POST /api/v1/content/{id}/comments - Create comment for content (public if enabled)
@@ -1565,6 +1570,11 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // GET /api/v1/comments - List all comments for moderation (requires editor+ auth)
     const commentsResource = apiV1.addResource('comments');
+    commentsResource.addCorsPreflight({
+      allowOrigins: ['*'],
+      allowMethods: ['GET', 'PUT', 'DELETE', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key', 'X-Amz-Security-Token'],
+    });
     commentsResource.addMethod('GET', new apigateway.LambdaIntegration(commentListFunction), {
       authorizer: this.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
@@ -1572,6 +1582,11 @@ export class ServerlessCmsStack extends cdk.Stack {
 
     // PUT /api/v1/comments/{id} - Update comment status (requires editor+ auth)
     const commentIdResource = commentsResource.addResource('{id}');
+    commentIdResource.addCorsPreflight({
+      allowOrigins: ['*'],
+      allowMethods: ['PUT', 'DELETE', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key', 'X-Amz-Security-Token'],
+    });
     commentIdResource.addMethod('PUT', new apigateway.LambdaIntegration(commentUpdateFunction), {
       authorizer: this.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
