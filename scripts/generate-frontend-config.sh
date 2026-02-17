@@ -140,7 +140,7 @@ if [ -n "$CAPTCHA_SCRIPT_URL" ]; then
 fi
 
 if [ -n "$CAPTCHA_API_KEY" ]; then
-  echo "VITE_CAPTCHA_API_KEY=$CAPTCHA_API_KEY" >> "$PUBLIC_ENV_FILE"
+  echo "VITE_CAPTCHA_API_KEY=\"$CAPTCHA_API_KEY\"" >> "$PUBLIC_ENV_FILE"
 fi
 
 echo "✅ Public Website configuration created"
