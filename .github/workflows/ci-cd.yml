@@ -267,6 +267,9 @@ jobs:
       
       - name: Generate Frontend Configuration
         run: ./scripts/generate-frontend-config.sh dev cdk.out/outputs-dev.json
+        env:
+          CAPTCHA_SCRIPT_URL: ${{ secrets.CAPTCHA_SCRIPT_URL }}
+          CAPTCHA_API_KEY: ${{ secrets.CAPTCHA_API_KEY }}
       
       - name: Deploy Frontend Applications
         run: ./scripts/deploy-frontend.sh dev --outputs-file cdk.out/outputs-dev.json
@@ -330,6 +333,9 @@ jobs:
       
       - name: Generate Frontend Configuration
         run: ./scripts/generate-frontend-config.sh staging cdk.out/outputs-staging.json
+        env:
+          CAPTCHA_SCRIPT_URL: ${{ secrets.CAPTCHA_SCRIPT_URL }}
+          CAPTCHA_API_KEY: ${{ secrets.CAPTCHA_API_KEY }}
       
       - name: Deploy Frontend Applications
         run: ./scripts/deploy-frontend.sh staging --outputs-file cdk.out/outputs-staging.json
@@ -393,6 +399,9 @@ jobs:
       
       - name: Generate Frontend Configuration
         run: ./scripts/generate-frontend-config.sh prod cdk.out/outputs-prod.json
+        env:
+          CAPTCHA_SCRIPT_URL: ${{ secrets.CAPTCHA_SCRIPT_URL }}
+          CAPTCHA_API_KEY: ${{ secrets.CAPTCHA_API_KEY }}
       
       - name: Deploy Frontend Applications
         run: ./scripts/deploy-frontend.sh prod --outputs-file cdk.out/outputs-prod.json
