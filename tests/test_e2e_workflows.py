@@ -492,7 +492,7 @@ class TestUserManagementWorkflow:
         assert deleted_user is None
         
         # Content still exists but author is orphaned
-        orphaned_post = content_repo.get_by_id(post_id, f"post#{now}")
+        orphaned_post = content_repo.get_by_id(post_id)
         assert orphaned_post is not None
         assert orphaned_post['author'] == author_id  # Still references deleted user
 
