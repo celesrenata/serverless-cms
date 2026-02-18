@@ -273,6 +273,9 @@ jobs:
       
       - name: Deploy Frontend Applications
         run: ./scripts/deploy-frontend.sh dev --outputs-file cdk.out/outputs-dev.json
+        env:
+          CAPTCHA_SCRIPT_URL: ${{ secrets.CAPTCHA_SCRIPT_URL }}
+          CAPTCHA_API_KEY: ${{ secrets.CAPTCHA_API_KEY }}
       
       - name: Run smoke tests
         run: |
@@ -339,6 +342,9 @@ jobs:
       
       - name: Deploy Frontend Applications
         run: ./scripts/deploy-frontend.sh staging --outputs-file cdk.out/outputs-staging.json
+        env:
+          CAPTCHA_SCRIPT_URL: ${{ secrets.CAPTCHA_SCRIPT_URL }}
+          CAPTCHA_API_KEY: ${{ secrets.CAPTCHA_API_KEY }}
       
       - name: Run smoke tests
         run: |
@@ -405,6 +411,9 @@ jobs:
       
       - name: Deploy Frontend Applications
         run: ./scripts/deploy-frontend.sh prod --outputs-file cdk.out/outputs-prod.json
+        env:
+          CAPTCHA_SCRIPT_URL: ${{ secrets.CAPTCHA_SCRIPT_URL }}
+          CAPTCHA_API_KEY: ${{ secrets.CAPTCHA_API_KEY }}
       
       - name: Run smoke tests
         run: |

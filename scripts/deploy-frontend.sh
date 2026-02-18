@@ -114,7 +114,12 @@ fi
 # Always generate fresh frontend configuration
 echo ""
 echo "📋 Generating frontend configuration..."
-./scripts/generate-frontend-config.sh "$ENVIRONMENT" "$OUTPUTS_FILE"
+# Pass through CAPTCHA environment variables if they exist
+if [ -n "$CAPTCHA_SCRIPT_URL" ] && [ -n "$CAPTCHA_API_KEY" ]; then
+  CAPTCHA_SCRIPT_URL="$CAPTCHA_SCRIPT_URL" CAPTCHA_API_KEY="$CAPTCHA_API_KEY" ./scripts/generate-frontend-config.sh "$ENVIRONMENT" "$OUTPUTS_FILE"
+else
+  ./scripts/generate-frontend-config.sh "$ENVIRONMENT" "$OUTPUTS_FILE"
+fi
 
 # Deploy Admin Panel
 if [ "$DEPLOY_ADMIN" = true ]; then
