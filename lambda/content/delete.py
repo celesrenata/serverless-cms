@@ -85,7 +85,7 @@ def handler(event, context, user_id, role):
             }
         
         existing_content = existing_content
-        type_timestamp = existing_content.get('type#timestamp')
+        created_at = existing_content.get('created_at')
         
         # Execute plugin hook for content_delete
         try:
@@ -99,7 +99,7 @@ def handler(event, context, user_id, role):
             # Continue even if plugin fails
         
         # Delete from database
-        content_repo.delete(content_id, type_timestamp)
+        content_repo.delete(content_id, created_at)
         
         return {
             'statusCode': 200,
