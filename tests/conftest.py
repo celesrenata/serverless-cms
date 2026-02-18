@@ -58,6 +58,7 @@ def aws_mock():
                 {'AttributeName': 'type', 'AttributeType': 'S'},
                 {'AttributeName': 'published_at', 'AttributeType': 'N'},
                 {'AttributeName': 'status', 'AttributeType': 'S'},
+                {'AttributeName': 'scheduled_at', 'AttributeType': 'N'},
             ],
             GlobalSecondaryIndexes=[
                 {
