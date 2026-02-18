@@ -125,7 +125,8 @@ cd frontend/public-website && npm install && cd ../..
 2. **Configure environment**
 - Update `bin/app.ts` with your AWS account details
 - Update `config/environments.ts` with your domain names
-- See [GITHUB_SECRETS_SETUP.md](GITHUB_SECRETS_SETUP.md) for CI/CD setup
+- For GitHub Actions CI/CD, see [GITHUB_IAM_SETUP.md](GITHUB_IAM_SETUP.md) to create IAM users
+- Configure GitHub Secrets as described in [GITHUB_SECRETS_SETUP.md](GITHUB_SECRETS_SETUP.md)
 
 3. **Deploy**
 ```bash
@@ -185,7 +186,9 @@ npm run deploy:all:dev
 
 - [API Documentation](API_DOCUMENTATION.md) - REST API endpoints
 - [Deployment Guide](DEPLOYMENT.md) - Deployment instructions
-- [CI/CD Guide](CI_CD_GUIDE.md) - GitHub Actions setup
+- [CI/CD Guide](CI_CD_GUIDE.md) - GitHub Actions pipeline overview
+- [GitHub IAM Setup](GITHUB_IAM_SETUP.md) - Create IAM users for GitHub Actions
+- [GitHub Secrets Setup](GITHUB_SECRETS_SETUP.md) - Configure repository secrets
 - [User Management Guide](USER_MANAGEMENT_GUIDE.md) - User roles and permissions
 - [Comment Moderation Guide](COMMENT_MODERATION_GUIDE.md) - Comment system usage
 - [Plugin Development Guide](PLUGIN_DEVELOPMENT_GUIDE.md) - Creating plugins

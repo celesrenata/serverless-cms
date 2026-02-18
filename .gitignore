@@ -58,6 +58,9 @@ htmlcov/
 # AWS
 .aws-sam/
 
+# Sensitive credentials
+GITHUB_IAM_CREDENTIALS.md
+
 # Python virtual environment
 venv/
 env/
