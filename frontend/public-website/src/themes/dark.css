@@ -172,7 +172,14 @@
   border-radius: 0.5rem !important;
 }
 
-[data-theme="dark"] .awswaf-captcha-container * {
+[data-theme="dark"] .awswaf-captcha-container *,
+[data-theme="dark"] .awswaf-captcha-container h1,
+[data-theme="dark"] .awswaf-captcha-container h2,
+[data-theme="dark"] .awswaf-captcha-container h3,
+[data-theme="dark"] .awswaf-captcha-container p,
+[data-theme="dark"] .awswaf-captcha-container span,
+[data-theme="dark"] .awswaf-captcha-container div,
+[data-theme="dark"] .awswaf-captcha-container label {
   color: #f1f5f9 !important;
 }
 
@@ -203,8 +210,27 @@
   border-color: #334155 !important;
 }
 
+[data-theme="dark"] .awswaf-captcha-modal * {
+  color: #f1f5f9 !important;
+}
+
 [data-theme="dark"] .awswaf-captcha-modal-overlay {
   background-color: rgba(15, 23, 42, 0.75) !important;
+}
+
+/* More specific CAPTCHA selectors */
+[data-theme="dark"] [class*="awswaf"] {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] [class*="captcha"] {
+  color: #f1f5f9 !important;
+}
+
+/* Target the actual CAPTCHA iframe content if possible */
+[data-theme="dark"] iframe[src*="captcha"],
+[data-theme="dark"] iframe[src*="challenge"] {
+  filter: invert(0.9) hue-rotate(180deg);
 }
 
 
