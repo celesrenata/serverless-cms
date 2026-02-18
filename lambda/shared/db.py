@@ -133,13 +133,13 @@ class ContentRepository:
         except Exception as e:
             raise Exception(f"Failed to update content: {str(e)}")
     
-    def delete(self, content_id: str, type_timestamp: str) -> None:
+    def delete(self, content_id: str, created_at: int) -> None:
         """Delete content item."""
         try:
             self.table.delete_item(
                 Key={
                     'id': content_id,
-                    'type#timestamp': type_timestamp
+                    'created_at': created_at
                 }
             )
         except Exception as e:
