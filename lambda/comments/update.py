@@ -14,6 +14,12 @@ COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
 
 VALID_STATUSES = ['pending', 'approved', 'rejected', 'spam']
 
+# CORS headers
+CORS_HEADERS = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+}
+
 
 def decimal_to_int(obj):
     """Convert Decimal objects to int for JSON serialization."""
@@ -45,6 +51,7 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
         if not comment_id:
             return {
                 'statusCode': 400,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({'error': 'Comment ID is required'})
             }
         
@@ -55,12 +62,14 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
         if not new_status:
             return {
                 'statusCode': 400,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({'error': 'Status is required'})
             }
         
         if new_status not in VALID_STATUSES:
             return {
                 'statusCode': 400,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({
                     'error': f'Invalid status. Must be one of: {", ".join(VALID_STATUSES)}'
                 })
@@ -74,6 +83,7 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
         if not comment:
             return {
                 'statusCode': 404,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({'error': 'Comment not found'})
             }
         
@@ -117,12 +127,14 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
         
         return {
             'statusCode': 200,
+            'headers': CORS_HEADERS,
             'body': json.dumps(comment)
         }
         
     except json.JSONDecodeError:
         return {
             'statusCode': 400,
+            'headers': CORS_HEADERS,
             'body': json.dumps({'error': 'Invalid JSON in request body'})
         }
     except Exception as e:
@@ -131,5 +143,6 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
                  error_type=type(e).__name__)
         return {
             'statusCode': 500,
+            'headers': CORS_HEADERS,
             'body': json.dumps({'error': 'Failed to update comment'})
         }

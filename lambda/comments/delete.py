@@ -10,6 +10,12 @@ from shared.auth import require_auth
 
 COMMENTS_TABLE = os.environ['COMMENTS_TABLE']
 
+# CORS headers
+CORS_HEADERS = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+}
+
 
 @require_auth(roles=['admin', 'editor'])
 def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dict[str, Any]:
@@ -27,6 +33,7 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
         if not comment_id:
             return {
                 'statusCode': 400,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({'error': 'Comment ID is required'})
             }
         
@@ -38,6 +45,7 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
         if not comment:
             return {
                 'statusCode': 404,
+                'headers': CORS_HEADERS,
                 'body': json.dumps({'error': 'Comment not found'})
             }
         
@@ -48,6 +56,7 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
         
         return {
             'statusCode': 200,
+            'headers': CORS_HEADERS,
             'body': json.dumps({'message': 'Comment deleted successfully'})
         }
         
@@ -55,5 +64,6 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
         log.error(f"Error deleting comment: {str(e)}", error=str(e), error_type=type(e).__name__)
         return {
             'statusCode': 500,
+            'headers': CORS_HEADERS,
             'body': json.dumps({'error': 'Failed to delete comment'})
         }
