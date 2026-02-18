@@ -147,7 +147,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         dynamodb = get_dynamodb_resource()
         content_table = dynamodb.Table(CONTENT_TABLE)
         
-        # Query content by ID - need to scan since we don't have type#timestamp
+        # Query content by ID - need to scan since we only have the ID
         try:
             from boto3.dynamodb.conditions import Key, Attr
             log.info(f"Looking for content with id: {content_id}")

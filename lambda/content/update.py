@@ -188,8 +188,8 @@ def handler(event, context, user_id, role):
             # Continue even if plugin fails
         
         # Update in database
-        type_timestamp = existing_content.get('type#timestamp')
-        result = content_repo.update(content_id, type_timestamp, updates)
+        created_at = existing_content.get('created_at')
+        result = content_repo.update(content_id, created_at, updates)
         
         return {
             'statusCode': 200,
