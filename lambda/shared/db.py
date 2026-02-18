@@ -32,16 +32,16 @@ class ContentRepository:
         except Exception as e:
             raise Exception(f"Failed to create content: {str(e)}")
     
-    def get_by_id(self, content_id: str, type_timestamp: str) -> Optional[Dict[str, Any]]:
-        """Get content by ID and type#timestamp."""
+    def get_by_id(self, content_id: str) -> Optional[Dict[str, Any]]:
+        """Get content by ID."""
         try:
-            response = self.table.get_item(
-                Key={
-                    'id': content_id,
-                    'type#timestamp': type_timestamp
-                }
+            # Query with just partition key to get all items with this ID
+            response = self.table.query(
+                KeyConditionExpression=Key('id').eq(content_id),
+                Limit=1
             )
-            return response.get('Item')
+            items = response.get('Items', [])
+            return items[0] if items else None
         except Exception as e:
             raise Exception(f"Failed to get content: {str(e)}")
     
@@ -101,7 +101,7 @@ class ContentRepository:
         except Exception as e:
             raise Exception(f"Failed to list content: {str(e)}")
     
-    def update(self, content_id: str, type_timestamp: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+    def update(self, content_id: str, created_at: int, updates: Dict[str, Any]) -> Dict[str, Any]:
         """Update content item."""
         try:
             # Build update expression dynamically
@@ -122,7 +122,7 @@ class ContentRepository:
             response = self.table.update_item(
                 Key={
                     'id': content_id,
-                    'type#timestamp': type_timestamp
+                    'created_at': created_at
                 },
                 UpdateExpression=update_expr,
                 ExpressionAttributeNames=expr_attr_names,
