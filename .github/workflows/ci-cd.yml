@@ -170,7 +170,7 @@ jobs:
     name: Integration Tests
     runs-on: ubuntu-latest
     needs: [test-backend, test-admin-panel, test-public-website]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging'
     
     steps:
       - name: Checkout code
