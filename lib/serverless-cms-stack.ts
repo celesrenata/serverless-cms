@@ -316,7 +316,8 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     // AWS SES Configuration for email sending
-    const sesFromEmail = props.sesFromEmail || 'no-reply@celestium.life';
+    const sesEmailPrefix = props.environment === 'prod' ? 'no-reply' : `${props.environment}-no-reply`;
+    const sesFromEmail = props.sesFromEmail || `${sesEmailPrefix}@celestium.life`;
     
     // Create SES email identity
     const emailIdentity = new ses.EmailIdentity(this, 'SesEmailIdentity', {
