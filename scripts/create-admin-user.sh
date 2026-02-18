@@ -55,10 +55,18 @@ aws cognito-idp admin-update-user-attributes \
   --user-attributes Name=custom:role,Value=admin \
   --region us-west-2
 
+# Get the Cognito user's sub (UUID)
+echo "Getting user ID..."
+USER_ID=$(aws cognito-idp admin-get-user \
+  --user-pool-id "$USER_POOL_ID" \
+  --username "$ADMIN_EMAIL" \
+  --query 'Username' \
+  --output text \
+  --region us-west-2)
+
 # Add user to DynamoDB users table
 echo "Adding user to database..."
-USER_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
-CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+CURRENT_TIMESTAMP=$(date +%s)
 
 aws dynamodb put-item \
   --table-name "cms-users-${ENVIRONMENT}" \
@@ -66,8 +74,8 @@ aws dynamodb put-item \
     \"id\": {\"S\": \"$USER_ID\"},
     \"email\": {\"S\": \"$ADMIN_EMAIL\"},
     \"role\": {\"S\": \"admin\"},
-    \"created_at\": {\"S\": \"$CURRENT_TIME\"},
-    \"updated_at\": {\"S\": \"$CURRENT_TIME\"}
+    \"created_at\": {\"N\": \"$CURRENT_TIMESTAMP\"},
+    \"updated_at\": {\"N\": \"$CURRENT_TIMESTAMP\"}
   }" \
   --region us-west-2
 
