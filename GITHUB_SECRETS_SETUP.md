@@ -4,9 +4,15 @@ This guide explains how to configure GitHub Secrets for automated deployments.
 
 ## Required Secrets
 
-### AWS Credentials (Already Configured)
-- `AWS_ACCESS_KEY_ID` - Your AWS access key
-- `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
+### AWS Credentials for Development and Staging
+- `AWS_ACCESS_KEY_ID` - Your AWS access key (used for dev and staging)
+- `AWS_SECRET_ACCESS_KEY` - Your AWS secret key (used for dev and staging)
+
+### AWS Credentials for Production
+- `AWS_ACCESS_KEY_ID_PROD` - Your AWS access key for production
+- `AWS_SECRET_ACCESS_KEY_PROD` - Your AWS secret key for production
+
+**Note**: Production uses separate credentials for security isolation. This allows you to use different AWS accounts or more restricted IAM permissions for production deployments.
 
 ### CAPTCHA Configuration (New - Optional)
 - `CAPTCHA_SCRIPT_URL` - AWS WAF CAPTCHA JavaScript SDK URL
@@ -43,8 +49,10 @@ xV1zcgW8NBCGqYNVichFiF40/UwCWkWk2CASo7BvYhSh7ynEHXKsyU8H+PA1G6w24YY/+iw27Nyx4aez
 
 After adding the secrets, you should see them listed (values will be hidden):
 
-- ✓ AWS_ACCESS_KEY_ID
-- ✓ AWS_SECRET_ACCESS_KEY  
+- ✓ AWS_ACCESS_KEY_ID (for dev/staging)
+- ✓ AWS_SECRET_ACCESS_KEY (for dev/staging)
+- ✓ AWS_ACCESS_KEY_ID_PROD (for production)
+- ✓ AWS_SECRET_ACCESS_KEY_PROD (for production)
 - ✓ CAPTCHA_SCRIPT_URL
 - ✓ CAPTCHA_API_KEY
 
