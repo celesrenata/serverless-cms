@@ -87,7 +87,7 @@ class TestContentPublishingWorkflow:
             'excerpt': 'Updated introduction to my blog',
             'updated_at': edit_time
         }
-        edited_post = content_repo.update(post_id, {now}, updates)
+        edited_post = content_repo.update(post_id, now, updates)
         assert edited_post['content'] == updates['content']
         assert edited_post['updated_at'] == edit_time
         
@@ -98,7 +98,7 @@ class TestContentPublishingWorkflow:
             'published_at': publish_time,
             'updated_at': publish_time
         }
-        published_post = content_repo.update(post_id, {now}, publish_updates)
+        published_post = content_repo.update(post_id, now, publish_updates)
         assert published_post['status'] == 'published'
         assert published_post['published_at'] == publish_time
         
@@ -392,7 +392,7 @@ class TestCompleteContentLifecycle:
             'scheduled_at': scheduled_time,
             'updated_at': now + 100
         }
-        scheduled_post = content_repo.update(post_id, {now}, schedule_updates)
+        scheduled_post = content_repo.update(post_id, now, schedule_updates)
         assert scheduled_post['scheduled_at'] == scheduled_time
         assert scheduled_post['status'] == 'draft'
         
@@ -402,7 +402,7 @@ class TestCompleteContentLifecycle:
             'published_at': scheduled_time,
             'updated_at': scheduled_time
         }
-        published_post = content_repo.update(post_id, {now}, publish_updates)
+        published_post = content_repo.update(post_id, now, publish_updates)
         assert published_post['status'] == 'published'
         
         # Step 5: Verify post is visible publicly
@@ -417,7 +417,7 @@ class TestCompleteContentLifecycle:
             'status': 'archived',
             'updated_at': archive_time
         }
-        archived_post = content_repo.update(post_id, {now}, archive_updates)
+        archived_post = content_repo.update(post_id, now, archive_updates)
         assert archived_post['status'] == 'archived'
         
         # Step 7: Verify archived post not in public listing
