@@ -115,38 +115,41 @@ echo ""
 echo "☁️  Deploying to AWS..."
 
 # Try deployment, if it fails due to existing buckets, provide helpful error message
-if ! npx cdk deploy \
+npx cdk deploy \
   --context environment=$ENVIRONMENT \
   --require-approval never \
-  --outputs-file "$OUTPUTS_FILE" 2>&1 | tee /tmp/cdk-deploy.log; then
-  
-  # Check if error is due to existing buckets
+  --outputs-file "$OUTPUTS_FILE" 2>&1 | tee /tmp/cdk-deploy.log
+
+# Check the exit code of cdk deploy (not tee)
+CDK_EXIT_CODE=${PIPESTATUS[0]}
+
+if [ $CDK_EXIT_CODE -ne 0 ]; then
+  # Check if error is due to existing buckets or resources
   if grep -q "already exists" /tmp/cdk-deploy.log; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "❌ Deployment failed: S3 buckets already exist"
+    echo "❌ Deployment failed: Resources already exist"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "This happens when the CloudFormation stack was deleted but S3 buckets"
-    echo "were retained (by design to protect your data)."
+    echo "This happens when resources exist outside of CloudFormation management."
     echo ""
-    echo "To resolve this issue, choose ONE of these options:"
+    echo "Common causes:"
+    echo "  - S3 buckets retained after stack deletion"
+    echo "  - SES email identities shared across environments"
     echo ""
-    echo "Option 1: Import existing buckets into CloudFormation (RECOMMENDED)"
+    echo "To resolve:"
+    echo ""
+    echo "Option 1: Import existing resources (RECOMMENDED)"
     echo "  cdk import --context environment=$ENVIRONMENT"
     echo ""
-    echo "Option 2: Delete buckets and redeploy (⚠️  DESTROYS ALL DATA)"
-    echo "  ./scripts/deploy.sh $ENVIRONMENT --clean-buckets"
-    echo ""
-    echo "Option 3: Manually delete specific buckets:"
-    AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo "ACCOUNT_ID")
-    echo "  aws s3 rb s3://cms-admin-${ENVIRONMENT}-${AWS_ACCOUNT_ID} --force"
-    echo "  aws s3 rb s3://cms-media-${ENVIRONMENT}-${AWS_ACCOUNT_ID} --force"
-    echo "  aws s3 rb s3://cms-public-${ENVIRONMENT}-${AWS_ACCOUNT_ID} --force"
+    echo "Option 2: Delete conflicting resources manually"
+    echo "  Check the error message above for specific resource identifiers"
     echo ""
     exit 1
   else
     # Different error - just fail
+    echo ""
+    echo "❌ Deployment failed with exit code $CDK_EXIT_CODE"
     exit 1
   fi
 fi

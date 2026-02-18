@@ -38,43 +38,85 @@ class SmokeTest:
         return {}
     
     def _get_api_url(self, env: str) -> str:
-        """Get API URL from CDK outputs or fallback."""
+        """Get API URL from CDK outputs or CloudFormation."""
         outputs = self._load_outputs(env)
         stack_name = f"ServerlessCmsStack-{env}"
         
-        # Try to get from outputs
+        # Try to get from outputs file
         if stack_name in outputs:
             api_endpoint = outputs[stack_name].get('ApiEndpoint')
-            if api_endpoint:
+            if api_endpoint and api_endpoint != 'null':
                 return api_endpoint
+        
+        # Try CloudFormation
+        try:
+            import subprocess
+            result = subprocess.run(
+                ['aws', 'cloudformation', 'describe-stacks', '--stack-name', stack_name,
+                 '--query', 'Stacks[0].Outputs[?OutputKey==`ApiEndpoint`].OutputValue',
+                 '--output', 'text'],
+                capture_output=True, text=True, timeout=10
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return result.stdout.strip()
+        except Exception:
+            pass
         
         # Fallback to placeholder
         return f'https://api-{env}.your-domain.com/api/v1'
     
     def _get_admin_url(self, env: str) -> str:
-        """Get admin panel URL from CDK outputs or fallback."""
+        """Get admin panel URL from CDK outputs or CloudFormation."""
         outputs = self._load_outputs(env)
         stack_name = f"ServerlessCmsStack-{env}"
         
-        # Try to get from outputs
+        # Try to get from outputs file
         if stack_name in outputs:
             admin_url = outputs[stack_name].get('AdminUrl')
-            if admin_url:
+            if admin_url and admin_url != 'null':
                 return admin_url
+        
+        # Try CloudFormation
+        try:
+            import subprocess
+            result = subprocess.run(
+                ['aws', 'cloudformation', 'describe-stacks', '--stack-name', stack_name,
+                 '--query', 'Stacks[0].Outputs[?OutputKey==`AdminUrl`].OutputValue',
+                 '--output', 'text'],
+                capture_output=True, text=True, timeout=10
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return result.stdout.strip()
+        except Exception:
+            pass
         
         # Fallback to placeholder
         return f'https://admin-{env}.your-domain.com'
     
     def _get_public_url(self, env: str) -> str:
-        """Get public website URL from CDK outputs or fallback."""
+        """Get public website URL from CDK outputs or CloudFormation."""
         outputs = self._load_outputs(env)
         stack_name = f"ServerlessCmsStack-{env}"
         
-        # Try to get from outputs
+        # Try to get from outputs file
         if stack_name in outputs:
             public_url = outputs[stack_name].get('PublicUrl')
-            if public_url:
+            if public_url and public_url != 'null':
                 return public_url
+        
+        # Try CloudFormation
+        try:
+            import subprocess
+            result = subprocess.run(
+                ['aws', 'cloudformation', 'describe-stacks', '--stack-name', stack_name,
+                 '--query', 'Stacks[0].Outputs[?OutputKey==`PublicUrl`].OutputValue',
+                 '--output', 'text'],
+                capture_output=True, text=True, timeout=10
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return result.stdout.strip()
+        except Exception:
+            pass
         
         # Fallback to placeholder
         return f'https://{env}.your-domain.com'
