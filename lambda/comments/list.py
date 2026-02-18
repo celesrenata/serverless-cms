@@ -44,7 +44,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         path_params = event.get('pathParameters') or {}
         
         # content_id can come from path or query params
-        content_id = path_params.get('content_id') or params.get('content_id')
+        # Path param is 'id' from /api/v1/content/{id}/comments route
+        content_id = path_params.get('id') or path_params.get('content_id') or params.get('content_id')
         status = params.get('status')
         limit = min(int(params.get('limit', 50)), 100)
         last_key_str = params.get('last_key')
