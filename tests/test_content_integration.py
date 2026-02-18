@@ -219,7 +219,7 @@ class TestContentLifecycle:
         content_id = str(uuid.uuid4())
         content_item = {
             'id': content_id,
-            'type#timestamp': f"{test_content_data['type']}#{now}",
+            'created_at': now,
             'type': test_content_data['type'],
             'title': test_content_data['title'],
             'slug': test_content_data['slug'],
@@ -228,16 +228,15 @@ class TestContentLifecycle:
             'author': test_user_id,
             'status': 'draft',
             'metadata': test_content_data['metadata'],
-            'created_at': now,
             'updated_at': now
         }
         content_repo.create(content_item)
         
         # Delete content
-        content_repo.delete(content_id, f"{test_content_data['type']}#{now}")
+        content_repo.delete(content_id, now)
         
         # Verify deletion
-        retrieved = content_repo.get_by_id(content_id, f"{test_content_data['type']}#{now}")
+        retrieved = content_repo.get_by_id(content_id)
         assert retrieved is None
     
     def test_content_with_scheduled_publishing(self, dynamodb_mock, test_user_id, test_content_data, mock_context):
