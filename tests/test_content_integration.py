@@ -204,7 +204,7 @@ class TestContentLifecycle:
             'published_at': now + 100,
             'updated_at': now + 100
         }
-        updated = content_repo.update(content_id, f"{test_content_data['type']}#{now}", updates)
+        updated = content_repo.update(content_id, {now}, updates)
         
         assert updated['title'] == 'Updated Title'
         assert updated['status'] == 'published'
