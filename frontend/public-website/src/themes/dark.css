@@ -167,89 +167,40 @@
 
 /* CAPTCHA Widget Styling for Dark Theme */
 /* AWS WAF CAPTCHA uses amzn-captcha-* classes */
+/* Since inline styles override CSS, we add a translucent background for contrast */
 [data-theme="dark"] .amzn-captcha-container,
 [data-theme="dark"] .amzn-captcha-modal,
 [data-theme="dark"] .awswaf-captcha-container {
-  background-color: #1e293b !important;
-  border-color: #334155 !important;
-  border-radius: 0.5rem !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid #475569 !important;
+  border-radius: 0.75rem !important;
+  padding: 1.5rem !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
 }
 
-[data-theme="dark"] .amzn-captcha-modal-title,
-[data-theme="dark"] .amzn-captcha-container *,
-[data-theme="dark"] .amzn-captcha-container h1,
-[data-theme="dark"] .amzn-captcha-container h2,
-[data-theme="dark"] .amzn-captcha-container h3,
-[data-theme="dark"] .amzn-captcha-container p,
-[data-theme="dark"] .amzn-captcha-container span,
-[data-theme="dark"] .amzn-captcha-container div,
-[data-theme="dark"] .amzn-captcha-container label,
-[data-theme="dark"] .amzn-captcha-container em,
-[data-theme="dark"] .awswaf-captcha-container *,
-[data-theme="dark"] .awswaf-captcha-container h1,
-[data-theme="dark"] .awswaf-captcha-container h2,
-[data-theme="dark"] .awswaf-captcha-container h3,
-[data-theme="dark"] .awswaf-captcha-container p,
-[data-theme="dark"] .awswaf-captcha-container span,
-[data-theme="dark"] .awswaf-captcha-container div,
-[data-theme="dark"] .awswaf-captcha-container label {
-  color: #f1f5f9 !important;
-}
-
-[data-theme="dark"] .amzn-captcha-lang-selector,
-[data-theme="dark"] .amzn-captcha-lang-selector option {
-  background-color: #334155 !important;
-  color: #f1f5f9 !important;
-  border-color: #475569 !important;
-}
-
-[data-theme="dark"] .amzn-captcha-checkbox,
-[data-theme="dark"] .awswaf-captcha-checkbox {
-  background-color: #334155 !important;
-  border-color: #475569 !important;
-}
-
-[data-theme="dark"] .amzn-captcha-checkbox:checked,
-[data-theme="dark"] .awswaf-captcha-checkbox:checked {
-  background-color: #3b82f6 !important;
-  border-color: #3b82f6 !important;
-}
-
-[data-theme="dark"] .amzn-captcha-text,
-[data-theme="dark"] .awswaf-captcha-text {
-  color: #cbd5e1 !important;
-}
-
-[data-theme="dark"] .amzn-captcha-link,
-[data-theme="dark"] .awswaf-captcha-link {
-  color: #60a5fa !important;
-}
-
-[data-theme="dark"] .amzn-captcha-link:hover,
-[data-theme="dark"] .awswaf-captcha-link:hover {
-  color: #3b82f6 !important;
-}
-
-[data-theme="dark"] .amzn-captcha-modal * {
-  color: #f1f5f9 !important;
-}
-
+/* Ensure the modal overlay is dark */
 [data-theme="dark"] .amzn-captcha-modal-overlay,
 [data-theme="dark"] .awswaf-captcha-modal-overlay {
-  background-color: rgba(15, 23, 42, 0.75) !important;
+  background-color: rgba(15, 23, 42, 0.85) !important;
 }
 
-/* More specific CAPTCHA selectors */
-[data-theme="dark"] [class*="amzn-captcha"],
-[data-theme="dark"] [class*="awswaf"],
-[data-theme="dark"] [class*="captcha"] {
-  color: #f1f5f9 !important;
+/* Style the language selector to match */
+[data-theme="dark"] .amzn-captcha-lang-selector {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.375rem !important;
+  padding: 0.5rem !important;
 }
 
-/* Target the actual CAPTCHA iframe content if possible */
-[data-theme="dark"] iframe[src*="captcha"],
-[data-theme="dark"] iframe[src*="challenge"] {
-  filter: invert(0.9) hue-rotate(180deg);
+/* Keep the confirm button bright */
+[data-theme="dark"] button[class*="captcha"] {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Add subtle styling to the puzzle images */
+[data-theme="dark"] .amzn-captcha-container img {
+  border-radius: 0.25rem !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 
