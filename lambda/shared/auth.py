@@ -149,11 +149,15 @@ def get_user_role(user_id: str) -> str:
         response = table.get_item(Key={'id': user_id})
         item = response.get('Item')
         
+        print(f"DEBUG: user_id={user_id}, response={response}, item={item}")
+        
         if not item:
             # Default role for new users
             role = 'viewer'
         else:
             role = item.get('role', 'viewer')
+        
+        print(f"DEBUG: Resolved role={role}")
         
         # Cache the role
         _role_cache[user_id] = (role, current_time)
