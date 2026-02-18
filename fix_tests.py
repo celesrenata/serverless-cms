@@ -8,15 +8,29 @@ def fix_file(filepath):
     
     # Fix get_by_id calls - remove second parameter
     content = re.sub(
-        r'content_repo\.get_by_id\([^,]+,\s*f"[^"]+"\)',
-        lambda m: m.group(0).split(',')[0] + ')',
+        r'content_repo\.get_by_id\(([^,]+),\s*f"[^"]+"\)',
+        r'content_repo.get_by_id(\1)',
         content
     )
     
-    # Fix update calls - convert string created_at to int
+    # Fix update calls - convert f"type#{timestamp}" to just timestamp as int
+    # Pattern: content_repo.update(id, f"type#{timestamp}", updates)
+    def replace_update(match):
+        content_id = match.group(1)
+        timestamp_expr = match.group(2)
+        updates = match.group(3)
+        return f'content_repo.update({content_id}, {timestamp_expr}, {updates})'
+    
     content = re.sub(
-        r'content_repo\.update\(([^,]+),\s*f"([^"]+)#(\d+)"',
-        r'content_repo.update(\1, \3',
+        r'content_repo\.update\(([^,]+),\s*f"[^"]+#([^"]+)"\s*,\s*(.+?)\)',
+        replace_update,
+        content
+    )
+    
+    # Also handle item['type#timestamp'] pattern
+    content = re.sub(
+        r"content_repo\.update\(([^,]+),\s*item\['type#timestamp'\]\s*,",
+        r"content_repo.update(\1, item['created_at'],",
         content
     )
     
