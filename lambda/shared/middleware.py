@@ -16,7 +16,7 @@ logger.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
 # Settings cache with TTL
 _settings_cache: Dict[str, Any] = {}
 _cache_timestamp: float = 0
-CACHE_TTL = 300  # 5 minutes
+CACHE_TTL = 60  # 1 minute (reduced for faster settings updates)
 
 
 def get_cached_settings() -> Dict[str, Any]:
