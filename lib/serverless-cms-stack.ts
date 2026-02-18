@@ -65,13 +65,13 @@ export class ServerlessCmsStack extends cdk.Stack {
       encryption: dynamodb.TableEncryption.AWS_MANAGED,
     });
 
-    this.contentTable.addGlobalSecondaryIndex({
+    (this.contentTable as dynamodb.Table).addGlobalSecondaryIndex({
       indexName: 'type-created_at-index',
       partitionKey: { name: 'type', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'created_at', type: dynamodb.AttributeType.NUMBER },
     });
 
-    this.contentTable.addGlobalSecondaryIndex({
+    (this.contentTable as dynamodb.Table).addGlobalSecondaryIndex({
       indexName: 'status-created_at-index',
       partitionKey: { name: 'status', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'created_at', type: dynamodb.AttributeType.NUMBER },
@@ -98,7 +98,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       encryption: dynamodb.TableEncryption.AWS_MANAGED,
     });
 
-    this.usersTable.addGlobalSecondaryIndex({
+    (this.usersTable as dynamodb.Table).addGlobalSecondaryIndex({
       indexName: 'email-index',
       partitionKey: { name: 'email', type: dynamodb.AttributeType.STRING },
     });
