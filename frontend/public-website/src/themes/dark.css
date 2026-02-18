@@ -206,3 +206,77 @@
 [data-theme="dark"] .awswaf-captcha-modal-overlay {
   background-color: rgba(15, 23, 42, 0.75) !important;
 }
+
+
+/* Form labels and small text */
+[data-theme="dark"] label {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] small {
+  color: #94a3b8 !important;
+}
+
+/* Specific comment form styling */
+[data-theme="dark"] .comment-form label {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .comment-form small {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .form-note {
+  color: #94a3b8 !important;
+}
+
+/* Character counter and helper text */
+[data-theme="dark"] .text-xs {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .text-sm {
+  color: #cbd5e1 !important;
+}
+
+/* Ensure all text in comment sections is visible */
+[data-theme="dark"] .comment-author {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .comment-date {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .comment-text {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .comment-reply-btn {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .no-comments {
+  color: #94a3b8 !important;
+}
+
+/* Reply indicator */
+[data-theme="dark"] .reply-indicator {
+  background-color: #1e3a5f !important;
+  border-color: #3b82f6 !important;
+  color: #93c5fd !important;
+}
+
+/* Error messages */
+[data-theme="dark"] .error-message {
+  background-color: #7f1d1d !important;
+  border-color: #dc2626 !important;
+  color: #fca5a5 !important;
+}
+
+/* Success messages */
+[data-theme="dark"] .success-message {
+  background-color: #14532d !important;
+  border-color: #10b981 !important;
+  color: #86efac !important;
+}
