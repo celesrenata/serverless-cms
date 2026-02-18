@@ -149,13 +149,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Scan for content by ID
         try:
+            log.info(f"Looking for content with id: {content_id}")
             content_response = content_table.scan(
                 FilterExpression='id = :id',
                 ExpressionAttributeValues={':id': content_id},
                 Limit=1
             )
             
+            log.info(f"Scan returned {len(content_response.get('Items', []))} items")
+            
             if not content_response.get('Items'):
+                log.warning(f"Content not found: {content_id}")
                 return {
                     'statusCode': 404,
                     'headers': CORS_HEADERS,
@@ -163,6 +167,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             content = content_response['Items'][0]
+            log.info(f"Found content with status: {content.get('status')}")
             
             # Check if content is published
             if content.get('status') != 'published':
