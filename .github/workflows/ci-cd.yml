@@ -16,7 +16,6 @@ jobs:
   test-backend:
     name: Test Backend (Lambda Functions)
     runs-on: ubuntu-latest
-    continue-on-error: true  # Allow deployment even if tests fail
     
     steps:
       - name: Checkout code
@@ -50,7 +49,6 @@ jobs:
   test-admin-panel:
     name: Test Admin Panel
     runs-on: ubuntu-latest
-    continue-on-error: true  # Allow deployment even if tests fail
     
     steps:
       - name: Checkout code
@@ -90,7 +88,6 @@ jobs:
   test-public-website:
     name: Test Public Website
     runs-on: ubuntu-latest
-    continue-on-error: true  # Allow deployment even if tests fail
     
     steps:
       - name: Checkout code
