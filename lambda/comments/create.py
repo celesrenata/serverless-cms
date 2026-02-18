@@ -103,7 +103,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Get content_id from path parameters or body
         path_params = event.get('pathParameters', {})
-        content_id = path_params.get('content_id') or body.get('content_id', '').strip()
+        content_id = path_params.get('id') or path_params.get('content_id') or body.get('content_id', '').strip()
         
         # Validate required fields
         author_name = body.get('author_name', '').strip()
