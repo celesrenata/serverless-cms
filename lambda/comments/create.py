@@ -144,6 +144,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         # Verify content exists and is published
+        from boto3.dynamodb.conditions import Attr
         dynamodb = get_dynamodb_resource()
         content_table = dynamodb.Table(CONTENT_TABLE)
         
@@ -151,8 +152,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         try:
             log.info(f"Looking for content with id: {content_id}")
             content_response = content_table.scan(
-                FilterExpression='id = :id',
-                ExpressionAttributeValues={':id': content_id},
+                FilterExpression=Attr('id').eq(content_id),
                 Limit=1
             )
             
