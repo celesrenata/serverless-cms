@@ -41,6 +41,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         return {
             'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
             'body': json.dumps(public_settings)
         }
         
@@ -48,5 +52,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         logger.error(f"Error getting public settings: {str(e)}", exc_info=True)
         return {
             'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
             'body': json.dumps({'error': 'Failed to get settings'})
         }
