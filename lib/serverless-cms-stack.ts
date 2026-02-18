@@ -52,42 +52,76 @@ export class ServerlessCmsStack extends cdk.Stack {
     super(scope, id, props);
 
     // DynamoDB Tables
-    // Import existing tables instead of creating new ones
+    // Create DynamoDB Tables
     
     // Content Table
-    this.contentTable = dynamodb.Table.fromTableName(
-      this,
-      'ContentTable',
-      `cms-content-${props.environment}`
-    );
+    this.contentTable = new dynamodb.Table(this, 'ContentTable', {
+      tableName: `cms-content-${props.environment}`,
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'created_at', type: dynamodb.AttributeType.NUMBER },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
+    });
+
+    this.contentTable.addGlobalSecondaryIndex({
+      indexName: 'type-created_at-index',
+      partitionKey: { name: 'type', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'created_at', type: dynamodb.AttributeType.NUMBER },
+    });
+
+    this.contentTable.addGlobalSecondaryIndex({
+      indexName: 'status-created_at-index',
+      partitionKey: { name: 'status', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'created_at', type: dynamodb.AttributeType.NUMBER },
+    });
 
     // Media Table
-    this.mediaTable = dynamodb.Table.fromTableName(
-      this,
-      'MediaTable',
-      `cms-media-${props.environment}`
-    );
+    this.mediaTable = new dynamodb.Table(this, 'MediaTable', {
+      tableName: `cms-media-${props.environment}`,
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'uploaded_at', type: dynamodb.AttributeType.NUMBER },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
+    });
 
     // Users Table
-    this.usersTable = dynamodb.Table.fromTableName(
-      this,
-      'UsersTable',
-      `cms-users-${props.environment}`
-    );
+    this.usersTable = new dynamodb.Table(this, 'UsersTable', {
+      tableName: `cms-users-${props.environment}`,
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
+    });
+
+    this.usersTable.addGlobalSecondaryIndex({
+      indexName: 'email-index',
+      partitionKey: { name: 'email', type: dynamodb.AttributeType.STRING },
+    });
 
     // Settings Table
-    this.settingsTable = dynamodb.Table.fromTableName(
-      this,
-      'SettingsTable',
-      `cms-settings-${props.environment}`
-    );
+    this.settingsTable = new dynamodb.Table(this, 'SettingsTable', {
+      tableName: `cms-settings-${props.environment}`,
+      partitionKey: { name: 'key', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
+    });
 
     // Plugins Table
-    this.pluginsTable = dynamodb.Table.fromTableName(
-      this,
-      'PluginsTable',
-      `cms-plugins-${props.environment}`
-    );
+    this.pluginsTable = new dynamodb.Table(this, 'PluginsTable', {
+      tableName: `cms-plugins-${props.environment}`,
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
+    });
 
     // Comments Table - Create new table with GSIs
     this.commentsTable = new dynamodb.Table(this, 'CommentsTable', {
