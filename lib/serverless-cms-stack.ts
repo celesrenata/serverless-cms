@@ -852,6 +852,12 @@ export class ServerlessCmsStack extends cdk.Stack {
     // Comment create needs to verify content exists
     this.contentTable.grantReadData(commentCreateFunction);
     
+    // Comment functions need to read settings
+    this.settingsTable.grantReadData(commentCreateFunction);
+    this.settingsTable.grantReadData(commentListFunction);
+    this.settingsTable.grantReadData(commentUpdateFunction);
+    this.settingsTable.grantReadData(commentDeleteFunction);
+    
     // Comment update and delete need user info for authorization
     this.usersTable.grantReadData(commentUpdateFunction);
     this.usersTable.grantReadData(commentDeleteFunction);
