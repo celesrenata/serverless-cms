@@ -123,8 +123,11 @@ cd frontend/public-website && npm install && cd ../..
 ```
 
 2. **Configure environment**
-- Update `bin/app.ts` with your AWS account details
-- Update `config/environments.ts` with your domain names
+- Update `bin/app.ts` with your AWS account ID
+- Update `config/environments.ts` with your domain configuration:
+  - `hostedZoneName`: Your Route53 hosted zone domain (e.g., `example.com`)
+  - `hostedZoneId`: Your Route53 hosted zone ID (find in AWS Console or via `aws route53 list-hosted-zones`)
+  - `domainName`: The subdomain for each environment (e.g., `staging-cms.example.com`)
 - For GitHub Actions CI/CD, see [GITHUB_IAM_SETUP.md](GITHUB_IAM_SETUP.md) to create IAM users
 - Configure GitHub Secrets as described in [GITHUB_SECRETS_SETUP.md](GITHUB_SECRETS_SETUP.md)
 
