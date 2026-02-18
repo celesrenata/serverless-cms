@@ -276,3 +276,26 @@
   border-color: #10b981 !important;
   color: #86efac !important;
 }
+
+
+/* Additional CAPTCHA styling - target any div containing CAPTCHA */
+[data-theme="dark"] div[style*="font-size: 1.5em"] {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  padding: 2rem !important;
+  border-radius: 0.75rem !important;
+  border: 2px solid #475569 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Target the CAPTCHA wrapper more broadly */
+[data-theme="dark"] [class*="captcha"]:not(input):not(button) {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Ensure CAPTCHA modal gets the background */
+[data-theme="dark"] div[role="dialog"] {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  padding: 2rem !important;
+  border-radius: 0.75rem !important;
+  border: 2px solid #475569 !important;
+}
