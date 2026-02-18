@@ -66,15 +66,15 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
 
     (this.contentTable as dynamodb.Table).addGlobalSecondaryIndex({
-      indexName: 'type-created_at-index',
+      indexName: 'type-published_at-index',
       partitionKey: { name: 'type', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'created_at', type: dynamodb.AttributeType.NUMBER },
+      sortKey: { name: 'published_at', type: dynamodb.AttributeType.NUMBER },
     });
 
     (this.contentTable as dynamodb.Table).addGlobalSecondaryIndex({
-      indexName: 'status-created_at-index',
+      indexName: 'status-published_at-index',
       partitionKey: { name: 'status', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'created_at', type: dynamodb.AttributeType.NUMBER },
+      sortKey: { name: 'published_at', type: dynamodb.AttributeType.NUMBER },
     });
 
     // Media Table
