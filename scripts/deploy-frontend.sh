@@ -69,30 +69,39 @@ PUBLIC_BUCKET=$(jq -r ".\"$STACK_NAME\".PublicBucketName" "$OUTPUTS_FILE")
 ADMIN_DIST_ID=$(jq -r ".\"$STACK_NAME\".AdminDistributionId" "$OUTPUTS_FILE")
 PUBLIC_DIST_ID=$(jq -r ".\"$STACK_NAME\".PublicDistributionId" "$OUTPUTS_FILE")
 
-# Fallback to default bucket names if outputs are null (CDK didn't detect changes)
+# Fallback to CloudFormation stack outputs if CDK outputs are null
 if [ "$ADMIN_BUCKET" == "null" ] || [ -z "$ADMIN_BUCKET" ]; then
   echo "⚠️  Warning: AdminBucketName is null in outputs file"
-  echo "   Falling back to default bucket naming convention..."
-  AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-  ADMIN_BUCKET="cms-admin-${ENVIRONMENT}-${AWS_ACCOUNT_ID}"
-  echo "   Using: $ADMIN_BUCKET"
+  echo "   Retrieving from CloudFormation stack..."
+  STACK_NAME_CF="ServerlessCmsStack-${ENVIRONMENT}"
+  ADMIN_BUCKET=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME_CF" --query 'Stacks[0].Outputs[?OutputKey==`AdminBucketName`].OutputValue' --output text 2>/dev/null || echo "")
+  if [ -z "$ADMIN_BUCKET" ] || [ "$ADMIN_BUCKET" == "None" ]; then
+    echo "   ❌ Could not retrieve AdminBucketName from CloudFormation"
+    exit 1
+  fi
+  echo "   Found: $ADMIN_BUCKET"
 fi
 
 if [ "$PUBLIC_BUCKET" == "null" ] || [ -z "$PUBLIC_BUCKET" ]; then
   echo "⚠️  Warning: PublicBucketName is null in outputs file"
-  echo "   Falling back to default bucket naming convention..."
-  AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-  PUBLIC_BUCKET="cms-public-${ENVIRONMENT}-${AWS_ACCOUNT_ID}"
-  echo "   Using: $PUBLIC_BUCKET"
+  echo "   Retrieving from CloudFormation stack..."
+  STACK_NAME_CF="ServerlessCmsStack-${ENVIRONMENT}"
+  PUBLIC_BUCKET=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME_CF" --query 'Stacks[0].Outputs[?OutputKey==`PublicBucketName`].OutputValue' --output text 2>/dev/null || echo "")
+  if [ -z "$PUBLIC_BUCKET" ] || [ "$PUBLIC_BUCKET" == "None" ]; then
+    echo "   ❌ Could not retrieve PublicBucketName from CloudFormation"
+    exit 1
+  fi
+  echo "   Found: $PUBLIC_BUCKET"
 fi
 
-# Get CloudFront distribution IDs from existing buckets if null
+# Get CloudFront distribution IDs from CloudFormation if null
 if [ "$ADMIN_DIST_ID" == "null" ] || [ -z "$ADMIN_DIST_ID" ]; then
   echo "⚠️  Warning: AdminDistributionId is null in outputs file"
-  echo "   Looking up CloudFront distribution for bucket: $ADMIN_BUCKET"
-  ADMIN_DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[?DomainName=='${ADMIN_BUCKET}.s3.amazonaws.com']].Id | [0]" --output text)
-  if [ "$ADMIN_DIST_ID" == "None" ] || [ -z "$ADMIN_DIST_ID" ]; then
-    echo "   ⚠️  Could not find CloudFront distribution for admin bucket"
+  echo "   Retrieving from CloudFormation stack..."
+  STACK_NAME_CF="ServerlessCmsStack-${ENVIRONMENT}"
+  ADMIN_DIST_ID=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME_CF" --query 'Stacks[0].Outputs[?OutputKey==`AdminDistributionId`].OutputValue' --output text 2>/dev/null || echo "")
+  if [ -z "$ADMIN_DIST_ID" ] || [ "$ADMIN_DIST_ID" == "None" ]; then
+    echo "   ⚠️  Could not retrieve AdminDistributionId from CloudFormation"
     ADMIN_DIST_ID=""
   else
     echo "   Found: $ADMIN_DIST_ID"
@@ -101,10 +110,11 @@ fi
 
 if [ "$PUBLIC_DIST_ID" == "null" ] || [ -z "$PUBLIC_DIST_ID" ]; then
   echo "⚠️  Warning: PublicDistributionId is null in outputs file"
-  echo "   Looking up CloudFront distribution for bucket: $PUBLIC_BUCKET"
-  PUBLIC_DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[?DomainName=='${PUBLIC_BUCKET}.s3.amazonaws.com']].Id | [0]" --output text)
-  if [ "$PUBLIC_DIST_ID" == "None" ] || [ -z "$PUBLIC_DIST_ID" ]; then
-    echo "   ⚠️  Could not find CloudFront distribution for public bucket"
+  echo "   Retrieving from CloudFormation stack..."
+  STACK_NAME_CF="ServerlessCmsStack-${ENVIRONMENT}"
+  PUBLIC_DIST_ID=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME_CF" --query 'Stacks[0].Outputs[?OutputKey==`PublicDistributionId`].OutputValue' --output text 2>/dev/null || echo "")
+  if [ -z "$PUBLIC_DIST_ID" ] || [ "$PUBLIC_DIST_ID" == "None" ]; then
+    echo "   ⚠️  Could not retrieve PublicDistributionId from CloudFormation"
     PUBLIC_DIST_ID=""
   else
     echo "   Found: $PUBLIC_DIST_ID"
