@@ -56,7 +56,7 @@ def handler(event, context):
             item_start = time.time()
             try:
                 content_id = item['id']
-                type_timestamp = item['type#timestamp']
+                created_at = item['created_at']
                 
                 log.debug('Publishing scheduled content',
                          content_id=content_id,
@@ -66,7 +66,7 @@ def handler(event, context):
                 # Update status to published and set published_at timestamp
                 content_repo.update(
                     content_id=content_id,
-                    type_timestamp=type_timestamp,
+                    created_at=created_at,
                     updates={
                         'status': 'published',
                         'published_at': current_time,

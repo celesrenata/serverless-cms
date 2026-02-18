@@ -145,7 +145,7 @@ def handler(event, context, user_id, role):
         
         content_item = {
             'id': content_id,
-            'type#timestamp': f"{content_type}#{now}",
+            'created_at': now,
             'type': content_type,
             'title': body['title'],
             'slug': slug,
