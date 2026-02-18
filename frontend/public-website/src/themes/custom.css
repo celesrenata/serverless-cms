@@ -1,0 +1,72 @@
+/* Custom Theme - Customize these values to create your own theme */
+:root[data-theme="custom"] {
+  /* Primary colors - Change these to your brand colors */
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c3aed;
+  --color-primary-light: #a78bfa;
+  
+  /* Background colors - Customize your background palette */
+  --color-bg-primary: #fafafa;
+  --color-bg-secondary: #f5f5f5;
+  --color-bg-tertiary: #e5e5e5;
+  
+  /* Text colors - Adjust text contrast */
+  --color-text-primary: #171717;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
+  
+  /* Border colors */
+  --color-border: #d4d4d4;
+  --color-border-light: #e5e5e5;
+  
+  /* Status colors - For success, warning, error states */
+  --color-success: #16a34a;
+  --color-warning: #ea580c;
+  --color-error: #dc2626;
+  --color-info: #0284c7;
+  
+  /* Shadow - Adjust depth and intensity */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  /* Custom properties - Add your own! */
+  --border-radius: 0.5rem;
+  --font-family-heading: 'Georgia', serif;
+  --font-family-body: 'Inter', sans-serif;
+}
+
+[data-theme="custom"] body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-body);
+}
+
+[data-theme="custom"] h1,
+[data-theme="custom"] h2,
+[data-theme="custom"] h3,
+[data-theme="custom"] h4,
+[data-theme="custom"] h5,
+[data-theme="custom"] h6 {
+  font-family: var(--font-family-heading);
+}
+
+[data-theme="custom"] a {
+  color: var(--color-primary);
+}
+
+[data-theme="custom"] a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* Example: Custom button styling */
+[data-theme="custom"] button,
+[data-theme="custom"] .btn {
+  border-radius: var(--border-radius);
+}
+
+/* Example: Custom card styling */
+[data-theme="custom"] .card {
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+}

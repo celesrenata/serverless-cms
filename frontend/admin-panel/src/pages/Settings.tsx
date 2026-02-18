@@ -130,9 +130,10 @@ export function Settings() {
               <option value="dark">Dark</option>
               <option value="light">Light</option>
               <option value="minimal">Minimal</option>
+              <option value="custom">Custom</option>
             </select>
             <p className="mt-1 text-sm text-gray-500">
-              Choose the visual theme for your public website
+              Choose the visual theme for your public website. Custom theme can be modified in themes/custom.css
             </p>
           </div>
 

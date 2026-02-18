@@ -5,6 +5,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import './index.css';
+// Import theme CSS files
+import './themes/dark.css';
+import './themes/light.css';
+import './themes/minimal.css';
+import './themes/custom.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -4,6 +4,7 @@ import { api } from '../services/api';
 interface SiteSettings {
   site_title: string;
   site_description: string;
+  theme?: string;
   registration_enabled: boolean;
   comments_enabled: boolean;
   captcha_enabled: boolean;
@@ -18,6 +19,16 @@ interface SettingsContextType {
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
+// Available themes
+const THEMES = ['default', 'dark', 'light', 'minimal', 'custom'];
+
+// Function to apply theme
+const applyTheme = (theme: string) => {
+  // Set data-theme attribute on root element
+  const validTheme = THEMES.includes(theme) ? theme : 'default';
+  document.documentElement.setAttribute('data-theme', validTheme);
+};
+
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +40,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setError(null);
       const data = await api.getPublicSettings();
       setSettings(data);
+      
+      // Apply theme if specified
+      if (data.theme) {
+        applyTheme(data.theme);
+      } else {
+        applyTheme('default');
+      }
     } catch (err) {
       console.error('Failed to fetch settings:', err);
       setError('Failed to load site settings');
@@ -36,6 +54,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setSettings({
         site_title: 'Celestium CMS',
         site_description: '',
+        theme: 'default',
         registration_enabled: false,
         comments_enabled: false,
         captcha_enabled: false,
