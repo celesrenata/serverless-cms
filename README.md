@@ -169,7 +169,7 @@ npm run dev
 # Deploy to dev (automatic via GitHub Actions on push to develop)
 npm run deploy:dev
 
-# Deploy to staging (automatic via GitHub Actions on push to main)
+# Deploy to staging (automatic via GitHub Actions on push to staging)
 npm run deploy:staging
 
 # Deploy to production (manual approval required)
@@ -178,6 +178,8 @@ npm run deploy:prod
 # Deploy everything (infrastructure + frontend)
 npm run deploy:all:dev
 ```
+
+**Note:** On first deployment to a new environment, smoke tests will fail because no content exists yet. This is expected. Create some initial content through the admin panel, then subsequent deployments will pass smoke tests.
 
 ## Documentation
 
