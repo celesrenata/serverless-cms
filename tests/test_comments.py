@@ -485,3 +485,61 @@ class TestCommentEdgeCases:
         
         # One should succeed, one might fail or both succeed (last write wins)
         assert response1.status_code in [200, 409] or response2.status_code in [200, 409]
+
+    def test_comment_without_moderation(self, api_client, published_post, dynamodb_mock):
+        """Test that comments are auto-approved when moderation is disabled."""
+        import sys
+        import os
+        from datetime import datetime
+        
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lambda'))
+        from shared.db import SettingsRepository
+        from shared.middleware import clear_settings_cache
+        
+        settings_repo = SettingsRepository()
+        now = int(datetime.now().timestamp())
+        
+        # Disable comment moderation
+        settings_repo.update_setting(
+            'comment_moderation_enabled',
+            False,
+            updated_by='test-admin',
+            updated_at=now
+        )
+        
+        # Clear settings cache
+        clear_settings_cache()
+        
+        comment_data = {
+            "author_name": "Test User",
+            "author_email": "test@example.com",
+            "comment_text": "This should be auto-approved"
+        }
+        
+        response = api_client.post(
+            f"/api/v1/content/{published_post['id']}/comments",
+            json=comment_data
+        )
+        
+        assert response.status_code == 201
+        data = response.json()
+        assert data['status'] == 'approved'
+        assert 'after moderation' not in data['message']
+        
+        # Verify comment is visible in public list
+        list_response = api_client.get(f"/api/v1/content/{published_post['id']}/comments")
+        assert list_response.status_code == 200
+        comments = list_response.json()['comments']
+        assert len(comments) == 1
+        assert comments[0]['id'] == data['id']
+        
+        # Re-enable moderation after test
+        settings_repo.update_setting(
+            'comment_moderation_enabled',
+            True,
+            updated_by='test-admin',
+            updated_at=now
+        )
+        clear_settings_cache()
+
+

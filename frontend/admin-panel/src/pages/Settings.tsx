@@ -9,6 +9,7 @@ export function Settings() {
   const [theme, setTheme] = useState('default');
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const [commentsEnabled, setCommentsEnabled] = useState(false);
+  const [commentModerationEnabled, setCommentModerationEnabled] = useState(true);
   const [captchaEnabled, setCaptchaEnabled] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
@@ -20,6 +21,7 @@ export function Settings() {
       setTheme(settings.theme || 'default');
       setRegistrationEnabled(settings.registration_enabled ?? false);
       setCommentsEnabled(settings.comments_enabled ?? false);
+      setCommentModerationEnabled(settings.comment_moderation_enabled ?? true);
       setCaptchaEnabled(settings.captcha_enabled ?? false);
     }
   }, [settings]);
@@ -36,6 +38,7 @@ export function Settings() {
           theme: theme,
           registration_enabled: registrationEnabled,
           comments_enabled: commentsEnabled,
+          comment_moderation_enabled: commentModerationEnabled,
           captcha_enabled: captchaEnabled,
         },
         {
@@ -195,6 +198,38 @@ export function Settings() {
               </div>
             </div>
 
+            {/* Comment Moderation Toggle */}
+            <div className="flex items-center justify-between py-4 border-b">
+              <div className="flex-1">
+                <label htmlFor="comment_moderation_enabled" className="block text-sm font-medium text-gray-700">
+                  Comment Moderation
+                </label>
+                <p className="text-sm text-gray-500 mt-1">
+                  Require approval before comments are published (recommended)
+                </p>
+              </div>
+              <div className="ml-4">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={commentModerationEnabled}
+                  onClick={() => setCommentModerationEnabled(!commentModerationEnabled)}
+                  disabled={!commentsEnabled}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    !commentsEnabled ? 'opacity-50 cursor-not-allowed' : ''
+                  } ${
+                    commentModerationEnabled ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      commentModerationEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
             {/* CAPTCHA Toggle */}
             <div className="flex items-center justify-between py-4">
               <div className="flex-1">
@@ -211,7 +246,10 @@ export function Settings() {
                   role="switch"
                   aria-checked={captchaEnabled}
                   onClick={() => setCaptchaEnabled(!captchaEnabled)}
+                  disabled={!commentsEnabled}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    !commentsEnabled ? 'opacity-50 cursor-not-allowed' : ''
+                  } ${
                     captchaEnabled ? 'bg-blue-600' : 'bg-gray-200'
                   }`}
                 >

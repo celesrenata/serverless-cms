@@ -133,12 +133,14 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
 - `theme`: string - Active theme identifier
 - `registration_enabled`: boolean - Allow new user self-registration (default: false)
 - `comments_enabled`: boolean - Allow public comments on content (default: false)
+- `comment_moderation_enabled`: boolean - Require moderation before comments are published (default: true)
 - `captcha_enabled`: boolean - Require CAPTCHA for comment submission (default: false)
 - Custom settings as needed
 
 **Phase 2 Settings:**
 - `registration_enabled`: Controls whether the `/api/v1/auth/register` endpoint accepts new registrations
 - `comments_enabled`: Controls whether the `/api/v1/content/{id}/comments` POST endpoint accepts new comments
+- `comment_moderation_enabled`: Controls whether new comments start with 'pending' status (true) or 'approved' status (false)
 - `captcha_enabled`: Controls whether AWS WAF CAPTCHA challenge is required for comment submission
 
 ## Plugins Table (`cms-plugins-{env}`)

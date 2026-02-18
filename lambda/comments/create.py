@@ -210,6 +210,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         sanitized_email = html.escape(author_email)
         sanitized_text = html.escape(comment_text)
         
+        # Check if moderation is enabled
+        moderation_enabled = check_setting('comment_moderation_enabled', True)  # Default to true
+        comment_status = 'pending' if moderation_enabled else 'approved'
+        
         # Create comment
         comment_id = str(uuid.uuid4())
         created_at = int(time.time())
@@ -221,7 +225,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'author_email': sanitized_email,
             'comment_text': sanitized_text,
             'parent_id': parent_id,
-            'status': 'pending',  # Requires moderation
+            'status': comment_status,
             'ip_address': source_ip,
             'created_at': created_at,
             'updated_at': created_at,
@@ -231,12 +235,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         comments_table = dynamodb.Table(COMMENTS_TABLE)
         comments_table.put_item(Item=comment)
         
-        log.info(f"Created comment {comment_id} for content {content_id}", 
-                comment_id=comment_id, content_id=content_id)
+        log.info(f"Created comment {comment_id} for content {content_id} with status {comment_status}", 
+                comment_id=comment_id, content_id=content_id, status=comment_status)
         
         # Return comment without sensitive data
         response_comment = {k: v for k, v in comment.items() if k not in ['ip_address', 'author_email']}
-        response_comment['message'] = 'Comment submitted successfully. It will appear after moderation.'
+        if moderation_enabled:
+            response_comment['message'] = 'Comment submitted successfully. It will appear after moderation.'
+        else:
+            response_comment['message'] = 'Comment submitted successfully.'
         
         # Convert Decimals to int for JSON serialization
         response_comment = decimal_to_int(response_comment)
