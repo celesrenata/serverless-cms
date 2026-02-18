@@ -168,6 +168,8 @@
 /* CAPTCHA Widget Styling for Dark Theme */
 /* AWS WAF CAPTCHA uses amzn-captcha-* classes */
 /* Since inline styles override CSS, we add a translucent background for contrast */
+[data-theme="dark"] .captcha-wrapper,
+[data-theme="dark"] .captcha-container,
 [data-theme="dark"] .amzn-captcha-container,
 [data-theme="dark"] .amzn-captcha-modal,
 [data-theme="dark"] .awswaf-captcha-container {

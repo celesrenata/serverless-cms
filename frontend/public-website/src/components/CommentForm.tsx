@@ -94,6 +94,13 @@ export const CommentForm: React.FC<CommentFormProps> = ({
             setError('CAPTCHA verification failed. Please try again.');
           },
         });
+        
+        // Add wrapper class to CAPTCHA container for dark theme styling
+        setTimeout(() => {
+          if (captchaContainerRef.current) {
+            captchaContainerRef.current.classList.add('captcha-wrapper');
+          }
+        }, 100);
       } catch (err) {
         console.error('Failed to render CAPTCHA:', err);
         setError('Failed to load CAPTCHA. Please refresh the page and try again.');
