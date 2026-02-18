@@ -25,20 +25,17 @@ fi
 echo "🔐 Resetting password for user in $ENVIRONMENT environment..."
 echo ""
 
-# Get User Pool ID from CDK outputs
-OUTPUTS_FILE="cdk.out/outputs-${ENVIRONMENT}.json"
+# Get User Pool ID from CloudFormation
+STACK_NAME="ServerlessCmsStack-${ENVIRONMENT}"
 
-if [ ! -f "$OUTPUTS_FILE" ]; then
-  echo "❌ Error: CDK outputs file not found at $OUTPUTS_FILE"
-  echo "   Please deploy the stack first using ./scripts/deploy.sh"
-  exit 1
-fi
+USER_POOL_ID=$(aws cloudformation describe-stacks \
+  --stack-name "$STACK_NAME" \
+  --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' \
+  --output text \
+  --region us-west-2)
 
-STACK_NAME=$(jq -r 'keys[0]' "$OUTPUTS_FILE")
-USER_POOL_ID=$(jq -r ".\"$STACK_NAME\".UserPoolId" "$OUTPUTS_FILE")
-
-if [ -z "$USER_POOL_ID" ] || [ "$USER_POOL_ID" = "null" ]; then
-  echo "❌ Error: Could not find UserPoolId in outputs"
+if [ -z "$USER_POOL_ID" ] || [ "$USER_POOL_ID" = "None" ]; then
+  echo "❌ Error: Could not find UserPoolId for stack $STACK_NAME"
   exit 1
 fi
 
