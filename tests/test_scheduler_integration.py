@@ -29,7 +29,7 @@ class TestScheduledPublishing:
         past_content_id = str(uuid.uuid4())
         past_content = {
             'id': past_content_id,
-            'type#timestamp': f"post#{now - 7200}",
+            
             'type': 'post',
             'title': 'Past Scheduled Post',
             'slug': 'past-scheduled-post',
@@ -48,8 +48,8 @@ class TestScheduledPublishing:
         future_content_id = str(uuid.uuid4())
         future_content = {
             'id': future_content_id,
-            'type#timestamp': f"post#{now - 3600}",
-            'type#timestamp': f"post#{now}",
+            
+            
             'type': 'post',
             'title': 'Future Scheduled Post',
             'slug': 'future-scheduled-post',
@@ -82,7 +82,7 @@ class TestScheduledPublishing:
         content_id = str(uuid.uuid4())
         content_item = {
             'id': content_id,
-            'type#timestamp': f"post#{now}",
+            
             'type': 'post',
             'title': 'Scheduled Post',
             'slug': 'scheduled-post',
@@ -103,7 +103,7 @@ class TestScheduledPublishing:
             'published_at': now,
             'updated_at': now
         }
-        updated = content_repo.update(content_id, now, updates)
+        updated = content_repo.update(content_id, now - 7200, updates)
         
         assert updated['status'] == 'published'
         assert updated['published_at'] == now
@@ -122,7 +122,7 @@ class TestScheduledPublishing:
             scheduled_ids.append(content_id)
             content_item = {
                 'id': content_id,
-                'type#timestamp': f"post#{now}",
+                
                 'type': 'post',
                 'title': f'Scheduled Post {i}',
                 'slug': f'scheduled-post-{i}',
@@ -170,7 +170,7 @@ class TestScheduledPublishing:
         content_id = str(uuid.uuid4())
         content_item = {
             'id': content_id,
-            'type#timestamp': f"post#{now}",
+            
             'type': 'post',
             'title': 'Future Post',
             'slug': 'future-post',
@@ -202,7 +202,7 @@ class TestScheduledPublishing:
         content_id = str(uuid.uuid4())
         content_item = {
             'id': content_id,
-            'type#timestamp': f"post#{now}",
+            
             'type': 'post',
             'title': 'Published Scheduled Post',
             'slug': 'published-scheduled-post',
@@ -223,7 +223,7 @@ class TestScheduledPublishing:
             'published_at': now,
             'updated_at': now
         }
-        content_repo.update(content_id, now, updates)
+        content_repo.update(content_id, now - 7200, updates)
         
         # Now it should be visible in published content
         result = content_repo.list_by_type('post', status='published', limit=10)
@@ -244,7 +244,7 @@ class TestScheduledPublishing:
         content_id = str(uuid.uuid4())
         content_item = {
             'id': content_id,
-            'type#timestamp': f"post#{now}",
+            
             'type': 'post',
             'title': 'Scheduled Post',
             'slug': 'scheduled-post-preserve',
@@ -265,7 +265,7 @@ class TestScheduledPublishing:
             'published_at': now,
             'updated_at': now
         }
-        updated = content_repo.update(content_id, now, updates)
+        updated = content_repo.update(content_id, created_time, updates)
         
         # Verify created_at is preserved
         assert updated['created_at'] == created_time
