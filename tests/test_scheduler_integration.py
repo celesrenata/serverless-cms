@@ -103,7 +103,7 @@ class TestScheduledPublishing:
             'published_at': now,
             'updated_at': now
         }
-        updated = content_repo.update(content_id, f"post#{now}", updates)
+        updated = content_repo.update(content_id, {now}, updates)
         
         assert updated['status'] == 'published'
         assert updated['published_at'] == now
@@ -150,7 +150,7 @@ class TestScheduledPublishing:
                 'published_at': now,
                 'updated_at': now
             }
-            content_repo.update(item['id'], item['type#timestamp'], updates)
+            content_repo.update(item['id'], item['created_at'], updates)
             published_count += 1
         
         assert published_count == 3
@@ -223,7 +223,7 @@ class TestScheduledPublishing:
             'published_at': now,
             'updated_at': now
         }
-        content_repo.update(content_id, f"post#{now}", updates)
+        content_repo.update(content_id, {now}, updates)
         
         # Now it should be visible in published content
         result = content_repo.list_by_type('post', status='published', limit=10)
@@ -265,7 +265,7 @@ class TestScheduledPublishing:
             'published_at': now,
             'updated_at': now
         }
-        updated = content_repo.update(content_id, f"post#{now}", updates)
+        updated = content_repo.update(content_id, {now}, updates)
         
         # Verify created_at is preserved
         assert updated['created_at'] == created_time
