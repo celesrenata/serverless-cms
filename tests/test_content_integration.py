@@ -106,7 +106,7 @@ class TestContentLifecycle:
         content_repo.create(content_item)
         
         # Retrieve content
-        retrieved = content_repo.get_by_id(content_id, f"{test_content_data['type']}#{now}")
+        retrieved = content_repo.get_by_id(content_id)
         
         assert retrieved is not None
         assert retrieved['id'] == content_id
@@ -265,7 +265,7 @@ class TestContentLifecycle:
         content_repo.create(content_item)
         
         # Retrieve scheduled content
-        retrieved = content_repo.get_by_id(content_id, f"{test_content_data['type']}#{now}")
+        retrieved = content_repo.get_by_id(content_id)
         assert retrieved['scheduled_at'] == future_time
         assert retrieved['status'] == 'draft'
     
