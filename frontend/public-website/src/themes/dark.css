@@ -82,12 +82,39 @@
   color: #64748b !important;
 }
 
+[data-theme="dark"] .text-gray-400 {
+  color: #475569 !important;
+}
+
 [data-theme="dark"] .border-gray-200 {
   border-color: #334155 !important;
 }
 
 [data-theme="dark"] .border-gray-300 {
   border-color: #475569 !important;
+}
+
+/* Headings */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+  color: #f1f5f9 !important;
+}
+
+/* Paragraphs and general text */
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] div {
+  color: #cbd5e1;
+}
+
+/* Strong emphasis */
+[data-theme="dark"] strong,
+[data-theme="dark"] b {
+  color: #f1f5f9 !important;
 }
 
 /* Cards and containers */
@@ -113,6 +140,28 @@
 [data-theme="dark"] input::placeholder,
 [data-theme="dark"] textarea::placeholder {
   color: #64748b !important;
+}
+
+/* Buttons */
+[data-theme="dark"] button:not(.bg-blue-600):not(.bg-blue-500) {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] button:not(.bg-blue-600):not(.bg-blue-500):hover {
+  background-color: #475569 !important;
+}
+
+/* Keep blue buttons blue */
+[data-theme="dark"] .bg-blue-600,
+[data-theme="dark"] .bg-blue-500 {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .bg-blue-600:hover,
+[data-theme="dark"] .bg-blue-500:hover {
+  background-color: #2563eb !important;
 }
 
 
