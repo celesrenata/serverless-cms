@@ -1,45 +1,20 @@
 /* Custom Theme - Customize these values to create your own theme */
-:root[data-theme="custom"] {
+[data-theme="custom"] {
   /* Primary colors - Change these to your brand colors */
   --color-primary: #8b5cf6;
   --color-primary-hover: #7c3aed;
   --color-primary-light: #a78bfa;
-  
-  /* Background colors - Customize your background palette */
-  --color-bg-primary: #fafafa;
-  --color-bg-secondary: #f5f5f5;
-  --color-bg-tertiary: #e5e5e5;
-  
-  /* Text colors - Adjust text contrast */
-  --color-text-primary: #171717;
-  --color-text-secondary: #525252;
-  --color-text-muted: #737373;
-  
-  /* Border colors */
-  --color-border: #d4d4d4;
-  --color-border-light: #e5e5e5;
-  
-  /* Status colors - For success, warning, error states */
-  --color-success: #16a34a;
-  --color-warning: #ea580c;
-  --color-error: #dc2626;
-  --color-info: #0284c7;
-  
-  /* Shadow - Adjust depth and intensity */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  
-  /* Custom properties - Add your own! */
-  --border-radius: 0.5rem;
-  --font-family-heading: 'Georgia', serif;
-  --font-family-body: 'Inter', sans-serif;
 }
 
 [data-theme="custom"] body {
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  font-family: var(--font-family-body);
+  background-color: #fafafa !important;
+  color: #171717 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+[data-theme="custom"] #root {
+  background-color: #fafafa;
+  color: #171717;
 }
 
 [data-theme="custom"] h1,
@@ -48,25 +23,139 @@
 [data-theme="custom"] h4,
 [data-theme="custom"] h5,
 [data-theme="custom"] h6 {
-  font-family: var(--font-family-heading);
+  font-family: 'Georgia', serif !important;
 }
 
 [data-theme="custom"] a {
-  color: var(--color-primary);
+  color: #8b5cf6 !important;
 }
 
 [data-theme="custom"] a:hover {
-  color: var(--color-primary-hover);
+  color: #7c3aed !important;
 }
 
-/* Example: Custom button styling */
+/* Custom background overrides */
+[data-theme="custom"] .bg-white {
+  background-color: #ffffff !important;
+}
+
+[data-theme="custom"] .bg-gray-50 {
+  background-color: #f5f5f5 !important;
+}
+
+[data-theme="custom"] .bg-gray-100 {
+  background-color: #e5e5e5 !important;
+}
+
+/* Custom text colors */
+[data-theme="custom"] .text-gray-900 {
+  color: #171717 !important;
+}
+
+[data-theme="custom"] .text-gray-700 {
+  color: #525252 !important;
+}
+
+[data-theme="custom"] .text-gray-600,
+[data-theme="custom"] .text-gray-500 {
+  color: #737373 !important;
+}
+
+/* Custom borders */
+[data-theme="custom"] .border-gray-200,
+[data-theme="custom"] .border-gray-300 {
+  border-color: #d4d4d4 !important;
+}
+
+/* Custom button styling */
 [data-theme="custom"] button,
 [data-theme="custom"] .btn {
-  border-radius: var(--border-radius);
+  border-radius: 0.5rem !important;
 }
 
-/* Example: Custom card styling */
-[data-theme="custom"] .card {
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
+/* Custom card styling */
+[data-theme="custom"] .card,
+[data-theme="custom"] .comment {
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
 }
+
+[data-theme="custom"] .comment-form {
+  background-color: #f5f5f5 !important;
+  border-radius: 0.5rem !important;
+}
+
+/* 
+  CUSTOMIZATION GUIDE:
+  
+  1. Change background-color values to your preferred colors
+  2. Modify color values for text and links
+  3. Adjust border-radius for rounded corners
+  4. Change font-family to your preferred fonts
+  5. Modify box-shadow for depth effects
+  
+  Example color schemes:
+  - Ocean: #0ea5e9 (primary), #f0f9ff (bg)
+  - Forest: #059669 (primary), #f0fdf4 (bg)
+  - Sunset: #f97316 (primary), #fff7ed (bg)
+  - Royal: #7c3aed (primary), #faf5ff (bg)
+*/
+
+
+/* CAPTCHA Widget Styling for Custom Theme */
+[data-theme="custom"] .awswaf-captcha-container {
+  background-color: #f5f5f5 !important;
+  border-color: #d4d4d4 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="custom"] .awswaf-captcha-container * {
+  color: #171717 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+[data-theme="custom"] .awswaf-captcha-checkbox {
+  background-color: #ffffff !important;
+  border-color: #d4d4d4 !important;
+  border-radius: 0.25rem !important;
+}
+
+[data-theme="custom"] .awswaf-captcha-checkbox:checked {
+  background-color: #8b5cf6 !important;
+  border-color: #8b5cf6 !important;
+}
+
+[data-theme="custom"] .awswaf-captcha-text {
+  color: #525252 !important;
+}
+
+[data-theme="custom"] .awswaf-captcha-link {
+  color: #8b5cf6 !important;
+}
+
+[data-theme="custom"] .awswaf-captcha-link:hover {
+  color: #7c3aed !important;
+}
+
+[data-theme="custom"] .awswaf-captcha-modal {
+  background-color: #ffffff !important;
+  border-color: #d4d4d4 !important;
+  border-radius: 0.5rem !important;
+}
+
+[data-theme="custom"] .awswaf-captcha-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 
+  CAPTCHA CUSTOMIZATION:
+  
+  You can further customize the CAPTCHA widget by modifying:
+  - .awswaf-captcha-container: Main container background and border
+  - .awswaf-captcha-checkbox: Checkbox styling
+  - .awswaf-captcha-text: Text color
+  - .awswaf-captcha-link: Link color
+  - .awswaf-captcha-modal: Modal dialog styling
+  - .awswaf-captcha-modal-overlay: Modal backdrop
+*/
