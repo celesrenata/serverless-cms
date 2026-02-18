@@ -199,7 +199,7 @@ jobs:
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     environment:
       name: development
-      url: https://dev-admin.your-domain.com
+      url: https://dev.serverless.celestium.life
     
     steps:
       - name: Checkout code
@@ -359,7 +359,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
-      url: https://admin.your-domain.com
+      url: https://serverless.celestium.life
     
     steps:
       - name: Checkout code
