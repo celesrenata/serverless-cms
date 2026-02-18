@@ -166,12 +166,25 @@
 
 
 /* CAPTCHA Widget Styling for Dark Theme */
+/* AWS WAF CAPTCHA uses amzn-captcha-* classes */
+[data-theme="dark"] .amzn-captcha-container,
+[data-theme="dark"] .amzn-captcha-modal,
 [data-theme="dark"] .awswaf-captcha-container {
   background-color: #1e293b !important;
   border-color: #334155 !important;
   border-radius: 0.5rem !important;
 }
 
+[data-theme="dark"] .amzn-captcha-modal-title,
+[data-theme="dark"] .amzn-captcha-container *,
+[data-theme="dark"] .amzn-captcha-container h1,
+[data-theme="dark"] .amzn-captcha-container h2,
+[data-theme="dark"] .amzn-captcha-container h3,
+[data-theme="dark"] .amzn-captcha-container p,
+[data-theme="dark"] .amzn-captcha-container span,
+[data-theme="dark"] .amzn-captcha-container div,
+[data-theme="dark"] .amzn-captcha-container label,
+[data-theme="dark"] .amzn-captcha-container em,
 [data-theme="dark"] .awswaf-captcha-container *,
 [data-theme="dark"] .awswaf-captcha-container h1,
 [data-theme="dark"] .awswaf-captcha-container h2,
@@ -183,46 +196,52 @@
   color: #f1f5f9 !important;
 }
 
+[data-theme="dark"] .amzn-captcha-lang-selector,
+[data-theme="dark"] .amzn-captcha-lang-selector option {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .amzn-captcha-checkbox,
 [data-theme="dark"] .awswaf-captcha-checkbox {
   background-color: #334155 !important;
   border-color: #475569 !important;
 }
 
+[data-theme="dark"] .amzn-captcha-checkbox:checked,
 [data-theme="dark"] .awswaf-captcha-checkbox:checked {
   background-color: #3b82f6 !important;
   border-color: #3b82f6 !important;
 }
 
+[data-theme="dark"] .amzn-captcha-text,
 [data-theme="dark"] .awswaf-captcha-text {
   color: #cbd5e1 !important;
 }
 
+[data-theme="dark"] .amzn-captcha-link,
 [data-theme="dark"] .awswaf-captcha-link {
   color: #60a5fa !important;
 }
 
+[data-theme="dark"] .amzn-captcha-link:hover,
 [data-theme="dark"] .awswaf-captcha-link:hover {
   color: #3b82f6 !important;
 }
 
-[data-theme="dark"] .awswaf-captcha-modal {
-  background-color: #1e293b !important;
-  border-color: #334155 !important;
-}
-
-[data-theme="dark"] .awswaf-captcha-modal * {
+[data-theme="dark"] .amzn-captcha-modal * {
   color: #f1f5f9 !important;
 }
 
+[data-theme="dark"] .amzn-captcha-modal-overlay,
 [data-theme="dark"] .awswaf-captcha-modal-overlay {
   background-color: rgba(15, 23, 42, 0.75) !important;
 }
 
 /* More specific CAPTCHA selectors */
-[data-theme="dark"] [class*="awswaf"] {
-  color: #f1f5f9 !important;
-}
-
+[data-theme="dark"] [class*="amzn-captcha"],
+[data-theme="dark"] [class*="awswaf"],
 [data-theme="dark"] [class*="captcha"] {
   color: #f1f5f9 !important;
 }
