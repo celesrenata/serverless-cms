@@ -19,10 +19,10 @@ export function Settings() {
       setSiteTitle(settings.site_title || '');
       setSiteDescription(settings.site_description || '');
       setTheme(settings.theme || 'default');
-      setRegistrationEnabled(settings.registration_enabled ?? false);
-      setCommentsEnabled(settings.comments_enabled ?? false);
-      setCommentModerationEnabled(settings.comment_moderation_enabled ?? true);
-      setCaptchaEnabled(settings.captcha_enabled ?? false);
+      setRegistrationEnabled(Boolean(settings.registration_enabled ?? false));
+      setCommentsEnabled(Boolean(settings.comments_enabled ?? false));
+      setCommentModerationEnabled(Boolean(settings.comment_moderation_enabled ?? true));
+      setCaptchaEnabled(Boolean(settings.captcha_enabled ?? false));
     }
   }, [settings]);
 

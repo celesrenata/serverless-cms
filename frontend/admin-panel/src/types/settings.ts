@@ -4,6 +4,7 @@ export interface SiteSettings {
   theme?: string;
   registration_enabled?: boolean;
   comments_enabled?: boolean;
+  comment_moderation_enabled?: boolean;
   captcha_enabled?: boolean;
   [key: string]: string | boolean | undefined;
 }
