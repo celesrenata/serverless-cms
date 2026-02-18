@@ -147,18 +147,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         dynamodb = get_dynamodb_resource()
         content_table = dynamodb.Table(CONTENT_TABLE)
         
-        # Use ContentRepository to get content by ID
+        # Scan for content by ID
         try:
-            from shared.db import ContentRepository
-            content_repo = ContentRepository()
-            content = content_repo.get_by_id(content_id)
+            content_response = content_table.scan(
+                FilterExpression='id = :id',
+                ExpressionAttributeValues={':id': content_id},
+                Limit=1
+            )
             
-            if not content:
+            if not content_response.get('Items'):
                 return {
                     'statusCode': 404,
                     'headers': CORS_HEADERS,
                     'body': json.dumps({'error': 'Content not found'})
                 }
+            
+            content = content_response['Items'][0]
             
             # Check if content is published
             if content.get('status') != 'published':
