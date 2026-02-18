@@ -15,6 +15,7 @@ logger.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
 PUBLIC_SETTINGS = [
     'site_title',
     'site_description',
+    'theme',
     'registration_enabled',
     'comments_enabled',
     'captcha_enabled',
@@ -31,11 +32,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Get all settings from cache
         all_settings = get_cached_settings()
         
-        # Filter to only public settings
-        public_settings = {
-            key: all_settings.get(key, False)
-            for key in PUBLIC_SETTINGS
-        }
+        # Filter to only public settings with defaults
+        public_settings = {}
+        for key in PUBLIC_SETTINGS:
+            if key == 'theme':
+                public_settings[key] = all_settings.get(key, 'default')
+            elif key in ['site_title', 'site_description']:
+                public_settings[key] = all_settings.get(key, '')
+            else:
+                public_settings[key] = all_settings.get(key, False)
         
         logger.info("Retrieved public settings")
         
