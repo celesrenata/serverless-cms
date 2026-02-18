@@ -299,12 +299,12 @@ class TestUserManagement:
         
         assert response.status_code == 200
         data = response.json()
-        assert "users" in data
-        assert isinstance(data["users"], list)
-        assert len(data["users"]) > 0
+        assert "items" in data
+        assert isinstance(data["items"], list)
+        assert len(data["items"]) > 0
         
         # Check user structure
-        user = data["users"][0]
+        user = data["items"][0]
         assert "id" in user
         assert "email" in user
         assert "name" in user
