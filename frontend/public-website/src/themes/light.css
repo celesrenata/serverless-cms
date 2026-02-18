@@ -1,0 +1,103 @@
+/* Light Theme */
+[data-theme="light"] {
+  /* Primary colors */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-light: #3b82f6;
+  
+  /* Background colors */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
+  
+  /* Text colors */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
+  
+  /* Border colors */
+  --color-border: #e2e8f0;
+  --color-border-light: #cbd5e1;
+  
+  /* Status colors */
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+  
+  /* Shadow */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] body {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] #root {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+[data-theme="light"] a {
+  color: #2563eb !important;
+}
+
+[data-theme="light"] a:hover {
+  color: #1d4ed8 !important;
+}
+
+/* Ensure light backgrounds */
+[data-theme="light"] .bg-gray-50 {
+  background-color: #f8fafc !important;
+}
+
+[data-theme="light"] .bg-gray-100 {
+  background-color: #f1f5f9 !important;
+}
+
+
+/* CAPTCHA Widget Styling for Light Theme */
+[data-theme="light"] .awswaf-captcha-container {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .awswaf-captcha-container * {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .awswaf-captcha-checkbox {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .awswaf-captcha-checkbox:checked {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+[data-theme="light"] .awswaf-captcha-text {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .awswaf-captcha-link {
+  color: #2563eb !important;
+}
+
+[data-theme="light"] .awswaf-captcha-link:hover {
+  color: #1d4ed8 !important;
+}
+
+[data-theme="light"] .awswaf-captcha-modal {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .awswaf-captcha-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}

@@ -1251,6 +1251,530 @@ aws cloudformation describe-stacks --stack-name ServerlessCmsStack-dev
 
 ---
 
+## AWS SES Email Configuration
+
+### Overview
+
+AWS Simple Email Service (SES) is used to send transactional emails including:
+- Welcome emails for new user registrations
+- Password reset notifications
+- Email verification for new accounts
+
+### Step 1: Verify Email Identity
+
+Before sending emails, you must verify your sender email address or domain in SES.
+
+#### Option A: Verify Single Email Address (Quick Start)
+
+```bash
+# Verify the sender email address
+aws ses verify-email-identity \
+  --email-address no-reply@celestium.life \
+  --region us-east-1
+
+# Check verification status
+aws ses get-identity-verification-attributes \
+  --identities no-reply@celestium.life \
+  --region us-east-1
+```
+
+You'll receive a verification email at the specified address. Click the link to complete verification.
+
+#### Option B: Verify Domain (Recommended for Production)
+
+```bash
+# Verify the domain
+aws ses verify-domain-identity \
+  --domain celestium.life \
+  --region us-east-1
+```
+
+This returns a verification token. Add it as a TXT record in your DNS:
+
+```
+Name: _amazonses.celestium.life
+Type: TXT
+Value: [verification-token-from-command-output]
+```
+
+### Step 2: Configure DNS Records for Email Authentication
+
+For production use, configure SPF, DKIM, and DMARC records to improve email deliverability and prevent spoofing.
+
+#### SPF Record
+
+Add an SPF TXT record to your domain:
+
+```
+Name: celestium.life
+Type: TXT
+Value: "v=spf1 include:amazonses.com ~all"
+```
+
+#### DKIM Records
+
+Generate DKIM tokens:
+
+```bash
+aws ses verify-domain-dkim \
+  --domain celestium.life \
+  --region us-east-1
+```
+
+This returns three DKIM tokens. Add them as CNAME records:
+
+```
+Name: [token1]._domainkey.celestium.life
+Type: CNAME
+Value: [token1].dkim.amazonses.com
+
+Name: [token2]._domainkey.celestium.life
+Type: CNAME
+Value: [token2].dkim.amazonses.com
+
+Name: [token3]._domainkey.celestium.life
+Type: CNAME
+Value: [token3].dkim.amazonses.com
+```
+
+#### DMARC Record
+
+Add a DMARC TXT record:
+
+```
+Name: _dmarc.celestium.life
+Type: TXT
+Value: "v=DMARC1; p=quarantine; rua=mailto:dmarc-reports@celestium.life"
+```
+
+DMARC policies:
+- `p=none`: Monitor only (recommended for testing)
+- `p=quarantine`: Send suspicious emails to spam
+- `p=reject`: Reject suspicious emails (recommended for production)
+
+### Step 3: Move Out of SES Sandbox
+
+By default, SES accounts start in sandbox mode with limitations:
+- Can only send to verified email addresses
+- Limited to 200 emails per day
+- Maximum send rate of 1 email per second
+
+To send to any email address and increase limits:
+
+1. **Request Production Access:**
+   - Go to AWS SES Console → Account Dashboard
+   - Click "Request production access"
+   - Fill out the form with:
+     - Use case description
+     - Website URL
+     - Compliance with AWS policies
+     - How you handle bounces and complaints
+
+2. **Wait for Approval:**
+   - AWS typically responds within 24 hours
+   - You may be asked for additional information
+
+3. **Verify Approval:**
+   ```bash
+   aws ses get-account-sending-enabled --region us-east-1
+   ```
+
+### Step 4: Configure Bounce and Complaint Handling
+
+The CDK stack automatically creates SNS topics for bounce and complaint notifications. Subscribe to these topics:
+
+```bash
+# Get SNS topic ARNs from stack outputs
+BOUNCE_TOPIC=$(aws cloudformation describe-stacks \
+  --stack-name ServerlessCmsStack-prod \
+  --query 'Stacks[0].Outputs[?OutputKey==`EmailBounceTopicArn`].OutputValue' \
+  --output text)
+
+COMPLAINT_TOPIC=$(aws cloudformation describe-stacks \
+  --stack-name ServerlessCmsStack-prod \
+  --query 'Stacks[0].Outputs[?OutputKey==`EmailComplaintTopicArn`].OutputValue' \
+  --output text)
+
+# Subscribe to bounce notifications
+aws sns subscribe \
+  --topic-arn $BOUNCE_TOPIC \
+  --protocol email \
+  --notification-endpoint admin@celestium.life
+
+# Subscribe to complaint notifications
+aws sns subscribe \
+  --topic-arn $COMPLAINT_TOPIC \
+  --protocol email \
+  --notification-endpoint admin@celestium.life
+```
+
+### Step 5: Test Email Sending
+
+Test email functionality after verification:
+
+```bash
+# Send test email using AWS CLI
+aws ses send-email \
+  --from no-reply@celestium.life \
+  --destination ToAddresses=test@example.com \
+  --message Subject={Data="Test Email",Charset=utf-8},Body={Text={Data="This is a test email from SES",Charset=utf-8}} \
+  --region us-east-1
+```
+
+Or test through the application:
+1. Create a new user in the admin panel
+2. Check that the welcome email is received
+3. Trigger a password reset
+4. Verify the password reset email is received
+
+### Step 6: Monitor Email Metrics
+
+Monitor email sending in CloudWatch:
+
+```bash
+# View sent email count
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/SES \
+  --metric-name Send \
+  --start-time 2024-01-01T00:00:00Z \
+  --end-time 2024-01-02T00:00:00Z \
+  --period 3600 \
+  --statistics Sum \
+  --region us-east-1
+
+# View bounce rate
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/SES \
+  --metric-name Reputation.BounceRate \
+  --start-time 2024-01-01T00:00:00Z \
+  --end-time 2024-01-02T00:00:00Z \
+  --period 3600 \
+  --statistics Average \
+  --region us-east-1
+```
+
+### SES Best Practices
+
+1. **Maintain Low Bounce Rate:**
+   - Keep bounce rate below 5%
+   - Remove invalid email addresses from your system
+   - Monitor bounce notifications
+
+2. **Handle Complaints:**
+   - Keep complaint rate below 0.1%
+   - Provide clear unsubscribe options
+   - Honor unsubscribe requests immediately
+
+3. **Warm Up Your Sending:**
+   - Start with low volume (hundreds per day)
+   - Gradually increase over 2-4 weeks
+   - Monitor reputation metrics
+
+4. **Use Email Templates:**
+   - Templates are defined in `lambda/shared/email.py`
+   - Customize templates for your brand
+   - Test templates before production use
+
+5. **Monitor Reputation:**
+   - Check SES reputation dashboard regularly
+   - Set up CloudWatch alarms for high bounce/complaint rates
+   - Respond quickly to reputation issues
+
+### Troubleshooting SES
+
+**Emails Not Being Sent:**
+- Verify email identity is confirmed
+- Check Lambda function has SES permissions
+- Review CloudWatch logs for errors
+- Verify SES is not in sandbox mode (for production)
+
+**Emails Going to Spam:**
+- Configure SPF, DKIM, and DMARC records
+- Ensure "From" address matches verified identity
+- Improve email content (avoid spam trigger words)
+- Warm up your sending reputation
+
+**High Bounce Rate:**
+- Validate email addresses before sending
+- Remove invalid addresses from database
+- Check for typos in email addresses
+- Monitor bounce notifications
+
+**SES Sending Paused:**
+- Check for high bounce or complaint rates
+- Review AWS SES account status
+- Contact AWS Support if needed
+- Implement better email validation
+
+---
+
+## AWS WAF and CAPTCHA Configuration
+
+### Overview
+
+AWS WAF (Web Application Firewall) protects the comment submission endpoint from spam and abuse. When enabled, users must complete a CAPTCHA challenge before submitting comments.
+
+### WAF Components
+
+The CDK stack automatically creates:
+- **Web ACL**: Firewall rules for API Gateway
+- **CAPTCHA Rule**: Challenge for comment endpoint
+- **Rate Limit Rule**: Prevents abuse (100 requests per 5 minutes per IP)
+- **CloudWatch Metrics**: Monitor WAF activity
+
+### Step 1: Verify WAF Deployment
+
+After deploying the stack, verify WAF is active:
+
+```bash
+# Get Web ACL ARN
+WAF_ARN=$(aws cloudformation describe-stacks \
+  --stack-name ServerlessCmsStack-prod \
+  --query 'Stacks[0].Outputs[?OutputKey==`WebAclArn`].OutputValue' \
+  --output text)
+
+# Get Web ACL details
+aws wafv2 get-web-acl \
+  --scope REGIONAL \
+  --id [web-acl-id] \
+  --region us-east-1
+```
+
+### Step 2: Enable CAPTCHA in Settings
+
+CAPTCHA is controlled by the `captcha_enabled` setting:
+
+1. Log in to the admin panel
+2. Navigate to Settings
+3. Toggle "Enable CAPTCHA for Comments" on
+4. Save settings
+
+When enabled:
+- Comment form displays CAPTCHA widget
+- Users must solve CAPTCHA before submitting
+- Invalid CAPTCHA tokens are rejected
+
+When disabled:
+- CAPTCHA widget is hidden
+- Rate limiting still applies (5 comments per hour per IP)
+- Comments go through normal validation
+
+### Step 3: Test CAPTCHA Flow
+
+Test the CAPTCHA integration:
+
+1. Navigate to a blog post on the public website
+2. Scroll to the comment form
+3. Fill in name, email, and comment
+4. Complete the CAPTCHA challenge
+5. Submit the comment
+6. Verify the comment is created successfully
+
+### Step 4: Monitor WAF Metrics
+
+Monitor WAF activity in CloudWatch:
+
+```bash
+# View blocked requests
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/WAFV2 \
+  --metric-name BlockedRequests \
+  --dimensions Name=Rule,Value=CaptchaRule Name=WebACL,Value=ServerlessCmsWebAcl \
+  --start-time 2024-01-01T00:00:00Z \
+  --end-time 2024-01-02T00:00:00Z \
+  --period 3600 \
+  --statistics Sum \
+  --region us-east-1
+
+# View CAPTCHA challenge count
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/WAFV2 \
+  --metric-name CaptchaChallengeCount \
+  --dimensions Name=Rule,Value=CaptchaRule Name=WebACL,Value=ServerlessCmsWebAcl \
+  --start-time 2024-01-01T00:00:00Z \
+  --end-time 2024-01-02T00:00:00Z \
+  --period 3600 \
+  --statistics Sum \
+  --region us-east-1
+```
+
+### Step 5: Configure WAF Alarms
+
+CloudWatch alarms are automatically created for:
+- High CAPTCHA failure rate (>50%)
+- Unusual blocked request volume
+- Rate limit violations
+
+View alarms:
+
+```bash
+# List WAF-related alarms
+aws cloudwatch describe-alarms \
+  --alarm-name-prefix ServerlessCms-WAF \
+  --region us-east-1
+```
+
+### WAF Rules Explained
+
+#### 1. CAPTCHA Rule
+
+Applies to: `POST /api/v1/content/{id}/comments`
+
+Behavior:
+- Challenges users with CAPTCHA on first request
+- Stores CAPTCHA token in browser (valid for 6 hours)
+- Subsequent requests use stored token
+- Invalid tokens are blocked
+
+#### 2. Rate Limit Rule
+
+Applies to: All API endpoints
+
+Limits:
+- 100 requests per 5 minutes per IP address
+- Applies to all endpoints
+- Prevents brute force and DoS attacks
+
+#### 3. IP Reputation Rule (Optional)
+
+Can be added for additional protection:
+
+```typescript
+// In lib/serverless-cms-stack.ts
+{
+  name: 'IpReputationRule',
+  priority: 3,
+  statement: {
+    managedRuleGroupStatement: {
+      vendorName: 'AWS',
+      name: 'AWSManagedRulesAmazonIpReputationList',
+    },
+  },
+  overrideAction: { none: {} },
+  visibilityConfig: {
+    sampledRequestsEnabled: true,
+    cloudWatchMetricsEnabled: true,
+    metricName: 'IpReputationRule',
+  },
+}
+```
+
+### Customizing WAF Rules
+
+To adjust rate limits or CAPTCHA behavior, edit `lib/serverless-cms-stack.ts`:
+
+```typescript
+// Adjust rate limit
+const rateLimitRule = {
+  name: 'RateLimitRule',
+  priority: 2,
+  statement: {
+    rateBasedStatement: {
+      limit: 200, // Change from 100 to 200
+      aggregateKeyType: 'IP',
+    },
+  },
+  // ...
+};
+
+// Adjust CAPTCHA immunity time
+const captchaRule = {
+  name: 'CaptchaRule',
+  priority: 1,
+  statement: {
+    // ...
+  },
+  captchaConfig: {
+    immunityTimeProperty: {
+      immunityTime: 21600, // 6 hours in seconds (change as needed)
+    },
+  },
+  // ...
+};
+```
+
+After changes, redeploy:
+
+```bash
+npm run deploy:prod
+```
+
+### WAF Best Practices
+
+1. **Monitor Metrics Regularly:**
+   - Check blocked request counts
+   - Review CAPTCHA failure rates
+   - Investigate unusual patterns
+
+2. **Adjust Rules Based on Traffic:**
+   - Increase rate limits for legitimate high-traffic periods
+   - Tighten rules if under attack
+   - Use AWS WAF logs for analysis
+
+3. **Test CAPTCHA User Experience:**
+   - Ensure CAPTCHA is not too difficult
+   - Test on mobile devices
+   - Verify accessibility compliance
+
+4. **Use Managed Rule Groups:**
+   - AWS provides pre-configured rule sets
+   - Protects against common vulnerabilities
+   - Regularly updated by AWS
+
+5. **Enable WAF Logging (Optional):**
+   ```bash
+   # Create S3 bucket for WAF logs
+   aws s3 mb s3://cms-waf-logs-prod
+   
+   # Enable logging
+   aws wafv2 put-logging-configuration \
+     --logging-configuration ResourceArn=$WAF_ARN,LogDestinationConfigs=s3://cms-waf-logs-prod \
+     --region us-east-1
+   ```
+
+### Troubleshooting WAF
+
+**CAPTCHA Not Appearing:**
+- Verify `captcha_enabled` is true in settings
+- Check browser console for JavaScript errors
+- Ensure WAF is associated with API Gateway
+- Clear browser cache and reload
+
+**Legitimate Users Being Blocked:**
+- Review rate limit settings (may be too strict)
+- Check CloudWatch logs for block reasons
+- Whitelist specific IP addresses if needed
+- Adjust CAPTCHA difficulty
+
+**CAPTCHA Failures:**
+- Check CloudWatch metrics for failure rate
+- Verify CAPTCHA token validation in Lambda
+- Ensure clock synchronization (CAPTCHA tokens are time-sensitive)
+- Test with different browsers
+
+**High WAF Costs:**
+- WAF charges per million requests
+- Review rule complexity (more rules = higher cost)
+- Consider disabling CAPTCHA for low-traffic sites
+- Use rate limiting as primary protection
+
+### WAF Pricing
+
+AWS WAF pricing (as of 2024):
+- Web ACL: $5.00 per month
+- Rules: $1.00 per rule per month
+- Requests: $0.60 per million requests
+- CAPTCHA: $0.40 per 1,000 challenge attempts
+
+Estimated monthly cost for moderate traffic (100k requests):
+- Web ACL: $5.00
+- Rules (3 rules): $3.00
+- Requests: $0.06
+- CAPTCHA (1k challenges): $0.40
+- **Total: ~$8.50/month**
+
+---
+
 ## Additional Resources
 
 - [AWS CDK Documentation](https://docs.aws.amazon.com/cdk/)
@@ -1261,6 +1785,8 @@ aws cloudformation describe-stacks --stack-name ServerlessCmsStack-dev
 - [API Gateway Documentation](https://docs.aws.amazon.com/apigateway/)
 - [EventBridge Documentation](https://docs.aws.amazon.com/eventbridge/)
 - [CloudWatch Documentation](https://docs.aws.amazon.com/cloudwatch/)
+- [AWS SES Documentation](https://docs.aws.amazon.com/ses/)
+- [AWS WAF Documentation](https://docs.aws.amazon.com/waf/)
 
 ---
 

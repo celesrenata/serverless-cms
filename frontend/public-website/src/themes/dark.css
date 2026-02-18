@@ -1,0 +1,303 @@
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Primary colors */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-light: #60a5fa;
+  
+  /* Background colors */
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+  
+  /* Text colors */
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  
+  /* Border colors */
+  --color-border: #334155;
+  --color-border-light: #475569;
+  
+  /* Status colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Shadow */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] body {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] #root {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] a {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] a:hover {
+  color: #3b82f6 !important;
+}
+
+/* Override Tailwind classes */
+[data-theme="dark"] .bg-white {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .bg-gray-50 {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .bg-gray-100 {
+  background-color: #334155 !important;
+}
+
+[data-theme="dark"] .text-gray-900 {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .text-gray-800 {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .text-gray-500 {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .text-gray-400 {
+  color: #475569 !important;
+}
+
+[data-theme="dark"] .border-gray-200 {
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .border-gray-300 {
+  border-color: #475569 !important;
+}
+
+/* Headings */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+  color: #f1f5f9 !important;
+}
+
+/* Paragraphs and general text */
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] div {
+  color: #cbd5e1;
+}
+
+/* Strong emphasis */
+[data-theme="dark"] strong,
+[data-theme="dark"] b {
+  color: #f1f5f9 !important;
+}
+
+/* Cards and containers */
+[data-theme="dark"] .comment,
+[data-theme="dark"] .card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .comment-form {
+  background-color: #1e293b !important;
+}
+
+/* Form inputs */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Buttons */
+[data-theme="dark"] button:not(.bg-blue-600):not(.bg-blue-500) {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] button:not(.bg-blue-600):not(.bg-blue-500):hover {
+  background-color: #475569 !important;
+}
+
+/* Keep blue buttons blue */
+[data-theme="dark"] .bg-blue-600,
+[data-theme="dark"] .bg-blue-500 {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .bg-blue-600:hover,
+[data-theme="dark"] .bg-blue-500:hover {
+  background-color: #2563eb !important;
+}
+
+
+/* CAPTCHA Widget Styling for Dark Theme */
+/* AWS WAF CAPTCHA uses amzn-captcha-* classes */
+/* Since inline styles override CSS, we add a translucent background for contrast */
+[data-theme="dark"] .captcha-wrapper,
+[data-theme="dark"] .captcha-container,
+[data-theme="dark"] .amzn-captcha-container,
+[data-theme="dark"] .amzn-captcha-modal,
+[data-theme="dark"] .awswaf-captcha-container {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid #475569 !important;
+  border-radius: 0.75rem !important;
+  padding: 1.5rem !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Ensure the modal overlay is dark */
+[data-theme="dark"] .amzn-captcha-modal-overlay,
+[data-theme="dark"] .awswaf-captcha-modal-overlay {
+  background-color: rgba(15, 23, 42, 0.85) !important;
+}
+
+/* Style the language selector to match */
+[data-theme="dark"] .amzn-captcha-lang-selector {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.375rem !important;
+  padding: 0.5rem !important;
+}
+
+/* Keep the confirm button bright */
+[data-theme="dark"] button[class*="captcha"] {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Add subtle styling to the puzzle images */
+[data-theme="dark"] .amzn-captcha-container img {
+  border-radius: 0.25rem !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+
+/* Form labels and small text */
+[data-theme="dark"] label {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] small {
+  color: #94a3b8 !important;
+}
+
+/* Specific comment form styling */
+[data-theme="dark"] .comment-form label {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .comment-form small {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .form-note {
+  color: #94a3b8 !important;
+}
+
+/* Character counter and helper text */
+[data-theme="dark"] .text-xs {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .text-sm {
+  color: #cbd5e1 !important;
+}
+
+/* Ensure all text in comment sections is visible */
+[data-theme="dark"] .comment-author {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .comment-date {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .comment-text {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .comment-reply-btn {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .no-comments {
+  color: #94a3b8 !important;
+}
+
+/* Reply indicator */
+[data-theme="dark"] .reply-indicator {
+  background-color: #1e3a5f !important;
+  border-color: #3b82f6 !important;
+  color: #93c5fd !important;
+}
+
+/* Error messages */
+[data-theme="dark"] .error-message {
+  background-color: #7f1d1d !important;
+  border-color: #dc2626 !important;
+  color: #fca5a5 !important;
+}
+
+/* Success messages */
+[data-theme="dark"] .success-message {
+  background-color: #14532d !important;
+  border-color: #10b981 !important;
+  color: #86efac !important;
+}
+
+
+/* Additional CAPTCHA styling - target any div containing CAPTCHA */
+[data-theme="dark"] div[style*="font-size: 1.5em"] {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  padding: 2rem !important;
+  border-radius: 0.75rem !important;
+  border: 2px solid #475569 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Target the CAPTCHA wrapper more broadly */
+[data-theme="dark"] [class*="captcha"]:not(input):not(button) {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Ensure CAPTCHA modal gets the background */
+[data-theme="dark"] div[role="dialog"] {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  padding: 2rem !important;
+  border-radius: 0.75rem !important;
+  border: 2px solid #475569 !important;
+}

@@ -205,6 +205,102 @@ class SmokeTest:
             })
             return False
     
+    def test_user_management_endpoint(self) -> bool:
+        """Test if user management endpoint is accessible (Phase 2)."""
+        try:
+            response = self._make_request_with_retry(
+                'GET',
+                f"{self.api_base_url}/users",
+                timeout=10
+            )
+            # Should return 401/403 without auth, which means endpoint exists
+            success = response.status_code in [200, 401, 403]
+            self.results.append({
+                'test': 'User Management Endpoint',
+                'status': 'PASS' if success else 'FAIL',
+                'details': f"Status: {response.status_code}"
+            })
+            return success
+        except Exception as e:
+            self.results.append({
+                'test': 'User Management Endpoint',
+                'status': 'FAIL',
+                'details': str(e)
+            })
+            return False
+    
+    def test_comments_endpoint(self) -> bool:
+        """Test if comments endpoint is accessible (Phase 2)."""
+        try:
+            response = self._make_request_with_retry(
+                'GET',
+                f"{self.api_base_url}/comments",
+                timeout=10
+            )
+            # Should return 401/403 without auth, or 200 if public
+            success = response.status_code in [200, 401, 403]
+            self.results.append({
+                'test': 'Comments Endpoint',
+                'status': 'PASS' if success else 'FAIL',
+                'details': f"Status: {response.status_code}"
+            })
+            return success
+        except Exception as e:
+            self.results.append({
+                'test': 'Comments Endpoint',
+                'status': 'FAIL',
+                'details': str(e)
+            })
+            return False
+    
+    def test_registration_endpoint(self) -> bool:
+        """Test if registration endpoint is accessible (Phase 2)."""
+        try:
+            response = self._make_request_with_retry(
+                'OPTIONS',
+                f"{self.api_base_url}/auth/register",
+                timeout=10
+            )
+            # OPTIONS should work even if POST is disabled
+            success = response.status_code in [200, 204, 403, 404]
+            self.results.append({
+                'test': 'Registration Endpoint',
+                'status': 'PASS' if success else 'FAIL',
+                'details': f"Status: {response.status_code}"
+            })
+            return success
+        except Exception as e:
+            self.results.append({
+                'test': 'Registration Endpoint',
+                'status': 'FAIL',
+                'details': str(e)
+            })
+            return False
+    
+    def test_settings_endpoint(self) -> bool:
+        """Test if settings endpoint is accessible (Phase 2)."""
+        try:
+            response = self._make_request_with_retry(
+                'GET',
+                f"{self.api_base_url}/settings",
+                timeout=10
+            )
+            # Should return 401/403 without auth, or 200 if public
+            success = response.status_code in [200, 401, 403]
+            self.results.append({
+                'test': 'Settings Endpoint',
+                'status': 'PASS' if success else 'FAIL',
+                'details': f"Status: {response.status_code}"
+            })
+            return success
+        except Exception as e:
+            self.results.append({
+                'test': 'Settings Endpoint',
+                'status': 'FAIL',
+                'details': str(e)
+            })
+            return False
+    
     def run_all_tests(self) -> bool:
         """Run all smoke tests."""
         print(f"\n🔍 Running smoke tests for {self.environment} environment...")
@@ -218,6 +314,10 @@ class SmokeTest:
             self.test_admin_panel_loads,
             self.test_public_website_loads,
             self.test_cors_headers,
+            self.test_user_management_endpoint,
+            self.test_comments_endpoint,
+            self.test_registration_endpoint,
+            self.test_settings_endpoint,
         ]
         
         all_passed = True

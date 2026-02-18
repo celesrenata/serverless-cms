@@ -62,10 +62,20 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
   role: string;                  // 'admin' | 'editor' | 'author' | 'viewer'
   avatar_url?: string;           // S3 URL or external URL
   bio?: string;
-  created_at: number;            // Unix timestamp
-  last_login: number;            // Unix timestamp
+  created_at: number;            // Unix timestamp - when user account was created
+  last_login: number;            // Unix timestamp - last successful login time
 }
 ```
+
+**Role Hierarchy:**
+- `admin`: Full system access, can manage users, settings, and all content
+- `editor`: Can manage all content and comments, cannot manage users or settings
+- `author`: Can create and manage own content
+- `viewer`: Read-only access (default for new registrations)
+
+**Phase 2 Fields:**
+- `created_at`: Added in Phase 2 for user management tracking
+- `last_login`: Added in Phase 2 for activity monitoring
 
 **Note:** When creating/updating users, always set both `name` and `display_name` for compatibility.
 
@@ -118,10 +128,20 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
 ```
 
 **Common Keys:**
-- `site_title`: string
-- `site_description`: string
-- `theme`: string
+- `site_title`: string - Website title displayed in header and meta tags
+- `site_description`: string - Website description for SEO
+- `theme`: string - Active theme identifier
+- `registration_enabled`: boolean - Allow new user self-registration (default: false)
+- `comments_enabled`: boolean - Allow public comments on content (default: false)
+- `comment_moderation_enabled`: boolean - Require moderation before comments are published (default: true)
+- `captcha_enabled`: boolean - Require CAPTCHA for comment submission (default: false)
 - Custom settings as needed
+
+**Phase 2 Settings:**
+- `registration_enabled`: Controls whether the `/api/v1/auth/register` endpoint accepts new registrations
+- `comments_enabled`: Controls whether the `/api/v1/content/{id}/comments` POST endpoint accepts new comments
+- `comment_moderation_enabled`: Controls whether new comments start with 'pending' status (true) or 'approved' status (false)
+- `captcha_enabled`: Controls whether AWS WAF CAPTCHA challenge is required for comment submission
 
 ## Plugins Table (`cms-plugins-{env}`)
 
@@ -144,6 +164,39 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
   config_schema?: Record<string, any>; // JSON schema for settings
 }
 ```
+
+## Comments Table (`cms-comments-{env}`)
+
+**Primary Key:**
+- Partition Key: `id` (String) - UUID
+- Sort Key: `created_at` (Number) - Unix timestamp
+
+**Attributes:**
+```typescript
+{
+  id: string;                    // UUID
+  content_id: string;            // ID of the content being commented on
+  author_name: string;           // Commenter's name (sanitized)
+  author_email: string;          // Commenter's email (sanitized, not exposed in API)
+  comment_text: string;          // Comment content (sanitized, max 5000 chars)
+  parent_id?: string;            // ID of parent comment for threaded replies
+  status: string;                // 'pending' | 'approved' | 'rejected' | 'spam'
+  ip_address: string;            // For rate limiting (not exposed in API)
+  moderated_by?: string;         // User ID who moderated the comment
+  created_at: number;            // Unix timestamp
+  updated_at: number;            // Unix timestamp
+}
+```
+
+**Global Secondary Indexes:**
+1. `content_id-created_at-index`: Partition Key: `content_id`, Sort Key: `created_at`
+2. `status-created_at-index`: Partition Key: `status`, Sort Key: `created_at`
+
+**Status Values:**
+- `pending`: Awaiting moderation (default for new comments)
+- `approved`: Visible on public website
+- `rejected`: Hidden, not spam
+- `spam`: Marked as spam
 
 ## Important Notes
 
@@ -170,6 +223,7 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
 
 ### Status Values
 - Content: `'draft'`, `'published'`, `'archived'`
+- Comments: `'pending'`, `'approved'`, `'rejected'`, `'spam'`
 - Use exact string matches in queries
 
 ### Metadata Fields
@@ -206,6 +260,18 @@ content_repo.get_scheduled_content(current_time)
 ```python
 user_repo.get_by_id(user_id)
 # Uses: Primary key
+```
+
+### List comments by content
+```python
+# Public endpoint - approved comments only
+# Uses: content_id-created_at-index
+```
+
+### List comments by status
+```python
+# Moderation endpoint
+# Uses: status-created_at-index
 ```
 
 ## Migration Notes

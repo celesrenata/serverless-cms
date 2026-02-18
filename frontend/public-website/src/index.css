@@ -1,3 +1,90 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Comment Components */
+.comment-form {
+  @apply bg-gray-50 p-6 rounded-lg;
+}
+
+.comment-form .reply-indicator {
+  @apply mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-700;
+}
+
+.comment-form .error-message {
+  @apply mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded;
+}
+
+.comment-form .form-group {
+  @apply mb-4;
+}
+
+.comment-form label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.comment-form input,
+.comment-form textarea {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
+.comment-form input:disabled,
+.comment-form textarea:disabled {
+  @apply bg-gray-100 cursor-not-allowed;
+}
+
+.comment-form small {
+  @apply text-xs text-gray-500;
+}
+
+.comment-form .form-actions {
+  @apply flex gap-2 mb-2;
+}
+
+.comment-form button[type="submit"] {
+  @apply px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition;
+}
+
+.comment-form button[type="button"] {
+  @apply px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed transition;
+}
+
+.comment-form .form-note {
+  @apply text-sm text-gray-600 italic;
+}
+
+.comment-list {
+  @apply space-y-4;
+}
+
+.no-comments {
+  @apply text-center py-8 text-gray-500;
+}
+
+.comment {
+  @apply bg-white border border-gray-200 rounded-lg p-4;
+}
+
+.comment-header {
+  @apply flex items-center gap-2 mb-2;
+}
+
+.comment-author {
+  @apply text-gray-900 font-semibold;
+}
+
+.comment-date {
+  @apply text-sm text-gray-500;
+}
+
+.comment-text {
+  @apply text-gray-700 mb-2 whitespace-pre-wrap;
+}
+
+.comment-reply-btn {
+  @apply text-sm text-blue-600 hover:text-blue-700 font-medium;
+}
+
+.comment-replies {
+  @apply mt-4 space-y-4;
+}

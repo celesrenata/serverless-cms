@@ -69,10 +69,57 @@ PUBLIC_BUCKET=$(jq -r ".\"$STACK_NAME\".PublicBucketName" "$OUTPUTS_FILE")
 ADMIN_DIST_ID=$(jq -r ".\"$STACK_NAME\".AdminDistributionId" "$OUTPUTS_FILE")
 PUBLIC_DIST_ID=$(jq -r ".\"$STACK_NAME\".PublicDistributionId" "$OUTPUTS_FILE")
 
+# Fallback to default bucket names if outputs are null (CDK didn't detect changes)
+if [ "$ADMIN_BUCKET" == "null" ] || [ -z "$ADMIN_BUCKET" ]; then
+  echo "⚠️  Warning: AdminBucketName is null in outputs file"
+  echo "   Falling back to default bucket naming convention..."
+  AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+  ADMIN_BUCKET="cms-admin-${ENVIRONMENT}-${AWS_ACCOUNT_ID}"
+  echo "   Using: $ADMIN_BUCKET"
+fi
+
+if [ "$PUBLIC_BUCKET" == "null" ] || [ -z "$PUBLIC_BUCKET" ]; then
+  echo "⚠️  Warning: PublicBucketName is null in outputs file"
+  echo "   Falling back to default bucket naming convention..."
+  AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+  PUBLIC_BUCKET="cms-public-${ENVIRONMENT}-${AWS_ACCOUNT_ID}"
+  echo "   Using: $PUBLIC_BUCKET"
+fi
+
+# Get CloudFront distribution IDs from existing buckets if null
+if [ "$ADMIN_DIST_ID" == "null" ] || [ -z "$ADMIN_DIST_ID" ]; then
+  echo "⚠️  Warning: AdminDistributionId is null in outputs file"
+  echo "   Looking up CloudFront distribution for bucket: $ADMIN_BUCKET"
+  ADMIN_DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[?DomainName=='${ADMIN_BUCKET}.s3.amazonaws.com']].Id | [0]" --output text)
+  if [ "$ADMIN_DIST_ID" == "None" ] || [ -z "$ADMIN_DIST_ID" ]; then
+    echo "   ⚠️  Could not find CloudFront distribution for admin bucket"
+    ADMIN_DIST_ID=""
+  else
+    echo "   Found: $ADMIN_DIST_ID"
+  fi
+fi
+
+if [ "$PUBLIC_DIST_ID" == "null" ] || [ -z "$PUBLIC_DIST_ID" ]; then
+  echo "⚠️  Warning: PublicDistributionId is null in outputs file"
+  echo "   Looking up CloudFront distribution for bucket: $PUBLIC_BUCKET"
+  PUBLIC_DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[?DomainName=='${PUBLIC_BUCKET}.s3.amazonaws.com']].Id | [0]" --output text)
+  if [ "$PUBLIC_DIST_ID" == "None" ] || [ -z "$PUBLIC_DIST_ID" ]; then
+    echo "   ⚠️  Could not find CloudFront distribution for public bucket"
+    PUBLIC_DIST_ID=""
+  else
+    echo "   Found: $PUBLIC_DIST_ID"
+  fi
+fi
+
 # Always generate fresh frontend configuration
 echo ""
 echo "📋 Generating frontend configuration..."
-./scripts/generate-frontend-config.sh "$ENVIRONMENT" "$OUTPUTS_FILE"
+# Pass through CAPTCHA environment variables if they exist
+if [ -n "$CAPTCHA_SCRIPT_URL" ] && [ -n "$CAPTCHA_API_KEY" ]; then
+  CAPTCHA_SCRIPT_URL="$CAPTCHA_SCRIPT_URL" CAPTCHA_API_KEY="$CAPTCHA_API_KEY" ./scripts/generate-frontend-config.sh "$ENVIRONMENT" "$OUTPUTS_FILE"
+else
+  ./scripts/generate-frontend-config.sh "$ENVIRONMENT" "$OUTPUTS_FILE"
+fi
 
 # Deploy Admin Panel
 if [ "$DEPLOY_ADMIN" = true ]; then
@@ -115,13 +162,17 @@ if [ "$DEPLOY_ADMIN" = true ]; then
   
   # Invalidate CloudFront cache
   if [ "$SKIP_INVALIDATE" = false ]; then
-    echo "🔄 Invalidating CloudFront cache..."
-    INVALIDATION_ID=$(aws cloudfront create-invalidation \
-      --distribution-id "$ADMIN_DIST_ID" \
-      --paths "/*" \
-      --query 'Invalidation.Id' \
-      --output text)
-    echo "   Invalidation ID: $INVALIDATION_ID"
+    if [ -n "$ADMIN_DIST_ID" ]; then
+      echo "🔄 Invalidating CloudFront cache..."
+      INVALIDATION_ID=$(aws cloudfront create-invalidation \
+        --distribution-id "$ADMIN_DIST_ID" \
+        --paths "/*" \
+        --query 'Invalidation.Id' \
+        --output text)
+      echo "   Invalidation ID: $INVALIDATION_ID"
+    else
+      echo "⚠️  Skipping CloudFront invalidation (distribution ID not found)"
+    fi
   fi
   
   cd ../..
@@ -169,13 +220,17 @@ if [ "$DEPLOY_PUBLIC" = true ]; then
   
   # Invalidate CloudFront cache
   if [ "$SKIP_INVALIDATE" = false ]; then
-    echo "🔄 Invalidating CloudFront cache..."
-    INVALIDATION_ID=$(aws cloudfront create-invalidation \
-      --distribution-id "$PUBLIC_DIST_ID" \
-      --paths "/*" \
-      --query 'Invalidation.Id' \
-      --output text)
-    echo "   Invalidation ID: $INVALIDATION_ID"
+    if [ -n "$PUBLIC_DIST_ID" ]; then
+      echo "🔄 Invalidating CloudFront cache..."
+      INVALIDATION_ID=$(aws cloudfront create-invalidation \
+        --distribution-id "$PUBLIC_DIST_ID" \
+        --paths "/*" \
+        --query 'Invalidation.Id' \
+        --output text)
+      echo "   Invalidation ID: $INVALIDATION_ID"
+    else
+      echo "⚠️  Skipping CloudFront invalidation (distribution ID not found)"
+    fi
   fi
   
   cd ../..

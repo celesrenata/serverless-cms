@@ -1,0 +1,114 @@
+/* Minimal Theme - Clean and simple */
+[data-theme="minimal"] {
+  /* Primary colors */
+  --color-primary: #000000;
+  --color-primary-hover: #333333;
+  --color-primary-light: #666666;
+}
+
+[data-theme="minimal"] body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', 'Arial', sans-serif !important;
+}
+
+[data-theme="minimal"] #root {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+[data-theme="minimal"] a {
+  color: #000000 !important;
+  text-decoration: none;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+[data-theme="minimal"] a:hover {
+  color: #333333 !important;
+  border-bottom-color: #333333;
+}
+
+/* Minimal styling overrides */
+[data-theme="minimal"] .bg-white,
+[data-theme="minimal"] .bg-gray-50,
+[data-theme="minimal"] .bg-gray-100 {
+  background-color: #fafafa !important;
+}
+
+[data-theme="minimal"] .text-gray-900,
+[data-theme="minimal"] .text-gray-800,
+[data-theme="minimal"] .text-gray-700 {
+  color: #000000 !important;
+}
+
+[data-theme="minimal"] .text-gray-600,
+[data-theme="minimal"] .text-gray-500 {
+  color: #666666 !important;
+}
+
+[data-theme="minimal"] .border-gray-200,
+[data-theme="minimal"] .border-gray-300 {
+  border-color: #e0e0e0 !important;
+}
+
+[data-theme="minimal"] .comment,
+[data-theme="minimal"] .card {
+  background-color: #fafafa !important;
+  border-color: #e0e0e0 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="minimal"] .comment-form {
+  background-color: #fafafa !important;
+}
+
+
+/* CAPTCHA Widget Styling for Minimal Theme */
+[data-theme="minimal"] .awswaf-captcha-container {
+  background-color: #fafafa !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="minimal"] .awswaf-captcha-container * {
+  color: #000000 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', 'Arial', sans-serif !important;
+}
+
+[data-theme="minimal"] .awswaf-captcha-checkbox {
+  background-color: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="minimal"] .awswaf-captcha-checkbox:checked {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+[data-theme="minimal"] .awswaf-captcha-text {
+  color: #333333 !important;
+}
+
+[data-theme="minimal"] .awswaf-captcha-link {
+  color: #000000 !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  text-decoration: none !important;
+}
+
+[data-theme="minimal"] .awswaf-captcha-link:hover {
+  color: #333333 !important;
+  border-bottom-color: #333333 !important;
+}
+
+[data-theme="minimal"] .awswaf-captcha-modal {
+  background-color: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="minimal"] .awswaf-captcha-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}

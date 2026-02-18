@@ -5,6 +5,8 @@ export function Sidebar() {
     { to: '/dashboard', label: 'Dashboard', icon: '📊' },
     { to: '/content', label: 'Content', icon: '📝' },
     { to: '/media', label: 'Media', icon: '🖼️' },
+    { to: '/users', label: 'Users', icon: '👥' },
+    { to: '/comments', label: 'Comments', icon: '💬' },
     { to: '/settings', label: 'Settings', icon: '⚙️' },
     { to: '/plugins', label: 'Plugins', icon: '🔌' },
   ];

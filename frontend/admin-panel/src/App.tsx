@@ -10,6 +10,8 @@ import { MediaLibrary } from './pages/MediaLibrary';
 import { Settings } from './pages/Settings';
 import { Plugins } from './pages/Plugins';
 import { Profile } from './pages/Profile';
+import Users from './pages/Users';
+import Comments from './pages/Comments';
 import { Login } from './pages/Login';
 
 const queryClient = new QueryClient({
@@ -42,6 +44,8 @@ function App() {
               <Route path="/content/new" element={<ContentEditor />} />
               <Route path="/content/edit/:id" element={<ContentEditor />} />
               <Route path="/media" element={<MediaLibrary />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/comments" element={<Comments />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/plugins" element={<Plugins />} />
               <Route path="/profile" element={<Profile />} />
