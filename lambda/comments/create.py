@@ -144,19 +144,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         # Verify content exists and is published
-        from boto3.dynamodb.conditions import Attr
         dynamodb = get_dynamodb_resource()
         content_table = dynamodb.Table(CONTENT_TABLE)
         
-        # Scan for content by ID
+        # Query content by ID - need to scan since we don't have type#timestamp
         try:
+            from boto3.dynamodb.conditions import Key, Attr
             log.info(f"Looking for content with id: {content_id}")
-            content_response = content_table.scan(
-                FilterExpression=Attr('id').eq(content_id),
+            
+            # Use query on the table to find content by id
+            # Since id is the partition key, we can query directly
+            content_response = content_table.query(
+                KeyConditionExpression=Key('id').eq(content_id),
                 Limit=1
             )
             
-            log.info(f"Scan returned {len(content_response.get('Items', []))} items")
+            log.info(f"Query returned {len(content_response.get('Items', []))} items")
             
             if not content_response.get('Items'):
                 log.warning(f"Content not found: {content_id}")
