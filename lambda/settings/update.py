@@ -53,6 +53,7 @@ def handler(event, context, user_id, role):
             'theme': str,
             'registration_enabled': bool,
             'comments_enabled': bool,
+            'comment_moderation_enabled': bool,
             'captcha_enabled': bool,
         }
         
