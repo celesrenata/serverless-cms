@@ -49,16 +49,15 @@ def aws_mock():
             TableName=os.environ['CONTENT_TABLE'],
             KeySchema=[
                 {'AttributeName': 'id', 'KeyType': 'HASH'},
-                {'AttributeName': 'type#timestamp', 'KeyType': 'RANGE'},
+                {'AttributeName': 'created_at', 'KeyType': 'RANGE'},
             ],
             AttributeDefinitions=[
                 {'AttributeName': 'id', 'AttributeType': 'S'},
-                {'AttributeName': 'type#timestamp', 'AttributeType': 'S'},
+                {'AttributeName': 'created_at', 'AttributeType': 'N'},
                 {'AttributeName': 'slug', 'AttributeType': 'S'},
                 {'AttributeName': 'type', 'AttributeType': 'S'},
                 {'AttributeName': 'published_at', 'AttributeType': 'N'},
                 {'AttributeName': 'status', 'AttributeType': 'S'},
-                {'AttributeName': 'scheduled_at', 'AttributeType': 'N'},
             ],
             GlobalSecondaryIndexes=[
                 {
