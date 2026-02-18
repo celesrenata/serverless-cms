@@ -65,7 +65,7 @@ def handler(event, context, user_id, role):
                 'Access-Control-Allow-Origin': '*',
             },
             'body': json.dumps({
-                'users': result['items'],
+                'items': result['items'],
                 'last_key': result['last_key']
             }, default=str)
         }
