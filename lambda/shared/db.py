@@ -488,12 +488,16 @@ class CommentRepository:
             else:
                 # Fallback: scan to find by ID only (less efficient)
                 # Use query on GSI if available, otherwise scan
+                import logging
+                logger = logging.getLogger()
+                logger.info(f"Scanning for comment_id: {comment_id}")
                 response = self.table.scan(
                     FilterExpression=Attr('id').eq(comment_id),
                     Limit=1,
                     ConsistentRead=False  # Eventually consistent for better performance
                 )
                 items = response.get('Items', [])
+                logger.info(f"Scan response: Count={response.get('Count')}, Items={len(items)}")
                 return items[0] if items else None
         except Exception as e:
             raise Exception(f"Failed to get comment: {str(e)}")

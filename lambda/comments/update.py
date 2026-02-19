@@ -79,7 +79,9 @@ def handler(event: Dict[str, Any], context: Any, user_id: str, role: str) -> Dic
         from shared.db import CommentRepository
         comment_repo = CommentRepository()
         
+        log.info(f"Looking up comment: {comment_id}")
         comment = comment_repo.get_by_id(comment_id)
+        log.info(f"Comment found: {comment is not None}")
         if not comment:
             return {
                 'statusCode': 404,
