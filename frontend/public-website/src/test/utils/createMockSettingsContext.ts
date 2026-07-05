@@ -17,7 +17,7 @@ interface SettingsContextType {
   refetch: () => Promise<void>;
 }
 
-interface MockSettingsOptions {
+export interface MockSettingsOptions {
   settings?: Partial<SiteSettings>;
   loading?: boolean;
   error?: string | null;

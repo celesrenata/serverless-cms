@@ -31,7 +31,7 @@ Replace stub tests in both frontend applications with meaningful component tests
 
 ## Tasks
 
-- [ ] 1. Admin Panel Test Infrastructure
+- [x] 1. Admin Panel Test Infrastructure
   - [x] 1.1 Create mock data factories for admin panel
     - Create `frontend/admin-panel/src/test/mocks/data.ts` with factory functions: `createMockContent`, `createMockMedia`, `createMockUser`, `createMockPlugin`, `createMockSettings`, `createMockComment`, `createMockContentList`, `createMockMediaList`
     - Each factory returns a valid object matching the TypeScript types with realistic defaults and accepts partial overrides
@@ -42,7 +42,7 @@ Replace stub tests in both frontend applications with meaningful component tests
     - Use data factories for return values
     - _Requirements: 10.3, 10.5_
 
-  - [ ] 1.3 Create renderWithProviders utility for admin panel
+  - [x] 1.3 Create renderWithProviders utility for admin panel
     - Create `frontend/admin-panel/src/test/utils/renderWithProviders.tsx` wrapping components in QueryClientProvider (retry: false, gcTime: 0), AuthContext.Provider, and MemoryRouter
     - Accept options for `authState`, `route`, `routePath`, `queryClient`
     - _Requirements: 10.1, 10.2, 10.5_
@@ -53,7 +53,7 @@ Replace stub tests in both frontend applications with meaningful component tests
     - Default to authenticated admin user
     - _Requirements: 10.1, 10.2_
 
-- [ ] 2. Public Website Test Infrastructure
+- [x] 2. Public Website Test Infrastructure
   - [x] 2.1 Create mock data factories for public website
     - Create `frontend/public-website/src/test/mocks/data.ts` with factory functions: `createMockContent`, `createMockComment`, `createMockSettings`, `createMockContentList`
     - Each factory returns a valid object matching types with realistic defaults
@@ -63,7 +63,7 @@ Replace stub tests in both frontend applications with meaningful component tests
     - Create `frontend/public-website/src/test/mocks/handlers.ts` with pre-configured `vi.fn()` mocks for all public API methods (listContent, getContentBySlug, getComments, createComment, getPublicSettings)
     - _Requirements: 10.3, 10.5_
 
-  - [ ] 2.3 Create renderWithProviders utility for public website
+  - [x] 2.3 Create renderWithProviders utility for public website
     - Create `frontend/public-website/src/test/utils/renderWithProviders.tsx` wrapping components in QueryClientProvider (retry: false), SettingsContext.Provider, and MemoryRouter
     - Accept options for `settings`, `route`, `routePath`, `queryClient`
     - _Requirements: 10.4, 10.5_
@@ -72,8 +72,8 @@ Replace stub tests in both frontend applications with meaningful component tests
     - Create `frontend/public-website/src/test/utils/createMockSettingsContext.ts` returning a full SettingsContextType with configurable settings, loading, and error state
     - _Requirements: 10.4_
 
-- [ ] 3. Admin Panel Service Tests
-  - [ ] 3.1 Write API service tests for admin panel
+- [x] 3. Admin Panel Service Tests
+  - [x] 3.1 Write API service tests for admin panel
     - Create `frontend/admin-panel/src/services/__tests__/api.test.ts`
     - Test correct HTTP method, URL, headers, body for each API method
     - Test error propagation (400, 401, 500 responses)
@@ -81,25 +81,25 @@ Replace stub tests in both frontend applications with meaningful component tests
     - Mock axios instance methods
     - _Requirements: 1.1, 1.2, 1.5_
 
-  - [ ] 3.2 Write auth service tests for admin panel
+  - [x] 3.2 Write auth service tests for admin panel
     - Create `frontend/admin-panel/src/services/__tests__/auth.test.ts`
     - Test authenticate stores tokens and returns authenticated state
     - Test sign-out clears tokens and returns unauthenticated state
     - Test token refresh flow
     - _Requirements: 1.3, 1.4_
 
-- [ ] 4. Public Website Service Tests
-  - [ ] 4.1 Write API service tests for public website
+- [x] 4. Public Website Service Tests
+  - [x] 4.1 Write API service tests for public website
     - Replace stub in `frontend/public-website/src/services/__tests__/` with meaningful tests
     - Test correct HTTP method, URL, headers for each public API method
     - Test error propagation for failed requests
     - _Requirements: 9.5_
 
-- [ ] 5. Checkpoint - Infrastructure and services verified
+- [x] 5. Checkpoint - Infrastructure and services verified
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Admin Panel Hook Tests
-  - [ ] 6.1 Write useAuth hook tests
+- [x] 6. Admin Panel Hook Tests
+  - [x] 6.1 Write useAuth hook tests
     - Create `frontend/admin-panel/src/hooks/__tests__/useAuth.test.tsx`
     - Test unauthenticated initial state with no stored credentials
     - Test transition to authenticated state on sign-in with user details and role
@@ -107,209 +107,209 @@ Replace stub tests in both frontend applications with meaningful component tests
     - Test role values match defined roles (admin, editor, author, viewer)
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [ ] 6.2 Write useContent hook tests
+  - [x] 6.2 Write useContent hook tests
     - Create `frontend/admin-panel/src/hooks/__tests__/useContent.test.ts`
     - Test fetches content from mock API and returns expected shape
     - Test create, update, delete mutations
     - _Requirements: 5.1_
 
-  - [ ] 6.3 Write useMedia hook tests
+  - [x] 6.3 Write useMedia hook tests
     - Create `frontend/admin-panel/src/hooks/__tests__/useMedia.test.ts`
     - Test fetches media items
     - Test upload and delete mutation functions
     - _Requirements: 5.2_
 
-  - [ ] 6.4 Write useUsers hook tests
+  - [x] 6.4 Write useUsers hook tests
     - Create `frontend/admin-panel/src/hooks/__tests__/useUsers.test.ts`
     - Test fetches user data
     - Test role-update mutation functions
     - _Requirements: 5.3_
 
-  - [ ] 6.5 Write useComments hook tests
+  - [x] 6.5 Write useComments hook tests
     - Create `frontend/admin-panel/src/hooks/__tests__/useComments.test.ts`
     - Test fetches comments
     - Test moderation action functions (approve, reject, spam)
     - _Requirements: 5.4_
 
-  - [ ] 6.6 Write useSettings hook tests
+  - [x] 6.6 Write useSettings hook tests
     - Create `frontend/admin-panel/src/hooks/__tests__/useSettings.test.ts`
     - Test fetches settings
     - Test update mutation function
     - _Requirements: 5.5_
 
-  - [ ] 6.7 Write usePlugins hook tests
+  - [x] 6.7 Write usePlugins hook tests
     - Create `frontend/admin-panel/src/hooks/__tests__/usePlugins.test.ts`
     - Test fetches plugins
     - Test activate, deactivate, configure mutation functions
     - _Requirements: 5.6_
 
-- [ ] 7. Public Website Context and Hook Tests
-  - [ ] 7.1 Write SettingsContext tests
+- [x] 7. Public Website Context and Hook Tests
+  - [x] 7.1 Write SettingsContext tests
     - Create `frontend/public-website/src/contexts/__tests__/SettingsContext.test.tsx`
     - Test settings are fetched from mock API and provided to children
     - Test loading and error states
     - _Requirements: 8.1_
 
-  - [ ] 7.2 Write useContent hook tests for public website
+  - [x] 7.2 Write useContent hook tests for public website
     - Create `frontend/public-website/src/hooks/__tests__/useContent.test.ts`
     - Test returns only published content sorted by date
     - _Requirements: 8.2_
 
-  - [ ] 7.3 Write useComments hook tests for public website
+  - [x] 7.3 Write useComments hook tests for public website
     - Create `frontend/public-website/src/hooks/__tests__/useComments.test.ts`
     - Test returns approved comments for a specific content ID
     - Test submit new comment calls mock API and refreshes list
     - _Requirements: 8.3, 8.4_
 
-  - [ ] 7.4 Write useSiteSettings hook tests
+  - [x] 7.4 Write useSiteSettings hook tests
     - Create `frontend/public-website/src/hooks/__tests__/useSiteSettings.test.ts`
     - Test returns site configuration values (title, description, theme, features)
     - _Requirements: 8.5_
 
-- [ ] 8. Admin Panel Component Tests
-  - [ ] 8.1 Write ProtectedRoute component tests
+- [x] 8. Admin Panel Component Tests
+  - [x] 8.1 Write ProtectedRoute component tests
     - Create `frontend/admin-panel/src/components/__tests__/ProtectedRoute.test.tsx`
     - Test redirects unauthenticated users to login
     - Test renders children for authenticated user with sufficient role
     - Test denies access for insufficient role
     - _Requirements: 4.2, 4.3, 4.4_
 
-  - [ ] 8.2 Write Layout component tests
+  - [x] 8.2 Write Layout component tests
     - Create `frontend/admin-panel/src/components/__tests__/Layout.test.tsx`
     - Test renders navigation links and user info for authenticated user
     - _Requirements: 4.1_
 
-- [ ] 9. Public Website Component Tests
-  - [ ] 9.1 Write PostCard component tests
+- [x] 9. Public Website Component Tests
+  - [x] 9.1 Write PostCard component tests
     - Create `frontend/public-website/src/components/__tests__/PostCard.test.tsx`
     - Test renders title, excerpt, date, and link to full post
     - _Requirements: 7.1_
 
-  - [ ] 9.2 Write CommentList component tests
+  - [x] 9.2 Write CommentList component tests
     - Create `frontend/public-website/src/components/__tests__/CommentList.test.tsx`
     - Test renders author name, date, comment text for each comment
     - Test nested replies are visually indented
     - _Requirements: 7.2, 7.3_
 
-  - [ ] 9.3 Write CommentForm component tests
+  - [x] 9.3 Write CommentForm component tests
     - Create `frontend/public-website/src/components/__tests__/CommentForm.test.tsx`
     - Test renders name, email, comment text fields with submit button
     - Test valid submission calls mock API and shows success
     - Test empty required fields show validation errors
     - _Requirements: 7.4, 7.5, 7.6_
 
-  - [ ] 9.4 Write CodeBlock component tests
+  - [x] 9.4 Write CodeBlock component tests
     - Create `frontend/public-website/src/components/__tests__/CodeBlock.test.tsx`
     - Test renders source code with syntax formatting
     - _Requirements: 7.7_
 
-  - [ ] 9.5 Write Lightbox component tests
+  - [x] 9.5 Write Lightbox component tests
     - Create `frontend/public-website/src/components/__tests__/Lightbox.test.tsx`
     - Test renders image in overlay with close functionality
     - _Requirements: 7.8_
 
-- [ ] 10. Checkpoint - Hooks and components verified
+- [x] 10. Checkpoint - Hooks and components verified
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 11. Admin Panel Page Tests
-  - [ ] 11.1 Write Dashboard page tests
+- [x] 11. Admin Panel Page Tests
+  - [x] 11.1 Write Dashboard page tests
     - Create `frontend/admin-panel/src/pages/__tests__/Dashboard.test.tsx`
     - Test renders summary statistics and recent content with mocked data
     - _Requirements: 3.1_
 
-  - [ ] 11.2 Write ContentList page tests
+  - [x] 11.2 Write ContentList page tests
     - Create `frontend/admin-panel/src/pages/__tests__/ContentList.test.tsx`
     - Test renders content items
     - Test filtering by type and status is operational
     - _Requirements: 3.2_
 
-  - [ ] 11.3 Write ContentEditor page tests
+  - [x] 11.3 Write ContentEditor page tests
     - Create `frontend/admin-panel/src/pages/__tests__/ContentEditor.test.tsx`
     - Test renders empty form for new post with save action
     - Test populates form with post data from mock API for existing post
     - _Requirements: 3.3, 3.4_
 
-  - [ ] 11.4 Write MediaLibrary page tests
+  - [x] 11.4 Write MediaLibrary page tests
     - Create `frontend/admin-panel/src/pages/__tests__/MediaLibrary.test.tsx`
     - Test renders media items in grid
     - Test upload functionality is accessible
     - _Requirements: 3.5_
 
-  - [ ] 11.5 Write Users page tests
+  - [x] 11.5 Write Users page tests
     - Create `frontend/admin-panel/src/pages/__tests__/Users.test.tsx`
     - Test renders user list with role information and management actions
     - _Requirements: 3.6_
 
-  - [ ] 11.6 Write Comments page tests
+  - [x] 11.6 Write Comments page tests
     - Create `frontend/admin-panel/src/pages/__tests__/Comments.test.tsx`
     - Test renders comments with moderation actions (approve, reject, spam)
     - _Requirements: 3.7_
 
-  - [ ] 11.7 Write Settings page tests
+  - [x] 11.7 Write Settings page tests
     - Create `frontend/admin-panel/src/pages/__tests__/Settings.test.tsx`
     - Test renders settings fields with current values and save action
     - _Requirements: 3.8_
 
-  - [ ] 11.8 Write Plugins page tests
+  - [x] 11.8 Write Plugins page tests
     - Create `frontend/admin-panel/src/pages/__tests__/Plugins.test.tsx`
     - Test renders installed plugins with activation toggle and settings access
     - _Requirements: 3.9_
 
-  - [ ] 11.9 Write Login page tests
+  - [x] 11.9 Write Login page tests
     - Create `frontend/admin-panel/src/pages/__tests__/Login.test.tsx`
     - Test renders email and password fields with submit button
     - Test form submission calls auth service and navigates on success
     - _Requirements: 3.10, 3.11_
 
-  - [ ] 11.10 Write Profile page tests
+  - [x] 11.10 Write Profile page tests
     - Create `frontend/admin-panel/src/pages/__tests__/Profile.test.tsx`
     - Test renders current user profile information (name, email, role, avatar)
     - Test allows editing name and bio fields
     - Test save action calls API and shows success feedback
 
-- [ ] 12. Public Website Page Tests
-  - [ ] 12.1 Write Home page tests
+- [x] 12. Public Website Page Tests
+  - [x] 12.1 Write Home page tests
     - Create `frontend/public-website/src/pages/__tests__/Home.test.tsx`
     - Test renders featured posts and site introduction with mocked content
     - _Requirements: 6.1_
 
-  - [ ] 12.2 Write Blog page tests
+  - [x] 12.2 Write Blog page tests
     - Create `frontend/public-website/src/pages/__tests__/Blog.test.tsx`
     - Test renders list of published posts with titles, excerpts, dates
     - _Requirements: 6.2_
 
-  - [ ] 12.3 Write Post page tests
+  - [x] 12.3 Write Post page tests
     - Create `frontend/public-website/src/pages/__tests__/Post.test.tsx`
     - Test renders full post content, author, date, comment section for valid slug
     - Test renders not-found message for non-existent slug
     - _Requirements: 6.3, 6.4_
 
-  - [ ] 12.4 Write Gallery page tests
+  - [x] 12.4 Write Gallery page tests
     - Create `frontend/public-website/src/pages/__tests__/Gallery.test.tsx`
     - Test renders gallery items in grid layout
     - _Requirements: 6.5_
 
-  - [ ] 12.5 Write Projects page tests
+  - [x] 12.5 Write Projects page tests
     - Create `frontend/public-website/src/pages/__tests__/Projects.test.tsx`
     - Test renders project items with descriptions and links
     - _Requirements: 6.6_
 
-  - [ ] 12.6 Write Login page tests for public website
+  - [x] 12.6 Write Login page tests for public website
     - Create `frontend/public-website/src/pages/__tests__/Login.test.tsx`
     - Test renders login form with email and password fields
     - _Requirements: 6.7_
 
-  - [ ] 12.7 Write Register page tests
+  - [x] 12.7 Write Register page tests
     - Create `frontend/public-website/src/pages/__tests__/Register.test.tsx`
     - Test renders registration form with name, email, password fields
     - _Requirements: 6.8_
 
-  - [ ] 12.8 Write VerifyEmail page tests
+  - [x] 12.8 Write VerifyEmail page tests
     - Create `frontend/public-website/src/pages/__tests__/VerifyEmail.test.tsx`
     - Test renders verification status with verification code
     - _Requirements: 6.9_
 
-- [ ] 13. Final Checkpoint - Full test suite verification
+- [x] 13. Final Checkpoint - Full test suite verification
   - Run `cd frontend/admin-panel && npm test -- --run` and verify all tests pass
   - Run `cd frontend/public-website && npm test -- --run` and verify all tests pass
   - Run with coverage: `npm test -- --run --coverage` in both projects

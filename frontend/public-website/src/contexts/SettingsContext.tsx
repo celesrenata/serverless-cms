@@ -17,7 +17,7 @@ interface SettingsContextType {
   refetch: () => Promise<void>;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+export const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 // Available themes
 const THEMES = ['default', 'dark', 'light', 'minimal', 'custom'];
