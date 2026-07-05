@@ -20,7 +20,7 @@ cognito = boto3.client('cognito-idp')
 USER_POOL_ID = os.environ['USER_POOL_ID']
 
 
-def lambda_handler(event, context):
+def handler(event, context):
     """Handle email verification."""
     try:
         body = json.loads(event['body'])
