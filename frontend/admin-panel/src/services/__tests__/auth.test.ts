@@ -2,17 +2,17 @@
 
 const cognitoMocks = vi.hoisted(() => {
   type AuthenticateUserCallbacks = {
-    onSuccess: (session: any) => void;
+    onSuccess: (session: unknown) => void;
     onFailure: (err: Error) => void;
-    newPasswordRequired: (userAttributes: any, requiredAttributes: any) => void;
+    newPasswordRequired: (userAttributes: unknown, requiredAttributes: unknown) => void;
   };
 
-  type GetSessionCallback = (err: Error | null, session: any | null) => void;
+  type GetSessionCallback = (err: Error | null, session: unknown | null) => void;
 
   const state: {
     authenticateUserCallbacks?: AuthenticateUserCallbacks;
     getSessionCallback?: GetSessionCallback;
-    completeNewPasswordCallbacks?: any;
+    completeNewPasswordCallbacks?: { onSuccess: (session: unknown) => void; onFailure: (err: Error) => void };
   } = {};
 
   const mockGetCurrentUser = vi.fn();
@@ -28,7 +28,7 @@ const cognitoMocks = vi.hoisted(() => {
   const mockSignOut = vi.fn();
 
   const mockCompleteNewPasswordChallenge = vi.fn(
-    (_newPassword: string, _userAttributes: Record<string, unknown>, callbacks: any) => {
+    (_newPassword: string, _userAttributes: Record<string, unknown>, callbacks: { onSuccess: (session: unknown) => void; onFailure: (err: Error) => void }) => {
       state.completeNewPasswordCallbacks = callbacks;
     },
   );
