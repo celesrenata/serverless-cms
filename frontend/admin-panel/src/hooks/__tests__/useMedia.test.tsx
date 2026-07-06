@@ -134,11 +134,6 @@ describe('useMediaList', () => {
   });
 
   it('fetches media list with params', async () => {
-    const params = {
-      limit: 10,
-      last_key: 'media-0',
-    };
-
     const mockResponse: MediaListResponse = {
       items: [mockMedia],
       last_key: {
@@ -148,15 +143,18 @@ describe('useMediaList', () => {
 
     vi.mocked(api.listMedia).mockResolvedValue(mockResponse);
 
-    const { result } = renderHook(() => useMediaList(params), {
+    const { result } = renderHook(() => useMediaList(), {
       wrapper: createWrapper(),
     });
 
     await waitFor(() => {
-      expect(result.current.data).toEqual(mockResponse);
+      expect(result.current.data).toEqual({
+        pages: [mockResponse],
+        pageParams: [undefined],
+      });
     });
 
     expect(api.listMedia).toHaveBeenCalledTimes(1);
-    expect(api.listMedia).toHaveBeenCalledWith(params);
+    expect(api.listMedia).toHaveBeenCalledWith({ limit: 50, last_key: undefined });
   });
 });
