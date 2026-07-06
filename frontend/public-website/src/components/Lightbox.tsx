@@ -91,7 +91,7 @@ export const Lightbox = ({
         </div>
 
         {/* Image + Caption as one unified block */}
-        <div className="bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-800 w-full max-w-4xl">
+        <div className="bg-black overflow-hidden w-full max-w-4xl">
           {/* Image */}
           <img
             src={currentImage.s3_url}
