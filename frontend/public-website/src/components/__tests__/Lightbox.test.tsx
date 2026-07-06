@@ -118,14 +118,14 @@ describe('Lightbox', () => {
     const captionText = screen.getByText('First photo caption');
     expect(captionText).toBeInTheDocument();
     const captionContainer = captionText.closest('div');
-    expect(captionContainer).toHaveClass('border-t', 'border-gray-700');
+    expect(captionContainer).toHaveClass('px-6', 'py-4');
   });
 
   it('shows alt_text as caption fallback when descriptive and no caption set', () => {
     renderLightbox({ currentIndex: 1 }); // img-2 has alt_text: 'Photo 2' but no caption
     expect(screen.getByText('Photo 2')).toBeInTheDocument();
     const captionContainer = screen.getByText('Photo 2').closest('div');
-    expect(captionContainer).toHaveClass('border-t', 'border-gray-700');
+    expect(captionContainer).toHaveClass('px-6', 'py-4');
   });
 
   it('does not render caption panel when alt_text is a filename', () => {
@@ -143,9 +143,8 @@ describe('Lightbox', () => {
       },
     ];
     renderLightbox({ images: filenameAltImages, currentIndex: 0 });
-    const dialog = screen.getByRole('dialog');
-    const captionPanel = dialog.querySelector('.border-t');
-    expect(captionPanel).not.toBeInTheDocument();
+    // Caption should not appear for filename-like alt text
+    expect(screen.queryByText('sunset.jpg')).not.toBeInTheDocument();
   });
 
   it('has role="dialog" and aria-modal="true" on root element', () => {

@@ -81,5 +81,8 @@ export function shouldShowCaption(media: Media): boolean {
   const caption = media.metadata?.caption ?? '';
   if (caption.length > 0) return true;
   const alt = media.metadata?.alt_text ?? '';
-  return alt.length > 3 && !/^\w+\.\w{2,4}$/.test(alt) && alt !== '.';
+  if (alt.length <= 3 || alt === '.') return false;
+  if (/^\w+\.\w{2,4}$/.test(alt)) return false;
+  if (!alt.includes(' ') && /[_-]/.test(alt)) return false;
+  return true;
 }

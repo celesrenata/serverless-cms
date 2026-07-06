@@ -40,9 +40,13 @@ export const Lightbox = ({
     const caption = currentImage.metadata?.caption ?? '';
     if (caption) return caption;
     const alt = currentImage.metadata?.alt_text ?? '';
-    // Only use alt_text as caption if it's descriptive (not a filename, not ".", not too short)
-    if (alt.length > 3 && !/^\w+\.\w{2,4}$/.test(alt) && alt !== '.') return alt;
-    return '';
+    // Filter out non-descriptive alt text
+    if (alt.length <= 3 || alt === '.') return '';
+    // Filename with extension
+    if (/^\w+\.\w{2,4}$/.test(alt)) return '';
+    // Filename-like: no spaces, contains underscores or hyphens (e.g. IMG_1752_filtered, DSC_0011f)
+    if (!alt.includes(' ') && /[_-]/.test(alt)) return '';
+    return alt;
   })();
 
   return (
@@ -103,7 +107,7 @@ export const Lightbox = ({
 
           {/* Caption - part of the same card, directly below image */}
           {captionText && (
-            <div className="px-6 py-4 border-t border-gray-700">
+            <div className="px-6 py-4">
               <p className="text-gray-200 text-sm leading-relaxed text-center">{captionText}</p>
             </div>
           )}
