@@ -61,4 +61,6 @@ export interface ContentFilters {
 export interface ContentListResponse {
   items: Content[];
   last_key?: Record<string, string>;
+  total_count?: number;
+  published_count?: number;
 }
