@@ -294,8 +294,8 @@
   background-color: rgba(255, 255, 255, 0.95) !important;
 }
 
-/* Ensure CAPTCHA modal gets the background */
-[data-theme="dark"] div[role="dialog"] {
+/* Ensure CAPTCHA modal gets the background (exclude lightbox) */
+[data-theme="dark"] div[role="dialog"]:not(.bg-black) {
   background-color: rgba(255, 255, 255, 0.95) !important;
   padding: 2rem !important;
   border-radius: 0.75rem !important;

@@ -1,5 +1,8 @@
 import { useEffect } from 'react';
-import { Media } from '../types';
+import { createPortal } from 'react-dom';
+import { useSwipe } from '../hooks/useSwipe';
+import { formatPositionIndicator } from '../utils/galleryUtils';
+import type { Media } from '../types';
 
 interface LightboxProps {
   images: Media[];
@@ -18,6 +21,8 @@ export const Lightbox = ({
 }: LightboxProps) => {
   const currentImage = images[currentIndex];
 
+  const swipeHandlers = useSwipe({ onSwipeLeft: onNext, onSwipeRight: onPrevious });
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -29,11 +34,34 @@ export const Lightbox = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrevious]);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   if (!currentImage) return null;
 
-  return (
+  // Determine caption text: prefer explicit caption, fall back to alt_text if descriptive
+  const captionText = (() => {
+    const caption = currentImage.metadata?.caption ?? '';
+    if (caption) return caption;
+    const alt = currentImage.metadata?.alt_text ?? '';
+    // Filter out non-descriptive alt text
+    if (alt.length <= 3 || alt === '.') return '';
+    // Filename with extension
+    if (/^\w+\.\w{2,4}$/.test(alt)) return '';
+    // Filename-like: no spaces, contains underscores or hyphens (e.g. IMG_1752_filtered, DSC_0011f)
+    if (!alt.includes(' ') && /[_-]/.test(alt)) return '';
+    return alt;
+  })();
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center"
+      className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+      role="dialog"
+      aria-modal="true"
       onClick={onClose}
     >
       {/* Close Button */}
@@ -42,92 +70,66 @@ export const Lightbox = ({
         className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
         aria-label="Close lightbox"
       >
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
-          />
+        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
       {/* Previous Button */}
       {currentIndex > 0 && (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onPrevious();
-          }}
+          onClick={(e) => { e.stopPropagation(); onPrevious(); }}
           className="absolute left-4 text-white hover:text-gray-300 z-10"
           aria-label="Previous image"
         >
-          <svg
-            className="w-12 h-12"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
+          <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
       )}
 
-      {/* Image */}
+      {/* Unified image + caption card */}
       <div
-        className="max-w-7xl max-h-screen p-4"
+        className="flex flex-col items-center max-w-5xl w-full mx-4"
         onClick={(e) => e.stopPropagation()}
+        {...swipeHandlers}
+        style={{ touchAction: 'pan-y' }}
       >
+        {/* Position Indicator */}
+        <div className="self-end mb-2">
+          <span className="text-gray-400 text-sm">
+            {formatPositionIndicator(currentIndex, images.length)}
+          </span>
+        </div>
+
+        {/* Image */}
         <img
           src={currentImage.s3_url}
-          alt={currentImage.metadata?.alt_text || currentImage.filename}
-          className="max-w-full max-h-[90vh] object-contain"
+          alt={captionText && currentImage.metadata?.alt_text === captionText
+            ? currentImage.filename
+            : (currentImage.metadata?.alt_text || currentImage.filename)}
+          className="max-w-full max-h-[70vh] object-contain"
         />
-        {currentImage.metadata?.caption && (
-          <p className="text-white text-center mt-4">
-            {currentImage.metadata.caption}
-          </p>
+
+        {/* Caption - directly below image */}
+        {captionText && (
+          <p className="text-gray-200 text-sm leading-relaxed text-center mt-4 max-w-2xl px-4">{captionText}</p>
         )}
-        <p className="text-gray-400 text-center text-sm mt-2">
-          {currentIndex + 1} / {images.length}
-        </p>
       </div>
 
       {/* Next Button */}
       {currentIndex < images.length - 1 && (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onNext();
-          }}
+          onClick={(e) => { e.stopPropagation(); onNext(); }}
           className="absolute right-4 text-white hover:text-gray-300 z-10"
           aria-label="Next image"
         >
-          <svg
-            className="w-12 h-12"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
+          <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
       )}
-    </div>
+    </div>,
+    document.body
   );
 };

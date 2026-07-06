@@ -7,6 +7,7 @@ import { useSiteSettings } from '../hooks/useSiteSettings';
 import { CommentForm } from '../components/CommentForm';
 import { CommentList } from '../components/CommentList';
 import { Content } from '../types';
+import { extractFirstImageFromContent } from '../utils/contentUtils';
 
 export const Post = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -71,8 +72,8 @@ export const Post = () => {
         )}
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt} />
-        {post.featured_image && (
-          <meta property="og:image" content={post.featured_image} />
+        {(post.featured_image || extractFirstImageFromContent(post.content)) && (
+          <meta property="og:image" content={(post.featured_image || extractFirstImageFromContent(post.content))!} />
         )}
         <meta property="og:type" content="article" />
       </Helmet>
@@ -135,9 +136,9 @@ export const Post = () => {
           </header>
 
           {/* Featured Image */}
-          {post.featured_image && (
+          {(post.featured_image || extractFirstImageFromContent(post.content)) && (
             <img
-              src={post.featured_image}
+              src={(post.featured_image || extractFirstImageFromContent(post.content))!}
               alt={post.title}
               className="w-full rounded-lg mb-8 shadow-lg"
             />
@@ -162,9 +163,9 @@ export const Post = () => {
                     to={`/blog/${relatedPost.slug}`}
                     className="group"
                   >
-                    {relatedPost.featured_image && (
+                    {(relatedPost.featured_image || extractFirstImageFromContent(relatedPost.content)) && (
                       <img
-                        src={relatedPost.featured_image}
+                        src={(relatedPost.featured_image || extractFirstImageFromContent(relatedPost.content))!}
                         alt={relatedPost.title}
                         className="w-full h-40 object-cover rounded-lg mb-3 group-hover:opacity-90 transition"
                       />

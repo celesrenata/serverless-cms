@@ -2,6 +2,7 @@
 Content retrieval Lambda functions.
 Handles GET /api/v1/content/{id} and GET /api/v1/content/slug/{slug} requests.
 """
+# Deployment trigger: force Lambda update for CDN URL conversion
 import json
 import sys
 import os
@@ -12,6 +13,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from shared.db import ContentRepository, UserRepository
 from shared.plugins import PluginManager
 from shared.auth import extract_user_from_event
+from shared.s3 import convert_s3_url_to_cdn
 
 
 content_repo = ContentRepository()
@@ -139,6 +141,9 @@ def handler(event, context):
                 print(f"Error fetching author info: {e}")
                 content['author_name'] = 'Unknown Author'
         
+        # Convert S3 URLs to CloudFront CDN URLs
+        _convert_content_urls(content)
+        
         return {
             'statusCode': 200,
             'headers': {
@@ -161,3 +166,25 @@ def handler(event, context):
                 'message': str(e)
             })
         }
+
+
+def _convert_content_urls(content: dict) -> None:
+    """Convert S3 URLs to CloudFront CDN URLs in content metadata."""
+    # Convert featured_image
+    if content.get('featured_image'):
+        content['featured_image'] = convert_s3_url_to_cdn(content['featured_image'])
+    
+    # Convert media items in metadata
+    metadata = content.get('metadata', {})
+    if isinstance(metadata, dict):
+        media_items = metadata.get('media', [])
+        if isinstance(media_items, list):
+            for item in media_items:
+                if isinstance(item, dict) and item.get('s3_url'):
+                    item['s3_url'] = convert_s3_url_to_cdn(item['s3_url'])
+                    # Also convert thumbnails if present
+                    thumbnails = item.get('thumbnails', {})
+                    if isinstance(thumbnails, dict):
+                        for size, url in thumbnails.items():
+                            if url:
+                                thumbnails[size] = convert_s3_url_to_cdn(url)

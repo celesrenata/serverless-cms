@@ -223,13 +223,23 @@ def extract_s3_key_from_url(url: str) -> str:
     Returns:
         S3 key (path within bucket)
     """
-    # Handle both formats:
+    # Handle multiple S3 URL formats:
     # https://bucket.s3.amazonaws.com/key
+    # https://bucket.s3.us-west-2.amazonaws.com/key
     # https://s3.amazonaws.com/bucket/key
+    import re
     
+    # Match regional format: bucket.s3.REGION.amazonaws.com/key
+    match = re.search(r'\.s3\.[a-z0-9-]+\.amazonaws\.com/(.+)$', url)
+    if match:
+        return match.group(1)
+    
+    # Match non-regional format: bucket.s3.amazonaws.com/key
     if '.s3.amazonaws.com/' in url:
         return url.split('.s3.amazonaws.com/')[-1]
-    elif 's3.amazonaws.com/' in url:
+    
+    # Match path-style: s3.amazonaws.com/bucket/key
+    if 's3.amazonaws.com/' in url:
         parts = url.split('s3.amazonaws.com/')[-1].split('/', 1)
         return parts[1] if len(parts) > 1 else parts[0]
     
@@ -241,7 +251,7 @@ def convert_s3_url_to_cdn(url: str) -> str:
     Convert S3 URL to CloudFront CDN URL.
     
     Args:
-        url: S3 URL (e.g., https://bucket.s3.amazonaws.com/key)
+        url: S3 URL (e.g., https://bucket.s3.us-west-2.amazonaws.com/key)
         
     Returns:
         CloudFront URL if MEDIA_CDN_URL is set, otherwise original URL
@@ -253,8 +263,14 @@ def convert_s3_url_to_cdn(url: str) -> str:
     if not media_cdn_url:
         return url
     
-    # Only convert S3 URLs
-    if '.s3.amazonaws.com/' not in url and 's3.amazonaws.com/' not in url:
+    # Only convert S3 URLs (regional and non-regional)
+    import re
+    is_s3_url = (
+        '.s3.amazonaws.com/' in url or
+        's3.amazonaws.com/' in url or
+        bool(re.search(r'\.s3\.[a-z0-9-]+\.amazonaws\.com/', url))
+    )
+    if not is_s3_url:
         return url
     
     # Extract the S3 key
