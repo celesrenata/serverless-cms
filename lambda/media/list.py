@@ -43,7 +43,10 @@ def handler(event, context):
         if params.get('last_key'):
             try:
                 last_key = json.loads(params['last_key'])
-            except json.JSONDecodeError:
+                # Ensure numeric keys are proper types for DynamoDB
+                if last_key and 'uploaded_at' in last_key:
+                    last_key['uploaded_at'] = int(last_key['uploaded_at'])
+            except (json.JSONDecodeError, ValueError):
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json'},
@@ -61,6 +64,11 @@ def handler(event, context):
                 for size, url in item['thumbnails'].items():
                     item['thumbnails'][size] = convert_s3_url_to_cdn(url)
         
+        # Ensure last_key values are JSON-serializable as correct types
+        response_last_key = result['last_key']
+        if response_last_key and 'uploaded_at' in response_last_key:
+            response_last_key['uploaded_at'] = int(response_last_key['uploaded_at'])
+
         return {
             'statusCode': 200,
             'headers': {
@@ -69,7 +77,7 @@ def handler(event, context):
             },
             'body': json.dumps({
                 'items': result['items'],
-                'last_key': result['last_key']
+                'last_key': response_last_key
             }, default=str)
         }
     
