@@ -81,17 +81,11 @@ export const MediaLibrary: React.FC = () => {
     refetch();
   };
 
-  // Calculate statistics
-  const stats = useMemo(() => {
-    if (!allMedia.length) return { total: 0, images: 0, videos: 0, documents: 0 };
-
-    return {
-      total: allMedia.length,
-      images: allMedia.filter((m: Media) => m.mime_type.startsWith('image/')).length,
-      videos: allMedia.filter((m: Media) => m.mime_type.startsWith('video/')).length,
-      documents: allMedia.filter((m: Media) => m.mime_type.startsWith('application/')).length,
-    };
-  }, [allMedia]);
+  // Get real total count from API response
+  const totalCount = useMemo(() => {
+    if (!data?.pages?.length) return 0;
+    return data.pages[0].total_count ?? allMedia.length;
+  }, [data?.pages, allMedia.length]);
 
   return (
     <div className="space-y-6">
@@ -120,22 +114,13 @@ export const MediaLibrary: React.FC = () => {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="text-sm text-gray-600">Total Files</div>
-          <div className="text-2xl font-bold text-gray-900 mt-1">{stats.total}{hasNextPage ? '+' : ''}</div>
+      <div className="bg-white rounded-lg shadow p-4 flex items-center justify-between">
+        <div>
+          <span className="text-2xl font-bold text-gray-900">{totalCount}</span>
+          <span className="text-gray-600 ml-2">files in library</span>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="text-sm text-gray-600">Images</div>
-          <div className="text-2xl font-bold text-blue-600 mt-1">{stats.images}{hasNextPage ? '+' : ''}</div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="text-sm text-gray-600">Videos</div>
-          <div className="text-2xl font-bold text-purple-600 mt-1">{stats.videos}{hasNextPage ? '+' : ''}</div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="text-sm text-gray-600">Documents</div>
-          <div className="text-2xl font-bold text-green-600 mt-1">{stats.documents}{hasNextPage ? '+' : ''}</div>
+        <div className="text-sm text-gray-500">
+          Showing {allMedia.length} of {totalCount}
         </div>
       </div>
 
