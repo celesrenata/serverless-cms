@@ -52,7 +52,7 @@ def validate_password(password: str) -> tuple[bool, str]:
     return True, ""
 
 
-def lambda_handler(event, context):
+def handler(event, context):
     """Handle user registration."""
     try:
         # Check if registration is enabled

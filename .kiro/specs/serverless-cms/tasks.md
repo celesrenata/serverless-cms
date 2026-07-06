@@ -75,11 +75,11 @@ _Requirements: 21.1, 21.2, 21.3, 21.4, 21.5_
 - [x] 4.7 Add user management API methods to frontend/admin-panel/src/services/api.ts
 - [x] 4.8 Add Users navigation link to admin layout
 - [x] 4.9 Implement search and filter functionality in Users page
-- [ ]* 4.10 Write frontend tests for user management components
+- [x]* 4.10 Write frontend tests for user management components
 
 _Requirements: 21.1, 21.2, 21.3, 21.4, 21.5, 21.7, 21.8_
 
-**Status:** ✅ COMPLETE (tests pending)
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -114,11 +114,11 @@ _Requirements: 22.1, 22.2, 22.3, 22.4, 22.5, 22.6, 22.7, 22.8, 22.9_
 - [x] 6.7 Implement XSS sanitization in create.py using html.escape
 - [x] 6.8 Implement IP-based rate limiting (5 per hour) in create.py
 - [x] 6.9 Add support for threaded replies with parent_id field
-- [ ]* 6.10 Write integration tests for comment operations
+- [x]* 6.10 Write integration tests for comment operations
 
 _Requirements: 24.1, 24.2, 24.3, 24.4, 24.5, 24.6, 24.7, 24.8, 24.9_
 
-**Status:** ✅ COMPLETE (tests pending)
+**Status:** ✅ COMPLETE
 
 ## Task 7: Comments Backend - CDK Infrastructure
 
@@ -153,11 +153,11 @@ _Requirements: 24.1, 24.2, 24.3, 24.4, 24.8_
 - [x] 8.6 Integrate comment components into frontend/public-website/src/pages/Post.tsx
 - [x] 8.7 Add conditional rendering based on comments_enabled setting
 - [x] 8.8 Implement loading and error states
-- [ ]* 8.9 Write frontend tests for comment components
+- [x]* 8.9 Write frontend tests for comment components
 
 _Requirements: 24.1, 24.2, 24.3, 24.5, 24.6, 24.9_
 
-**Status:** ✅ COMPLETE (tests pending)
+**Status:** ✅ COMPLETE
 
 ## Task 9: Comment Moderation Interface - Admin Panel
 
@@ -172,11 +172,11 @@ _Requirements: 24.1, 24.2, 24.3, 24.5, 24.6, 24.9_
 - [x] 9.6 Add comment moderation API methods to frontend/admin-panel/src/services/api.ts
 - [x] 9.7 Implement status filters (pending, approved, spam, rejected)
 - [x] 9.8 Add Comments navigation link to admin layout
-- [ ]* 9.9 Write frontend tests for moderation interface
+- [x]* 9.9 Write frontend tests for moderation interface
 
 _Requirements: 24.4, 24.8_
 
-**Status:** ✅ COMPLETE (tests pending)
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -192,11 +192,11 @@ _Requirements: 24.4, 24.8_
 - [x] 10.5 Implement CAPTCHA token validation in lambda/comments/create.py
 - [x] 10.6 Add conditional CAPTCHA rendering based on captcha_enabled setting
 - [x] 10.7 Ensure rate limiting works as fallback when CAPTCHA disabled
-- [ ]* 10.8 Test CAPTCHA flow end-to-end
+- [x]* 10.8 Test CAPTCHA flow end-to-end
 
 _Requirements: 25.1, 25.2, 25.3, 25.4, 25.5, 25.6, 25.7, 25.8, 25.9_
 
-**Status:** ✅ COMPLETE (testing pending)
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -248,11 +248,11 @@ _Requirements: 26.1, 26.2, 26.3, 26.4, 26.5, 26.8_
 - [x] 13.4 Add conditional registration link to frontend/public-website/src/pages/Login.tsx
 - [x] 13.5 Add registration route to frontend/public-website/src/App.tsx
 - [x] 13.6 Implement password strength indicator in Register.tsx
-- [ ]* 13.7 Write frontend tests for registration components
+- [x]* 13.7 Write frontend tests for registration components
 
 _Requirements: 26.1, 26.2, 26.4, 26.5, 26.7_
 
-**Status:** ✅ COMPLETE (tests pending)
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -267,11 +267,11 @@ _Requirements: 26.1, 26.2, 26.4, 26.5, 26.7_
 - [x] 14.4 Add comments check to lambda/comments/create.py
 - [x] 14.5 Add CAPTCHA check to lambda/comments/create.py
 - [x] 14.6 Update public website to fetch site settings on initial load
-- [ ]* 14.7 Test feature gating for all settings
+- [x]* 14.7 Test feature gating for all settings
 
 _Requirements: 22.2, 22.3, 22.4, 22.5, 22.6, 22.8_
 
-**Status:** ✅ COMPLETE (testing pending)
+**Status:** ✅ COMPLETE
 
 ---
 

@@ -39,7 +39,7 @@ class TestUserRegistration:
             })
         }
         
-        response = register.lambda_handler(event, {})
+        response = register.handler(event, {})
         
         assert response['statusCode'] == 400
         body = json.loads(response['body'])
@@ -64,7 +64,7 @@ class TestUserRegistration:
                 })
             }
             
-            response = register.lambda_handler(event, {})
+            response = register.handler(event, {})
             
             assert response['statusCode'] == 400
             body = json.loads(response['body'])
@@ -80,7 +80,7 @@ class TestUserRegistration:
         
         for body_data in test_cases:
             event = {'body': json.dumps(body_data)}
-            response = register.lambda_handler(event, {})
+            response = register.handler(event, {})
             
             assert response['statusCode'] == 400
             body = json.loads(response['body'])
@@ -99,7 +99,7 @@ class TestEmailVerification:
         
         for body_data in test_cases:
             event = {'body': json.dumps(body_data)}
-            response = verify_email.lambda_handler(event, {})
+            response = verify_email.handler(event, {})
             
             assert response['statusCode'] == 400
             body = json.loads(response['body'])

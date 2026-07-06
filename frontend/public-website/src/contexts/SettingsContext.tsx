@@ -17,7 +17,8 @@ interface SettingsContextType {
   refetch: () => Promise<void>;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+// eslint-disable-next-line react-refresh/only-export-components
+export const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 // Available themes
 const THEMES = ['default', 'dark', 'light', 'minimal', 'custom'];
