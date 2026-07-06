@@ -15,20 +15,20 @@ export const MediaModal: React.FC<MediaModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const [altText, setAltText] = useState(media.metadata.alt_text || '');
-  const [caption, setCaption] = useState(media.metadata.caption || '');
+  const [altText, setAltText] = useState(media.metadata?.alt_text || '');
+  const [caption, setCaption] = useState(media.metadata?.caption || '');
   const { update, isUpdating } = useMedia();
 
   useEffect(() => {
-    setAltText(media.metadata.alt_text || '');
-    setCaption(media.metadata.caption || '');
+    setAltText(media.metadata?.alt_text || '');
+    setCaption(media.metadata?.caption || '');
   }, [media]);
 
   const handleSave = async () => {
     try {
       const updateData: MediaUpdate = {
         metadata: {
-          ...media.metadata,
+          ...(media.metadata || {}),
           alt_text: altText,
           caption: caption,
         },
@@ -52,7 +52,7 @@ export const MediaModal: React.FC<MediaModalProps> = ({
 
   const isImage = media.mime_type.startsWith('image/');
   const previewUrl = media.thumbnails?.large || media.s3_url;
-  const fileSize = (media.size / 1024).toFixed(2);
+  const fileSize = (Number(media.size) / 1024).toFixed(2);
   const uploadDate = new Date(media.uploaded_at * 1000).toLocaleDateString();
 
   return (
@@ -89,7 +89,7 @@ export const MediaModal: React.FC<MediaModalProps> = ({
                 {isImage ? (
                   <img
                     src={previewUrl}
-                    alt={media.metadata.alt_text || media.filename}
+                    alt={media.metadata?.alt_text || media.filename}
                     className="w-full h-auto"
                   />
                 ) : (

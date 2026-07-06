@@ -17,7 +17,7 @@ export const MediaItem: React.FC<MediaItemProps> = ({
 }) => {
   const isImage = media.mime_type.startsWith('image/');
   const thumbnailUrl = media.thumbnails?.medium || media.s3_url;
-  const fileSize = (media.size / 1024).toFixed(2);
+  const fileSize = (Number(media.size) / 1024).toFixed(2);
 
   return (
     <div
@@ -31,7 +31,7 @@ export const MediaItem: React.FC<MediaItemProps> = ({
         {isImage ? (
           <img
             src={thumbnailUrl}
-            alt={media.metadata.alt_text || media.filename}
+            alt={media.metadata?.alt_text || media.filename}
             className="w-full h-full object-cover"
           />
         ) : (

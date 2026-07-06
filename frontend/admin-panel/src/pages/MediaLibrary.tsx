@@ -38,8 +38,8 @@ export const MediaLibrary: React.FC = () => {
       filtered = filtered.filter(
         (media: Media) =>
           media.filename.toLowerCase().includes(query) ||
-          media.metadata.alt_text?.toLowerCase().includes(query) ||
-          media.metadata.caption?.toLowerCase().includes(query)
+          media.metadata?.alt_text?.toLowerCase().includes(query) ||
+          media.metadata?.caption?.toLowerCase().includes(query)
       );
     }
 
@@ -319,14 +319,14 @@ export const MediaLibrary: React.FC = () => {
             </button>
             <img
               src={previewMedia.s3_url}
-              alt={previewMedia.metadata.alt_text || previewMedia.filename}
+              alt={previewMedia.metadata?.alt_text || previewMedia.filename}
               className="max-w-full max-h-[90vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
             />
             <div className="absolute bottom-4 left-4 right-4 bg-white bg-opacity-90 rounded-lg p-4">
               <p className="font-medium text-gray-900">{previewMedia.filename}</p>
               <p className="text-sm text-gray-600 mt-1">
-                {(previewMedia.size / 1024).toFixed(2)} KB
+                {(Number(previewMedia.size) / 1024).toFixed(2)} KB
                 {previewMedia.dimensions &&
                   ` • ${previewMedia.dimensions.width}×${previewMedia.dimensions.height}`}
               </p>
