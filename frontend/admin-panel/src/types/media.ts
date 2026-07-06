@@ -41,4 +41,5 @@ export interface MediaUpdate {
 export interface MediaListResponse {
   items: Media[];
   last_key?: Record<string, string>;
+  total_count?: number;
 }

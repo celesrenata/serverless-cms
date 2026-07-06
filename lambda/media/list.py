@@ -53,6 +53,17 @@ def handler(event, context):
                     'body': json.dumps({'error': 'Invalid last_key format'})
                 }
         
+        # Get total count (separate count query - no data transfer)
+        count_response = media_repo.table.scan(Select='COUNT')
+        total_count = count_response.get('Count', 0)
+        # Handle pagination in count (if table has > 1MB of metadata)
+        while 'LastEvaluatedKey' in count_response:
+            count_response = media_repo.table.scan(
+                Select='COUNT',
+                ExclusiveStartKey=count_response['LastEvaluatedKey']
+            )
+            total_count += count_response.get('Count', 0)
+        
         # Get media list
         result = media_repo.list_media(limit=limit, last_key=last_key)
         
@@ -77,7 +88,8 @@ def handler(event, context):
             },
             'body': json.dumps({
                 'items': result['items'],
-                'last_key': response_last_key
+                'last_key': response_last_key,
+                'total_count': total_count
             }, default=str)
         }
     
