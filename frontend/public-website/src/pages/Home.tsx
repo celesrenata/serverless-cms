@@ -3,12 +3,14 @@ import { Helmet } from 'react-helmet-async';
 import { useContentList } from '../hooks/useContent';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { Content } from '../types';
+import { toAlbumCard } from '../utils/galleryUtils';
+import { extractFirstImageFromContent } from '../utils/contentUtils';
 
 export const Home = () => {
   const { data: settings } = useSiteSettings();
   const { data: featuredPosts } = useContentList({ type: 'post', status: 'published', limit: 3 });
   const { data: recentProjects } = useContentList({ type: 'project', status: 'published', limit: 3 });
-  const { data: galleryPreview } = useContentList({ type: 'gallery', status: 'published', limit: 1 });
+  const { data: galleryPreview } = useContentList({ type: 'gallery', status: 'published', limit: 6 });
 
   return (
     <>
@@ -48,13 +50,12 @@ export const Home = () => {
                     to={`/blog/${post.slug}`}
                     className="group"
                   >
-                    {post.featured_image && (
-                      <img
-                        src={post.featured_image}
-                        alt={post.title}
-                        className="w-full h-48 object-cover rounded-lg mb-4 group-hover:opacity-90 transition"
-                      />
-                    )}
+                    {(() => {
+                      const coverImg = post.featured_image || extractFirstImageFromContent(post.content) || '';
+                      return coverImg ? (
+                        <img src={coverImg} alt={post.title} className="w-full h-48 object-cover rounded-lg mb-4 group-hover:opacity-90 transition" />
+                      ) : null;
+                    })()}
                     <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition">
                       {post.title}
                     </h3>
@@ -113,23 +114,37 @@ export const Home = () => {
           <section className="py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-8">Photo Gallery</h2>
-              <Link
-                to="/gallery"
-                className="block relative group"
-              >
-                {galleryPreview.items[0].featured_image && (
-                  <img
-                    src={galleryPreview.items[0].featured_image}
-                    alt="Gallery Preview"
-                    className="w-full h-96 object-cover rounded-lg group-hover:opacity-90 transition"
-                  />
-                )}
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition rounded-lg">
-                  <span className="text-white text-xl font-semibold opacity-0 group-hover:opacity-100 transition">
-                    View Gallery →
-                  </span>
-                </div>
-              </Link>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {galleryPreview.items.map((gallery: Content) => {
+                  const card = toAlbumCard(gallery);
+                  return (
+                    <Link
+                      key={card.id}
+                      to={`/gallery/${card.slug}`}
+                      className="group relative overflow-hidden rounded-lg aspect-[4/3]"
+                    >
+                      <img
+                        src={card.coverUrl}
+                        alt={card.coverAlt}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="absolute bottom-3 left-3 text-white font-medium text-sm">
+                          {card.title}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="text-center mt-8">
+                <Link
+                  to="/gallery"
+                  className="text-blue-600 hover:text-blue-700 font-semibold"
+                >
+                  View All Albums →
+                </Link>
+              </div>
             </div>
           </section>
         )}
