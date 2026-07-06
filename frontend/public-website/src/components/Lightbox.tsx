@@ -124,8 +124,10 @@ export const Lightbox = ({
 
         {/* Caption - separate box below the image */}
         {captionText && (
-          <div className="mt-4 max-w-2xl bg-gray-900 border border-gray-700 rounded-lg px-5 py-3 text-center shadow-lg">
-            <p className="text-gray-100 text-sm leading-relaxed">{captionText}</p>
+          <div className="mt-4 max-w-2xl bg-gray-900 rounded-lg px-5 py-4 text-center shadow-lg">
+            <p className="text-gray-100 text-sm leading-relaxed border border-gray-600 rounded px-4 py-2">
+              {captionText}
+            </p>
           </div>
         )}
       </div>
