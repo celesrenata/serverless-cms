@@ -2,6 +2,7 @@
 Content retrieval Lambda functions.
 Handles GET /api/v1/content/{id} and GET /api/v1/content/slug/{slug} requests.
 """
+# Deployment trigger: force Lambda update for CDN URL conversion
 import json
 import sys
 import os
