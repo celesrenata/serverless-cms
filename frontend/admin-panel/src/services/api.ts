@@ -18,6 +18,39 @@ import {
   SettingsUpdate,
 } from '../types';
 
+const MEDIA_CDN_URL = import.meta.env.VITE_MEDIA_CDN_URL || '';
+
+/**
+ * Recursively rewrite S3 media URLs to CloudFront CDN URLs.
+ * Handles the case where the backend returns raw S3 URLs instead of CDN URLs.
+ */
+function rewriteMediaUrls(data: unknown): unknown {
+  if (!MEDIA_CDN_URL) return data;
+
+  if (typeof data === 'string') {
+    const s3Pattern = /https:\/\/[a-z0-9-]+\.s3(\.[a-z0-9-]+)?\.amazonaws\.com\//;
+    if (s3Pattern.test(data)) {
+      const key = data.replace(/https:\/\/[a-z0-9-]+\.s3(\.[a-z0-9-]+)?\.amazonaws\.com\//, '');
+      return `${MEDIA_CDN_URL}/${key}`;
+    }
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(rewriteMediaUrls);
+  }
+
+  if (data !== null && typeof data === 'object') {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+      result[key] = rewriteMediaUrls(value);
+    }
+    return result;
+  }
+
+  return data;
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -50,6 +83,16 @@ class ApiClient {
         return config;
       },
       (error) => Promise.reject(error)
+    );
+
+    // Response interceptor to rewrite S3 media URLs to CloudFront CDN
+    this.client.interceptors.response.use(
+      (response) => {
+        if (response.data) {
+          response.data = rewriteMediaUrls(response.data);
+        }
+        return response;
+      }
     );
 
     // Response interceptor for error handling
