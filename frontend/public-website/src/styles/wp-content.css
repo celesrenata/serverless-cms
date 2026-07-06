@@ -1,0 +1,83 @@
+/* WordPress Content Overrides */
+.wp-content {
+  overflow-wrap: anywhere;
+}
+
+/* Images */
+.wp-content :where(img, video, iframe) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+.wp-content :where(figure) {
+  max-width: 100%;
+  margin: 1.5rem 0;
+}
+
+.wp-content :where(figcaption) {
+  text-align: center;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Code blocks */
+.wp-content :where(pre) {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre;
+  border-radius: 0.5rem;
+}
+
+.wp-content :where(pre code) {
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.wp-content :where(code):not(pre code) {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+/* Tables */
+.wp-content :where(table) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* WordPress alignment classes */
+.wp-content :where(.aligncenter) {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wp-content :where(.alignleft) {
+  float: left;
+  margin-right: 1rem;
+}
+
+.wp-content :where(.alignright) {
+  float: right;
+  margin-left: 1rem;
+}
+
+/* Prevent code blocks from breaking container */
+.wp-content :where(.not-prose) {
+  overflow-wrap: normal;
+}
+
+.wp-content :where(.not-prose pre) {
+  margin: 0;
+  padding: 1rem;
+}
+
+/* WordPress block heading override - remove the wp-block-heading padding */
+.wp-content :where(.wp-block-heading) {
+  margin-top: 2rem;
+}
