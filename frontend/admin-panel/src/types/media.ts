@@ -24,7 +24,7 @@ export interface Media {
   size: number;
   dimensions?: MediaDimensions;
   thumbnails?: MediaThumbnails;
-  metadata: MediaMetadata;
+  metadata?: MediaMetadata;
   uploaded_by: string;
   uploaded_at: number;
 }

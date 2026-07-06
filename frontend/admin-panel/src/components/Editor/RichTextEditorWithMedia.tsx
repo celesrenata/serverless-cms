@@ -36,8 +36,8 @@ export const RichTextEditorWithMedia: React.FC<RichTextEditorWithMediaProps> = (
       // Insert image at current cursor position
       editorRef.current.chain().focus().setImage({ 
         src: imageUrl,
-        alt: media.metadata.alt_text || media.filename,
-        title: media.metadata.caption || media.filename,
+        alt: media.metadata?.alt_text || media.filename,
+        title: media.metadata?.caption || media.filename,
       }).run();
     }
     setIsMediaPickerOpen(false);

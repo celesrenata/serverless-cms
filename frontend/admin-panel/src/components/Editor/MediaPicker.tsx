@@ -21,7 +21,7 @@ export const MediaPicker: React.FC<MediaPickerProps> = ({ isOpen, onClose, onSel
   // Filter media by search term
   const filteredMedia = mediaList?.items.filter((media) =>
     media.filename.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    media.metadata.alt_text?.toLowerCase().includes(searchTerm.toLowerCase())
+    media.metadata?.alt_text?.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
   // Close on escape key
@@ -127,7 +127,7 @@ const MediaItem: React.FC<MediaItemProps> = ({ media, onSelect }) => {
       {isImage ? (
         <img
           src={thumbnailUrl}
-          alt={media.metadata.alt_text || media.filename}
+          alt={media.metadata?.alt_text || media.filename}
           className="w-full h-full object-cover"
         />
       ) : (
