@@ -705,7 +705,8 @@ class WordPressMigrator:
                     "s3_url": s3_url(MEDIA_BUCKET, self.region, key),
                     "mime_type": guess_mime_type(filename),
                     "size": 0,
-                    "metadata": {"alt_text": alt_text or pic_description},
+                    # Prefer description over placeholder alt text (e.g., ".", whitespace-only)
+                    "metadata": {"alt_text": alt_text if alt_text and alt_text.strip() not in ('', '.') else pic_description},
                     "uploaded_by": admin_user_id,
                     "uploaded_at": uploaded_at,
                 })
