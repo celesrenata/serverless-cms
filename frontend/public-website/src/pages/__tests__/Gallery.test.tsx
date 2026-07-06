@@ -13,14 +13,6 @@ vi.mock('../../hooks/useSiteSettings', () => ({
   useSiteSettings: vi.fn(),
 }));
 
-vi.mock('../../components/Lightbox', () => ({
-  Lightbox: ({ onClose }: { onClose: () => void }) => (
-    <div data-testid="lightbox">
-      <button onClick={onClose}>Close</button>
-    </div>
-  ),
-}));
-
 import { useContentList } from '../../hooks/useContent';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 
@@ -74,7 +66,7 @@ describe('Gallery', () => {
     } as any);
   });
 
-  it('renders gallery items in grid layout after data loads', () => {
+  it('renders album cards in grid layout after data loads', () => {
     const galleries = [
       createMockContent({
         id: 'gallery-1',
@@ -95,13 +87,17 @@ describe('Gallery', () => {
 
     renderGallery();
 
-    // Gallery title renders
+    // Album card title renders
     expect(screen.getByRole('heading', { name: 'Nature Photos' })).toBeInTheDocument();
-    // Gallery excerpt renders
+    // Album card excerpt renders
     expect(screen.getByText('Beautiful nature photography')).toBeInTheDocument();
-    // Images render with alt text
+    // Cover image renders with first media alt text
     expect(screen.getByAltText('A beautiful sunset')).toBeInTheDocument();
-    expect(screen.getByAltText('Mountain landscape')).toBeInTheDocument();
+    // Image count badge renders
+    expect(screen.getByText('2 images')).toBeInTheDocument();
+    // Link navigates to album page
+    const link = screen.getByRole('link', { name: /Nature Photos/i });
+    expect(link).toHaveAttribute('href', '/gallery/nature-photos');
   });
 
   it('renders page heading', () => {
@@ -141,6 +137,130 @@ describe('Gallery', () => {
 
     renderGallery();
 
-    expect(screen.getByText('No galleries found.')).toBeInTheDocument();
+    expect(screen.getByText('No galleries are available yet.')).toBeInTheDocument();
+  });
+
+  it('renders the correct number of album cards', () => {
+    const galleries = [
+      createMockContent({
+        id: 'gallery-1',
+        type: 'gallery',
+        title: 'Nature Photos',
+        slug: 'nature-photos',
+        excerpt: 'Nature shots',
+        metadata: { media: mockMedia },
+      }),
+      createMockContent({
+        id: 'gallery-2',
+        type: 'gallery',
+        title: 'City Landscapes',
+        slug: 'city-landscapes',
+        excerpt: 'Urban photography',
+        metadata: { media: [mockMedia[0]] },
+      }),
+      createMockContent({
+        id: 'gallery-3',
+        type: 'gallery',
+        title: 'Portraits',
+        slug: 'portraits',
+        excerpt: 'Portrait collection',
+        metadata: { media: mockMedia },
+      }),
+    ];
+
+    mockUseContentList.mockReturnValue({
+      data: { items: galleries, last_key: undefined },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as any);
+
+    renderGallery();
+
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(3);
+  });
+
+  it('renders album cards as <a> elements (semantic links)', () => {
+    const galleries = [
+      createMockContent({
+        id: 'gallery-1',
+        type: 'gallery',
+        title: 'Nature Photos',
+        slug: 'nature-photos',
+        excerpt: 'Nature shots',
+        metadata: { media: mockMedia },
+      }),
+    ];
+
+    mockUseContentList.mockReturnValue({
+      data: { items: galleries, last_key: undefined },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as any);
+
+    renderGallery();
+
+    const link = screen.getByRole('link', { name: /Nature Photos/i });
+    expect(link.tagName).toBe('A');
+    expect(link).toHaveAttribute('href', '/gallery/nature-photos');
+  });
+
+  it('applies responsive grid classes', () => {
+    const galleries = [
+      createMockContent({
+        id: 'gallery-1',
+        type: 'gallery',
+        title: 'Nature Photos',
+        slug: 'nature-photos',
+        excerpt: 'Nature shots',
+        metadata: { media: mockMedia },
+      }),
+    ];
+
+    mockUseContentList.mockReturnValue({
+      data: { items: galleries, last_key: undefined },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as any);
+
+    renderGallery();
+
+    const grid = screen.getByRole('link', { name: /Nature Photos/i }).parentElement;
+    expect(grid).toHaveClass('grid');
+    expect(grid).toHaveClass('grid-cols-1');
+    expect(grid).toHaveClass('sm:grid-cols-2');
+    expect(grid).toHaveClass('lg:grid-cols-3');
+  });
+
+  it('applies hover feedback classes on album cards', () => {
+    const galleries = [
+      createMockContent({
+        id: 'gallery-1',
+        type: 'gallery',
+        title: 'Nature Photos',
+        slug: 'nature-photos',
+        excerpt: 'Nature shots',
+        metadata: { media: mockMedia },
+      }),
+    ];
+
+    mockUseContentList.mockReturnValue({
+      data: { items: galleries, last_key: undefined },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as any);
+
+    renderGallery();
+
+    const link = screen.getByRole('link', { name: /Nature Photos/i });
+    // Card has hover shadow transition class
+    expect(link).toHaveClass('hover:shadow-lg');
+    // Image inside has hover scale class via group-hover
+    const img = screen.getByAltText('A beautiful sunset');
+    expect(img).toHaveClass('group-hover:scale-105');
   });
 });

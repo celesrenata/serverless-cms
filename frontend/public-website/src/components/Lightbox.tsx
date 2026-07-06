@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import { Media } from '../types';
+import { useSwipe } from '../hooks/useSwipe';
+import { formatPositionIndicator } from '../utils/galleryUtils';
+import type { Media } from '../types';
 
 interface LightboxProps {
   images: Media[];
@@ -18,6 +20,8 @@ export const Lightbox = ({
 }: LightboxProps) => {
   const currentImage = images[currentIndex];
 
+  const swipeHandlers = useSwipe({ onSwipeLeft: onNext, onSwipeRight: onPrevious });
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -34,6 +38,8 @@ export const Lightbox = ({
   return (
     <div
       className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center"
+      role="dialog"
+      aria-modal="true"
       onClick={onClose}
     >
       {/* Close Button */}
@@ -83,24 +89,30 @@ export const Lightbox = ({
         </button>
       )}
 
-      {/* Image */}
+      {/* Image Container with swipe support */}
       <div
-        className="max-w-7xl max-h-screen p-4"
+        className="relative max-w-7xl max-h-screen p-4"
         onClick={(e) => e.stopPropagation()}
+        {...swipeHandlers}
+        style={{ touchAction: 'pan-y' }}
       >
+        {/* Position Indicator - top-right */}
+        <span className="absolute top-2 right-2 text-white text-sm bg-black/50 px-2 py-1 rounded z-10">
+          {formatPositionIndicator(currentIndex, images.length)}
+        </span>
+
         <img
           src={currentImage.s3_url}
           alt={currentImage.metadata?.alt_text || currentImage.filename}
           className="max-w-full max-h-[90vh] object-contain"
         />
+
+        {/* Caption Overlay - only when caption is non-empty */}
         {currentImage.metadata?.caption && (
-          <p className="text-white text-center mt-4">
-            {currentImage.metadata.caption}
-          </p>
+          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-4 py-2">
+            <p>{currentImage.metadata.caption}</p>
+          </div>
         )}
-        <p className="text-gray-400 text-center text-sm mt-2">
-          {currentIndex + 1} / {images.length}
-        </p>
       </div>
 
       {/* Next Button */}

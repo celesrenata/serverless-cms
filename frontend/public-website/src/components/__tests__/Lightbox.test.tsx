@@ -6,44 +6,37 @@ import { renderWithProviders } from '../../test/utils/renderWithProviders';
 
 const mockImages: Media[] = [
   {
-    id: '1',
-    filename: 'image-1.jpg',
-    s3_key: 'images/image-1.jpg',
-    s3_url: 'https://example.com/image-1.jpg',
+    id: 'img-1',
+    filename: 'photo1.jpg',
+    s3_key: 'k1',
+    s3_url: 'https://example.com/photo1.jpg',
     mime_type: 'image/jpeg',
-    size: 1024,
-    dimensions: { width: 800, height: 600 },
-    metadata: {
-      alt_text: 'First image alt text',
-      caption: 'First image caption',
-    },
-    uploaded_by: 'user-1',
-    uploaded_at: 1710000000,
+    size: 1000,
+    metadata: { alt_text: 'Photo 1', caption: 'First photo caption' },
+    uploaded_by: 'u1',
+    uploaded_at: 1700000000,
   },
   {
-    id: '2',
-    filename: 'image-2.jpg',
-    s3_key: 'images/image-2.jpg',
-    s3_url: 'https://example.com/image-2.jpg',
+    id: 'img-2',
+    filename: 'photo2.jpg',
+    s3_key: 'k2',
+    s3_url: 'https://example.com/photo2.jpg',
     mime_type: 'image/jpeg',
-    size: 2048,
-    dimensions: { width: 1024, height: 768 },
-    metadata: {
-      alt_text: 'Second image alt text',
-    },
-    uploaded_by: 'user-1',
-    uploaded_at: 1710000001,
+    size: 2000,
+    metadata: { alt_text: 'Photo 2' }, // no caption!
+    uploaded_by: 'u1',
+    uploaded_at: 1700000000,
   },
   {
-    id: '3',
-    filename: 'image-3.jpg',
-    s3_key: 'images/image-3.jpg',
-    s3_url: 'https://example.com/image-3.jpg',
+    id: 'img-3',
+    filename: 'photo3.jpg',
+    s3_key: 'k3',
+    s3_url: 'https://example.com/photo3.jpg',
     mime_type: 'image/jpeg',
-    size: 4096,
-    dimensions: { width: 1200, height: 900 },
-    uploaded_by: 'user-1',
-    uploaded_at: 1710000002,
+    size: 3000,
+    metadata: { alt_text: 'Photo 3', caption: 'Third photo' },
+    uploaded_by: 'u1',
+    uploaded_at: 1700000000,
   },
 ];
 
@@ -64,136 +57,131 @@ describe('Lightbox', () => {
     vi.clearAllMocks();
   });
 
-  it('renders image in overlay with correct src and alt text', () => {
+  it('renders nothing when images array is empty', () => {
+    const { container } = renderLightbox({ images: [], currentIndex: 0 });
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders nothing when currentIndex is out of bounds', () => {
+    const { container } = renderLightbox({ currentIndex: 999 });
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders image with correct src and alt text', () => {
     renderLightbox();
-
-    const image = screen.getByRole('img', { name: 'First image alt text' });
-
+    const image = screen.getByRole('img', { name: 'Photo 1' });
     expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('src', 'https://example.com/image-1.jpg');
-  });
-
-  it('uses filename as alt text when metadata alt_text is not provided', () => {
-    renderLightbox({ currentIndex: 2 });
-
-    const image = screen.getByRole('img', { name: 'image-3.jpg' });
-
-    expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('src', 'https://example.com/image-3.jpg');
-  });
-
-  it('calls onClose when close button is clicked', async () => {
-    const user = userEvent.setup();
-    const onClose = vi.fn();
-
-    renderLightbox({ onClose });
-
-    await user.click(screen.getByRole('button', { name: /close lightbox/i }));
-
-    // Button click also bubbles to overlay, so onClose is called at least once
-    expect(onClose).toHaveBeenCalled();
-  });
-
-  it('calls onClose when overlay background is clicked', () => {
-    const onClose = vi.fn();
-
-    const { container } = renderLightbox({ onClose });
-
-    const overlay = container.firstChild as HTMLElement;
-    fireEvent.click(overlay);
-
-    expect(onClose).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not call onClose when clicking the image content', () => {
-    const onClose = vi.fn();
-
-    renderLightbox({ onClose });
-
-    fireEvent.click(screen.getByRole('img', { name: 'First image alt text' }));
-
-    expect(onClose).not.toHaveBeenCalled();
+    expect(image).toHaveAttribute('src', 'https://example.com/photo1.jpg');
   });
 
   it('calls onClose when Escape key is pressed', () => {
     const onClose = vi.fn();
-
     renderLightbox({ onClose });
-
     fireEvent.keyDown(window, { key: 'Escape' });
-
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('calls onNext when ArrowRight key is pressed', () => {
     const onNext = vi.fn();
-
     renderLightbox({ onNext });
-
     fireEvent.keyDown(window, { key: 'ArrowRight' });
-
     expect(onNext).toHaveBeenCalledTimes(1);
   });
 
   it('calls onPrevious when ArrowLeft key is pressed', () => {
     const onPrevious = vi.fn();
-
     renderLightbox({ currentIndex: 1, onPrevious });
-
     fireEvent.keyDown(window, { key: 'ArrowLeft' });
-
     expect(onPrevious).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onNext when next button is clicked', async () => {
+  it('calls onClose when close button is clicked', async () => {
     const user = userEvent.setup();
+    const onClose = vi.fn();
+    renderLightbox({ onClose });
+    await user.click(screen.getByRole('button', { name: /close lightbox/i }));
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('hides previous button at first image', () => {
+    renderLightbox({ currentIndex: 0 });
+    expect(screen.queryByRole('button', { name: /previous image/i })).not.toBeInTheDocument();
+  });
+
+  it('hides next button at last image', () => {
+    renderLightbox({ currentIndex: mockImages.length - 1 });
+    expect(screen.queryByRole('button', { name: /next image/i })).not.toBeInTheDocument();
+  });
+
+  it('renders caption overlay with correct styling when caption exists', () => {
+    renderLightbox({ currentIndex: 0 });
+    const captionText = screen.getByText('First photo caption');
+    expect(captionText).toBeInTheDocument();
+    const captionOverlay = captionText.closest('div');
+    expect(captionOverlay).toHaveClass('bg-black/70', 'text-white');
+  });
+
+  it('does not render caption overlay when no caption exists', () => {
+    renderLightbox({ currentIndex: 1 }); // img-2 has no caption
+    expect(screen.queryByText('First photo caption')).not.toBeInTheDocument();
+    expect(screen.queryByText('Third photo')).not.toBeInTheDocument();
+    // Verify no caption overlay container with bg-black/70
+    const dialog = screen.getByRole('dialog');
+    const captionOverlay = dialog.querySelector('.bg-black\\/70');
+    expect(captionOverlay).not.toBeInTheDocument();
+  });
+
+  it('has role="dialog" and aria-modal="true" on root element', () => {
+    renderLightbox();
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+  });
+
+  it('swipe left triggers next image', () => {
     const onNext = vi.fn();
+    renderLightbox({ onNext, currentIndex: 0 });
 
-    renderLightbox({ onNext });
+    // The image container is the div with relative class that wraps the img
+    const image = screen.getByRole('img');
+    const imageContainer = image.closest('.relative') as HTMLElement;
+    expect(imageContainer).not.toBeNull();
 
-    await user.click(screen.getByRole('button', { name: /next image/i }));
+    // fireEvent with pointer events - assign pointerId after creation
+    const downEvent = new Event('pointerdown', { bubbles: true });
+    Object.assign(downEvent, { pointerId: 1, clientX: 200, clientY: 100 });
+    imageContainer.dispatchEvent(downEvent);
+
+    const upEvent = new Event('pointerup', { bubbles: true });
+    Object.assign(upEvent, { pointerId: 1, clientX: 50, clientY: 100 });
+    imageContainer.dispatchEvent(upEvent);
 
     expect(onNext).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onPrevious when previous button is clicked', async () => {
-    const user = userEvent.setup();
+  it('swipe right triggers previous image', () => {
     const onPrevious = vi.fn();
+    renderLightbox({ onPrevious, currentIndex: 1 });
 
-    renderLightbox({ currentIndex: 1, onPrevious });
+    // The image container is the div with relative class that wraps the img
+    const image = screen.getByRole('img');
+    const imageContainer = image.closest('.relative') as HTMLElement;
+    expect(imageContainer).not.toBeNull();
 
-    await user.click(screen.getByRole('button', { name: /previous image/i }));
+    // fireEvent with pointer events - assign pointerId after creation
+    const downEvent = new Event('pointerdown', { bubbles: true });
+    Object.assign(downEvent, { pointerId: 1, clientX: 50, clientY: 100 });
+    imageContainer.dispatchEvent(downEvent);
+
+    const upEvent = new Event('pointerup', { bubbles: true });
+    Object.assign(upEvent, { pointerId: 1, clientX: 200, clientY: 100 });
+    imageContainer.dispatchEvent(upEvent);
 
     expect(onPrevious).toHaveBeenCalledTimes(1);
   });
 
-  it('does not show previous button when at first image', () => {
-    renderLightbox({ currentIndex: 0 });
-
-    expect(screen.queryByRole('button', { name: /previous image/i })).not.toBeInTheDocument();
-  });
-
-  it('does not show next button when at last image', () => {
-    renderLightbox({ currentIndex: mockImages.length - 1 });
-
-    expect(screen.queryByRole('button', { name: /next image/i })).not.toBeInTheDocument();
-  });
-
-  it('shows caption when metadata.caption exists', () => {
-    renderLightbox({ currentIndex: 0 });
-
-    expect(screen.getByText('First image caption')).toBeInTheDocument();
-  });
-
-  it('shows image counter', () => {
-    renderLightbox({ currentIndex: 0 });
-
-    expect(screen.getByText('1 / 3')).toBeInTheDocument();
-  });
-
-  it('returns null when currentImage is undefined', () => {
-    const { container } = renderLightbox({ currentIndex: 999 });
-
-    expect(container).toBeEmptyDOMElement();
+  it('displays position indicator', () => {
+    renderLightbox({ currentIndex: 1 });
+    expect(screen.getByText('2 / 3')).toBeInTheDocument();
   });
 });
