@@ -113,19 +113,18 @@ describe('Lightbox', () => {
     expect(screen.queryByRole('button', { name: /next image/i })).not.toBeInTheDocument();
   });
 
-  it('renders caption in unified card below the image when caption exists', () => {
+  it('renders caption directly below the image when caption exists', () => {
     renderLightbox({ currentIndex: 0 });
     const captionText = screen.getByText('First photo caption');
     expect(captionText).toBeInTheDocument();
-    const captionContainer = captionText.closest('div');
-    expect(captionContainer).toHaveClass('px-6', 'py-4');
+    expect(captionText).toHaveClass('text-gray-200', 'text-center', 'mt-4');
   });
 
   it('shows alt_text as caption fallback when descriptive and no caption set', () => {
     renderLightbox({ currentIndex: 1 }); // img-2 has alt_text: 'Photo 2' but no caption
-    expect(screen.getByText('Photo 2')).toBeInTheDocument();
-    const captionContainer = screen.getByText('Photo 2').closest('div');
-    expect(captionContainer).toHaveClass('px-6', 'py-4');
+    const captionEl = screen.getByText('Photo 2');
+    expect(captionEl).toBeInTheDocument();
+    expect(captionEl).toHaveClass('text-gray-200', 'text-center', 'mt-4');
   });
 
   it('does not render caption panel when alt_text is a filename', () => {

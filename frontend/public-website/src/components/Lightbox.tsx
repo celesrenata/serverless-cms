@@ -102,24 +102,19 @@ export const Lightbox = ({
           </span>
         </div>
 
-        {/* Image + Caption as one unified block */}
-        <div className="bg-black overflow-hidden w-full max-w-4xl">
-          {/* Image */}
-          <img
-            src={currentImage.s3_url}
-            alt={captionText && currentImage.metadata?.alt_text === captionText
-              ? currentImage.filename
-              : (currentImage.metadata?.alt_text || currentImage.filename)}
-            className="w-full max-h-[70vh] object-contain bg-black"
-          />
+        {/* Image */}
+        <img
+          src={currentImage.s3_url}
+          alt={captionText && currentImage.metadata?.alt_text === captionText
+            ? currentImage.filename
+            : (currentImage.metadata?.alt_text || currentImage.filename)}
+          className="max-w-full max-h-[70vh] object-contain"
+        />
 
-          {/* Caption - part of the same card, directly below image */}
-          {captionText && (
-            <div className="px-6 py-4">
-              <p className="text-gray-200 text-sm leading-relaxed text-center">{captionText}</p>
-            </div>
-          )}
-        </div>
+        {/* Caption - directly below image */}
+        {captionText && (
+          <p className="text-gray-200 text-sm leading-relaxed text-center mt-4 max-w-2xl px-4">{captionText}</p>
+        )}
       </div>
 
       {/* Next Button */}
