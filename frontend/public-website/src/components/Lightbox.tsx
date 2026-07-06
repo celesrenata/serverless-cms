@@ -47,7 +47,7 @@ export const Lightbox = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center"
+      className="fixed inset-0 z-50 bg-black flex items-center justify-center"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
@@ -58,102 +58,67 @@ export const Lightbox = ({
         className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
         aria-label="Close lightbox"
       >
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
-          />
+        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
       {/* Previous Button */}
       {currentIndex > 0 && (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onPrevious();
-          }}
+          onClick={(e) => { e.stopPropagation(); onPrevious(); }}
           className="absolute left-4 text-white hover:text-gray-300 z-10"
           aria-label="Previous image"
         >
-          <svg
-            className="w-12 h-12"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
+          <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
       )}
 
-      {/* Image + Caption layout */}
+      {/* Unified image + caption card */}
       <div
-        className="flex flex-col items-center max-w-7xl max-h-screen p-4"
+        className="flex flex-col items-center max-w-5xl w-full mx-4"
         onClick={(e) => e.stopPropagation()}
         {...swipeHandlers}
         style={{ touchAction: 'pan-y' }}
       >
         {/* Position Indicator */}
         <div className="self-end mb-2">
-          <span className="text-white text-sm bg-black/50 px-2 py-1 rounded">
+          <span className="text-gray-400 text-sm">
             {formatPositionIndicator(currentIndex, images.length)}
           </span>
         </div>
 
-        {/* Image */}
-        <img
-          src={currentImage.s3_url}
-          alt={captionText && currentImage.metadata?.alt_text === captionText
-            ? currentImage.filename
-            : (currentImage.metadata?.alt_text || currentImage.filename)}
-          className="max-w-full max-h-[75vh] object-contain"
-        />
+        {/* Image + Caption as one unified block */}
+        <div className="bg-gray-950 rounded-lg overflow-hidden shadow-2xl w-full max-w-4xl">
+          {/* Image */}
+          <img
+            src={currentImage.s3_url}
+            alt={captionText && currentImage.metadata?.alt_text === captionText
+              ? currentImage.filename
+              : (currentImage.metadata?.alt_text || currentImage.filename)}
+            className="w-full max-h-[70vh] object-contain bg-black"
+          />
 
-        {/* Caption - separate box below the image */}
-        {captionText && (
-          <div className="mt-4 max-w-2xl bg-gray-900 rounded-lg px-5 py-4 text-center shadow-lg">
-            <p className="text-gray-100 text-sm leading-relaxed border border-gray-600 rounded px-4 py-2">
-              {captionText}
-            </p>
-          </div>
-        )}
+          {/* Caption - part of the same card, directly below image */}
+          {captionText && (
+            <div className="px-6 py-4 border-t border-gray-800">
+              <p className="text-gray-200 text-sm leading-relaxed text-center">{captionText}</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Next Button */}
       {currentIndex < images.length - 1 && (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onNext();
-          }}
+          onClick={(e) => { e.stopPropagation(); onNext(); }}
           className="absolute right-4 text-white hover:text-gray-300 z-10"
           aria-label="Next image"
         >
-          <svg
-            className="w-12 h-12"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
+          <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
       )}
