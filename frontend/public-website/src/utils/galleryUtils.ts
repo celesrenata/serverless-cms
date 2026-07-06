@@ -78,5 +78,8 @@ export function formatPositionIndicator(index: number, total: number): string {
 }
 
 export function shouldShowCaption(media: Media): boolean {
-  return typeof media.metadata?.caption === 'string' && media.metadata.caption.length > 0;
+  const caption = media.metadata?.caption ?? '';
+  if (caption.length > 0) return true;
+  const alt = media.metadata?.alt_text ?? '';
+  return alt.length > 3 && !/^\w+\.\w{2,4}$/.test(alt) && alt !== '.';
 }

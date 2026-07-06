@@ -121,11 +121,28 @@ describe('Lightbox', () => {
     expect(captionOverlay).toHaveClass('bg-black/70', 'text-white');
   });
 
-  it('does not render caption overlay when no caption exists', () => {
-    renderLightbox({ currentIndex: 1 }); // img-2 has no caption
-    expect(screen.queryByText('First photo caption')).not.toBeInTheDocument();
-    expect(screen.queryByText('Third photo')).not.toBeInTheDocument();
-    // Verify no caption overlay container with bg-black/70
+  it('shows alt_text as caption fallback when descriptive and no caption set', () => {
+    renderLightbox({ currentIndex: 1 }); // img-2 has alt_text: 'Photo 2' but no caption
+    expect(screen.getByText('Photo 2')).toBeInTheDocument();
+    const captionOverlay = screen.getByText('Photo 2').closest('div');
+    expect(captionOverlay).toHaveClass('bg-black/70', 'text-white');
+  });
+
+  it('does not render caption overlay when alt_text is a filename', () => {
+    const filenameAltImages: Media[] = [
+      {
+        id: 'img-fn',
+        filename: 'sunset.jpg',
+        s3_key: 'k-fn',
+        s3_url: 'https://example.com/sunset.jpg',
+        mime_type: 'image/jpeg',
+        size: 1000,
+        metadata: { alt_text: 'sunset.jpg' }, // filename, not descriptive
+        uploaded_by: 'u1',
+        uploaded_at: 1700000000,
+      },
+    ];
+    renderLightbox({ images: filenameAltImages, currentIndex: 0 });
     const dialog = screen.getByRole('dialog');
     const captionOverlay = dialog.querySelector('.bg-black\\/70');
     expect(captionOverlay).not.toBeInTheDocument();

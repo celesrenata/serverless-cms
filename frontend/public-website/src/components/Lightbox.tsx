@@ -35,6 +35,16 @@ export const Lightbox = ({
 
   if (!currentImage) return null;
 
+  // Determine caption text: prefer explicit caption, fall back to alt_text if descriptive
+  const captionText = (() => {
+    const caption = currentImage.metadata?.caption ?? '';
+    if (caption) return caption;
+    const alt = currentImage.metadata?.alt_text ?? '';
+    // Only use alt_text as caption if it's descriptive (not a filename, not ".", not too short)
+    if (alt.length > 3 && !/^\w+\.\w{2,4}$/.test(alt) && alt !== '.') return alt;
+    return '';
+  })();
+
   return (
     <div
       className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center"
@@ -103,14 +113,16 @@ export const Lightbox = ({
 
         <img
           src={currentImage.s3_url}
-          alt={currentImage.metadata?.alt_text || currentImage.filename}
+          alt={captionText && currentImage.metadata?.alt_text === captionText
+            ? currentImage.filename
+            : (currentImage.metadata?.alt_text || currentImage.filename)}
           className="max-w-full max-h-[90vh] object-contain"
         />
 
-        {/* Caption Overlay - only when caption is non-empty */}
-        {currentImage.metadata?.caption && (
+        {/* Caption Overlay - show caption, falling back to alt_text if descriptive */}
+        {captionText && (
           <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-4 py-2">
-            <p>{currentImage.metadata.caption}</p>
+            <p>{captionText}</p>
           </div>
         )}
       </div>
