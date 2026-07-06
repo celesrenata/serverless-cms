@@ -91,7 +91,7 @@ export const Lightbox = ({
         </div>
 
         {/* Image + Caption as one unified block */}
-        <div className="bg-gray-950 rounded-lg overflow-hidden shadow-2xl w-full max-w-4xl">
+        <div className="bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-800 w-full max-w-4xl">
           {/* Image */}
           <img
             src={currentImage.s3_url}
@@ -103,7 +103,7 @@ export const Lightbox = ({
 
           {/* Caption - part of the same card, directly below image */}
           {captionText && (
-            <div className="px-6 py-4 border-t border-gray-800">
+            <div className="px-6 py-4 border-t border-gray-700">
               <p className="text-gray-200 text-sm leading-relaxed text-center">{captionText}</p>
             </div>
           )}
