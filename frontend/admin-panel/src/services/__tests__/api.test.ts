@@ -104,7 +104,7 @@ describe('API Service', () => {
         headers: { 'Content-Type': 'application/json' },
       });
       expect(mocked.instance.interceptors.request.use).toHaveBeenCalledTimes(1);
-      expect(mocked.instance.interceptors.response.use).toHaveBeenCalledTimes(1);
+      expect(mocked.instance.interceptors.response.use).toHaveBeenCalledTimes(2);
     });
   });
 
