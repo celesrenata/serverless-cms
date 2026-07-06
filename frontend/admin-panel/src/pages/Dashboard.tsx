@@ -7,16 +7,16 @@ import { useAuth } from '../hooks/useAuthContext';
 export function Dashboard() {
   const { isAuthenticated } = useAuth();
 
-  // Fetch statistics - only when authenticated
-  const { data: contentList } = useQuery({
-    queryKey: ['content', 'all'],
-    queryFn: () => api.listContent({ limit: 100 }),
+  // Fetch content stats (small limit, we just need the counts from API)
+  const { data: contentStats } = useQuery({
+    queryKey: ['content', 'stats'],
+    queryFn: () => api.listContent({ limit: 1 }),
     enabled: isAuthenticated,
   });
 
-  const { data: mediaList } = useQuery({
-    queryKey: ['media', 'all'],
-    queryFn: () => api.listMedia({ limit: 100 }),
+  const { data: mediaStats } = useQuery({
+    queryKey: ['media', 'stats'],
+    queryFn: () => api.listMedia({ limit: 1 }),
     enabled: isAuthenticated,
   });
 
@@ -36,13 +36,13 @@ export function Dashboard() {
   const stats = [
     {
       label: 'Total Content',
-      value: contentList?.items.length || 0,
+      value: contentStats?.total_count ?? 0,
       icon: '📝',
       color: 'bg-blue-500',
     },
     {
       label: 'Media Files',
-      value: mediaList?.items.length || 0,
+      value: mediaStats?.total_count ?? 0,
       icon: '🖼️',
       color: 'bg-green-500',
     },
@@ -54,7 +54,7 @@ export function Dashboard() {
     },
     {
       label: 'Published',
-      value: contentList?.items.filter((c: Content) => c.status === 'published').length || 0,
+      value: contentStats?.published_count ?? 0,
       icon: '✅',
       color: 'bg-yellow-500',
     },

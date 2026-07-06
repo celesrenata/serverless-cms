@@ -10,6 +10,8 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+from boto3.dynamodb.conditions import Attr
+
 from shared.db import ContentRepository, UserRepository
 from shared.s3 import convert_s3_url_to_cdn
 
@@ -66,6 +68,30 @@ def handler(event, context):
         if limit < 1 or limit > 100:
             limit = 20
         
+        # Get total counts for dashboard statistics
+        count_response = content_repo.table.scan(Select='COUNT')
+        total_count = count_response.get('Count', 0)
+        while 'LastEvaluatedKey' in count_response:
+            count_response = content_repo.table.scan(
+                Select='COUNT',
+                ExclusiveStartKey=count_response['LastEvaluatedKey']
+            )
+            total_count += count_response.get('Count', 0)
+
+        # Published count
+        pub_response = content_repo.table.scan(
+            Select='COUNT',
+            FilterExpression=Attr('status').eq('published')
+        )
+        published_count = pub_response.get('Count', 0)
+        while 'LastEvaluatedKey' in pub_response:
+            pub_response = content_repo.table.scan(
+                Select='COUNT',
+                FilterExpression=Attr('status').eq('published'),
+                ExclusiveStartKey=pub_response['LastEvaluatedKey']
+            )
+            published_count += pub_response.get('Count', 0)
+
         # Get content from repository
         result = content_repo.list_by_type(
             content_type=content_type,
@@ -129,7 +155,9 @@ def handler(event, context):
         response_data = {
             'items': items,
             'count': len(items),
-            'last_key': result['last_key']
+            'last_key': result['last_key'],
+            'total_count': total_count,
+            'published_count': published_count,
         }
         
         return {
