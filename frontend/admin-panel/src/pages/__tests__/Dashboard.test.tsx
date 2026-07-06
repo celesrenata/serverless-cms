@@ -23,6 +23,8 @@ describe('Dashboard', () => {
         { id: 'content-3', title: 'Published Post Two', status: 'published', type: 'page', slug: 'pub-2', content: '', excerpt: '', author: 'u1', author_name: 'Author', featured_image: '', metadata: {}, created_at: 1700000000, updated_at: 1700000000, published_at: 1700000000 },
         { id: 'content-4', title: 'Archived Post', status: 'archived', type: 'post', slug: 'arch-1', content: '', excerpt: '', author: 'u1', author_name: 'Author', featured_image: '', metadata: {}, created_at: 1700000000, updated_at: 1700000000, published_at: 0 },
       ],
+      total_count: 4,
+      published_count: 2,
     };
 
     const mediaList = {
@@ -31,6 +33,7 @@ describe('Dashboard', () => {
         { id: 'media-2', filename: 'image-2.png', s3_key: 'k2', s3_url: 'http://example.com/2.png', mime_type: 'image/png', size: 2000, uploaded_by: 'u1', uploaded_at: 1700000000 },
         { id: 'media-3', filename: 'image-3.png', s3_key: 'k3', s3_url: 'http://example.com/3.png', mime_type: 'image/png', size: 3000, uploaded_by: 'u1', uploaded_at: 1700000000 },
       ],
+      total_count: 3,
     };
 
     const users = [
