@@ -34,7 +34,7 @@ export const useRichTextEditor = ({
       const imageUrl = media.thumbnails?.large || media.s3_url;
       editorInstance.chain().focus().setImage({ 
         src: imageUrl,
-        alt: media.metadata.alt_text || media.filename 
+        alt: media.metadata?.alt_text || media.filename 
       }).run();
     }
     closeMediaPicker();
