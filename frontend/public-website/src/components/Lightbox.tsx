@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useSwipe } from '../hooks/useSwipe';
 import { formatPositionIndicator } from '../utils/galleryUtils';
 import type { Media } from '../types';
@@ -33,6 +34,13 @@ export const Lightbox = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrevious]);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   if (!currentImage) return null;
 
   // Determine caption text: prefer explicit caption, fall back to alt_text if descriptive
@@ -49,7 +57,7 @@ export const Lightbox = ({
     return alt;
   })();
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 bg-black flex items-center justify-center"
       role="dialog"
@@ -126,6 +134,7 @@ export const Lightbox = ({
           </svg>
         </button>
       )}
-    </div>
+    </div>,
+    document.body
   );
 };
