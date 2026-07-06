@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import './index.css';
+import './styles/wp-content.css';
 // Import theme CSS files
 import './themes/dark.css';
 import './themes/light.css';

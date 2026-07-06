@@ -8,6 +8,7 @@ import { CommentForm } from '../components/CommentForm';
 import { CommentList } from '../components/CommentList';
 import { Content } from '../types';
 import { extractFirstImageFromContent } from '../utils/contentUtils';
+import { sanitizeWordPressContent } from '../utils/sanitizeContent';
 
 export const Post = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -146,8 +147,8 @@ export const Post = () => {
 
           {/* Post Content */}
           <div
-            className="prose prose-lg max-w-none mb-12"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            className="wp-content prose prose-slate prose-lg max-w-none mb-12 prose-img:rounded-lg prose-img:mx-auto prose-img:max-w-full prose-pre:max-w-full prose-pre:overflow-x-auto prose-a:break-words"
+            dangerouslySetInnerHTML={{ __html: sanitizeWordPressContent(post.content) }}
           />
 
           {/* Related Posts */}
