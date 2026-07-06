@@ -17,7 +17,7 @@ export const MediaItem: React.FC<MediaItemProps> = ({
 }) => {
   const isImage = media.mime_type.startsWith('image/');
   const thumbnailUrl = media.thumbnails?.medium || media.s3_url;
-  const fileSize = (Number(media.size) / 1024).toFixed(2);
+  const fileSize = Number(media.size) > 0 ? (Number(media.size) / 1024).toFixed(0) + ' KB' : '';
 
   return (
     <div
@@ -60,8 +60,9 @@ export const MediaItem: React.FC<MediaItemProps> = ({
           {media.filename}
         </p>
         <p className="text-xs text-gray-500 mt-1">
-          {fileSize} KB
-          {media.dimensions && ` • ${media.dimensions.width}×${media.dimensions.height}`}
+          {fileSize || media.mime_type.split('/')[1]?.toUpperCase() || ''}
+          {fileSize && media.dimensions && ' • '}
+          {media.dimensions && `${media.dimensions.width}×${media.dimensions.height}`}
         </p>
       </div>
 

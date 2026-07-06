@@ -123,19 +123,19 @@ export const MediaLibrary: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-sm text-gray-600">Total Files</div>
-          <div className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</div>
+          <div className="text-2xl font-bold text-gray-900 mt-1">{stats.total}{hasNextPage ? '+' : ''}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-sm text-gray-600">Images</div>
-          <div className="text-2xl font-bold text-blue-600 mt-1">{stats.images}</div>
+          <div className="text-2xl font-bold text-blue-600 mt-1">{stats.images}{hasNextPage ? '+' : ''}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-sm text-gray-600">Videos</div>
-          <div className="text-2xl font-bold text-purple-600 mt-1">{stats.videos}</div>
+          <div className="text-2xl font-bold text-purple-600 mt-1">{stats.videos}{hasNextPage ? '+' : ''}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-sm text-gray-600">Documents</div>
-          <div className="text-2xl font-bold text-green-600 mt-1">{stats.documents}</div>
+          <div className="text-2xl font-bold text-green-600 mt-1">{stats.documents}{hasNextPage ? '+' : ''}</div>
         </div>
       </div>
 
@@ -342,9 +342,9 @@ export const MediaLibrary: React.FC = () => {
             <div className="absolute bottom-4 left-4 right-4 bg-white bg-opacity-90 rounded-lg p-4">
               <p className="font-medium text-gray-900">{previewMedia.filename}</p>
               <p className="text-sm text-gray-600 mt-1">
-                {(Number(previewMedia.size) / 1024).toFixed(2)} KB
-                {previewMedia.dimensions &&
-                  ` • ${previewMedia.dimensions.width}×${previewMedia.dimensions.height}`}
+                {Number(previewMedia.size) > 0 && `${(Number(previewMedia.size) / 1024).toFixed(0)} KB`}
+                {Number(previewMedia.size) > 0 && previewMedia.dimensions && ' • '}
+                {previewMedia.dimensions && `${previewMedia.dimensions.width}×${previewMedia.dimensions.height}`}
               </p>
             </div>
           </div>
