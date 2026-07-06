@@ -99,30 +99,33 @@ export const Lightbox = ({
         </button>
       )}
 
-      {/* Image Container with swipe support */}
+      {/* Image + Caption layout */}
       <div
-        className="relative max-w-7xl max-h-screen p-4"
+        className="flex flex-col items-center max-w-7xl max-h-screen p-4"
         onClick={(e) => e.stopPropagation()}
         {...swipeHandlers}
         style={{ touchAction: 'pan-y' }}
       >
-        {/* Position Indicator - top-right */}
-        <span className="absolute top-2 right-2 text-white text-sm bg-black/50 px-2 py-1 rounded z-10">
-          {formatPositionIndicator(currentIndex, images.length)}
-        </span>
+        {/* Position Indicator */}
+        <div className="self-end mb-2">
+          <span className="text-white text-sm bg-black/50 px-2 py-1 rounded">
+            {formatPositionIndicator(currentIndex, images.length)}
+          </span>
+        </div>
 
+        {/* Image */}
         <img
           src={currentImage.s3_url}
           alt={captionText && currentImage.metadata?.alt_text === captionText
             ? currentImage.filename
             : (currentImage.metadata?.alt_text || currentImage.filename)}
-          className="max-w-full max-h-[90vh] object-contain"
+          className="max-w-full max-h-[75vh] object-contain"
         />
 
-        {/* Caption Overlay - show caption, falling back to alt_text if descriptive */}
+        {/* Caption - separate box below the image */}
         {captionText && (
-          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-4 py-2">
-            <p>{captionText}</p>
+          <div className="mt-3 max-w-2xl bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 text-center">
+            <p className="text-white text-sm leading-relaxed">{captionText}</p>
           </div>
         )}
       </div>

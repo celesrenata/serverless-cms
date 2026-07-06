@@ -113,22 +113,22 @@ describe('Lightbox', () => {
     expect(screen.queryByRole('button', { name: /next image/i })).not.toBeInTheDocument();
   });
 
-  it('renders caption overlay with correct styling when caption exists', () => {
+  it('renders caption in a separate panel below the image when caption exists', () => {
     renderLightbox({ currentIndex: 0 });
     const captionText = screen.getByText('First photo caption');
     expect(captionText).toBeInTheDocument();
-    const captionOverlay = captionText.closest('div');
-    expect(captionOverlay).toHaveClass('bg-black/70', 'text-white');
+    const captionPanel = captionText.closest('div');
+    expect(captionPanel).toHaveClass('bg-white/10', 'backdrop-blur-sm', 'rounded-lg');
   });
 
   it('shows alt_text as caption fallback when descriptive and no caption set', () => {
     renderLightbox({ currentIndex: 1 }); // img-2 has alt_text: 'Photo 2' but no caption
     expect(screen.getByText('Photo 2')).toBeInTheDocument();
-    const captionOverlay = screen.getByText('Photo 2').closest('div');
-    expect(captionOverlay).toHaveClass('bg-black/70', 'text-white');
+    const captionPanel = screen.getByText('Photo 2').closest('div');
+    expect(captionPanel).toHaveClass('bg-white/10', 'backdrop-blur-sm', 'rounded-lg');
   });
 
-  it('does not render caption overlay when alt_text is a filename', () => {
+  it('does not render caption panel when alt_text is a filename', () => {
     const filenameAltImages: Media[] = [
       {
         id: 'img-fn',
@@ -144,8 +144,8 @@ describe('Lightbox', () => {
     ];
     renderLightbox({ images: filenameAltImages, currentIndex: 0 });
     const dialog = screen.getByRole('dialog');
-    const captionOverlay = dialog.querySelector('.bg-black\\/70');
-    expect(captionOverlay).not.toBeInTheDocument();
+    const captionPanel = dialog.querySelector('.bg-white\\/10');
+    expect(captionPanel).not.toBeInTheDocument();
   });
 
   it('has role="dialog" and aria-modal="true" on root element', () => {
@@ -159,9 +159,9 @@ describe('Lightbox', () => {
     const onNext = vi.fn();
     renderLightbox({ onNext, currentIndex: 0 });
 
-    // The image container is the div with relative class that wraps the img
+    // The image container is the flex column div that wraps the img
     const image = screen.getByRole('img');
-    const imageContainer = image.closest('.relative') as HTMLElement;
+    const imageContainer = image.closest('.flex.flex-col') as HTMLElement;
     expect(imageContainer).not.toBeNull();
 
     // fireEvent with pointer events - assign pointerId after creation
@@ -180,9 +180,9 @@ describe('Lightbox', () => {
     const onPrevious = vi.fn();
     renderLightbox({ onPrevious, currentIndex: 1 });
 
-    // The image container is the div with relative class that wraps the img
+    // The image container is the flex column div that wraps the img
     const image = screen.getByRole('img');
-    const imageContainer = image.closest('.relative') as HTMLElement;
+    const imageContainer = image.closest('.flex.flex-col') as HTMLElement;
     expect(imageContainer).not.toBeNull();
 
     // fireEvent with pointer events - assign pointerId after creation
