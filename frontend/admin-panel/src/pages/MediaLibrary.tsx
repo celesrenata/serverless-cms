@@ -13,14 +13,18 @@ export const MediaLibrary: React.FC = () => {
   const [showUpload, setShowUpload] = useState(false);
   const [previewMedia, setPreviewMedia] = useState<Media | null>(null);
 
-  const { data, isLoading, error, refetch } = useMediaList();
+  const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useMediaList();
   const { delete: deleteMedia } = useMedia();
+
+  // Flatten all pages into one array
+  const allMedia = useMemo(() => {
+    if (!data?.pages) return [];
+    return data.pages.flatMap(page => page.items);
+  }, [data?.pages]);
 
   // Filter and search media
   const filteredMedia = useMemo(() => {
-    if (!data?.items) return [];
-
-    let filtered = data.items;
+    let filtered = allMedia;
 
     // Filter by type
     if (filterType !== 'all') {
@@ -44,7 +48,7 @@ export const MediaLibrary: React.FC = () => {
     }
 
     return filtered;
-  }, [data?.items, filterType, searchQuery]);
+  }, [allMedia, filterType, searchQuery]);
 
   const handleEdit = (media: Media) => {
     setSelectedMedia(media);
@@ -79,15 +83,15 @@ export const MediaLibrary: React.FC = () => {
 
   // Calculate statistics
   const stats = useMemo(() => {
-    if (!data?.items) return { total: 0, images: 0, videos: 0, documents: 0 };
+    if (!allMedia.length) return { total: 0, images: 0, videos: 0, documents: 0 };
 
     return {
-      total: data.items.length,
-      images: data.items.filter((m: Media) => m.mime_type.startsWith('image/')).length,
-      videos: data.items.filter((m: Media) => m.mime_type.startsWith('video/')).length,
-      documents: data.items.filter((m: Media) => m.mime_type.startsWith('application/')).length,
+      total: allMedia.length,
+      images: allMedia.filter((m: Media) => m.mime_type.startsWith('image/')).length,
+      videos: allMedia.filter((m: Media) => m.mime_type.startsWith('video/')).length,
+      documents: allMedia.filter((m: Media) => m.mime_type.startsWith('application/')).length,
     };
-  }, [data?.items]);
+  }, [allMedia]);
 
   return (
     <div className="space-y-6">
@@ -277,6 +281,18 @@ export const MediaLibrary: React.FC = () => {
                 onSelect={handlePreview}
               />
             ))}
+          </div>
+        )}
+
+        {hasNextPage && (
+          <div className="text-center mt-6">
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            >
+              {isFetchingNextPage ? 'Loading...' : 'Load More'}
+            </button>
           </div>
         )}
       </div>

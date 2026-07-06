@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
 import type { MediaUpdate } from '../types/media';
 
@@ -50,9 +50,16 @@ export const useMedia = (id?: string) => {
   };
 };
 
-export const useMediaList = (params?: { limit?: number; last_key?: string }) => {
-  return useQuery({
-    queryKey: ['media', 'list', params],
-    queryFn: () => api.listMedia(params),
+export const useMediaList = () => {
+  return useInfiniteQuery({
+    queryKey: ['media', 'list'],
+    queryFn: ({ pageParam }) => api.listMedia({ limit: 50, last_key: pageParam }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.last_key) {
+        return JSON.stringify(lastPage.last_key);
+      }
+      return undefined;
+    },
   });
 };
