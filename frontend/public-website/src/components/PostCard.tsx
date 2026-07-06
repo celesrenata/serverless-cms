@@ -1,17 +1,20 @@
 import { Link } from 'react-router-dom';
 import { Content } from '../types';
+import { extractFirstImageFromContent } from '../utils/contentUtils';
 
 interface PostCardProps {
   post: Content;
 }
 
 export const PostCard = ({ post }: PostCardProps) => {
+  const coverImage = post.featured_image || extractFirstImageFromContent(post.content) || '';
+
   return (
     <article className="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden">
-      {post.featured_image && (
+      {coverImage && (
         <Link to={`/blog/${post.slug}`}>
           <img
-            src={post.featured_image}
+            src={coverImage}
             alt={post.title}
             className="w-full h-48 object-cover hover:opacity-90 transition"
           />
