@@ -25,10 +25,14 @@ export async function createSection(data: CreateSectionRequest): Promise<Section
 }
 
 export async function getSections(): Promise<SectionTreeNode[]> {
-  const response = await axios.get<SectionTreeNode[]>(`${BASE_URL}/sections`, {
+  const response = await axios.get<SectionTreeNode[] | { items: SectionTreeNode[] }>(`${BASE_URL}/sections`, {
     headers: getAuthHeaders(),
   });
-  return response.data;
+  // Handle both formats: direct array or {items: [...]} wrapper
+  const data = response.data;
+  if (Array.isArray(data)) return data;
+  if (data && 'items' in data) return data.items;
+  return [];
 }
 
 export async function getSection(id: string): Promise<Section> {

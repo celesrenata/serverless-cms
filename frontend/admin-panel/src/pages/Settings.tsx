@@ -126,14 +126,20 @@ export function Settings() {
               onChange={(e) => setTheme(e.target.value)}
               className="input w-full"
             >
+              <option value="celestium-neon">Celestium Neon (Dark Cyberpunk)</option>
+              <option value="celestium-bromide">Celestium Bromide (celestium.life)</option>
+              <option value="aws-console-after-dark">AWS Console After Dark</option>
+              <option value="glass-circuit">Glass Circuit</option>
+              <option value="paper-systems">Paper Systems (Light)</option>
+              <option value="terminal-witchcraft">Terminal Witchcraft</option>
               <option value="default">Default</option>
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
+              <option value="dark">Dark (Legacy)</option>
+              <option value="light">Light (Legacy)</option>
               <option value="minimal">Minimal</option>
               <option value="custom">Custom</option>
             </select>
             <p className="mt-1 text-sm text-gray-500">
-              Choose the visual theme for your public website. Custom theme can be modified in themes/custom.css
+              Choose the visual theme for your public website. Visitors can also switch themes via the theme panel.
             </p>
           </div>
 

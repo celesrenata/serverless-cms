@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSections, useUpdateSection } from '../hooks/useSections';
+import SectionForm from '../components/SectionForm';
 import type { SectionTreeNode, UpdateSectionRequest } from '../../../shared/sections/types';
 
 interface EditState {
@@ -191,6 +192,7 @@ export function SectionManager() {
 
   const [editState, setEditState] = useState<EditState | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const toastIdRef = useRef(0);
 
   const showErrorToast = useCallback((message: string) => {
@@ -289,7 +291,23 @@ export function SectionManager() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Sections</h1>
+        <button
+          onClick={() => setShowCreateForm(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          + New Section
+        </button>
       </div>
+
+      {showCreateForm && (
+        <div className="card">
+          <SectionForm
+            mode="create"
+            onSuccess={() => setShowCreateForm(false)}
+            onCancel={() => setShowCreateForm(false)}
+          />
+        </div>
+      )}
 
       <div className="card">
         {sections && sections.length > 0 ? (
