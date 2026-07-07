@@ -276,7 +276,7 @@ export class MonitoringConstruct extends Construct {
     preserveLogicalId(sesComplaintRateAlarm, 'SesComplaintRateAlarmB5474BD1');
 
     // User Creation Failure Alarm
-    const userCreateFn = props.lambdaFunctions.get('UserCreateFunction');
+    const userCreateFn = props.lambdaFunctions.get('UsersHandlerFunction');
     const userCreationFailureAlarm = new cloudwatch.Alarm(this, 'UserCreationFailureAlarm', {
       alarmName: `cms-user-creation-failures-${env}`,
       alarmDescription: 'Alert when user creation failures exceed threshold',
@@ -329,7 +329,7 @@ export class MonitoringConstruct extends Construct {
     preserveLogicalId(captchaFailureAlarm, 'CaptchaFailureAlarmD0AFF515');
 
     // Registration Failure Alarm
-    const registerFn = props.lambdaFunctions.get('RegisterFunction');
+    const registerFn = props.lambdaFunctions.get('AuthHandlerFunction');
     const registrationFailureAlarm = new cloudwatch.Alarm(this, 'RegistrationFailureAlarm', {
       alarmName: `cms-registration-failures-${env}`,
       alarmDescription: 'Alert when user registration failures exceed threshold',
@@ -346,13 +346,13 @@ export class MonitoringConstruct extends Construct {
     preserveLogicalId(registrationFailureAlarm, 'RegistrationFailureAlarm75DC5782');
 
     // Phase 2 CloudWatch Dashboard
-    const userCreateFunction = props.lambdaFunctions.get('UserCreateFunction')!;
-    const userUpdateFunction = props.lambdaFunctions.get('UserUpdateFunction')!;
-    const userDeleteFunction = props.lambdaFunctions.get('UserDeleteFunction')!;
-    const registerFunction = props.lambdaFunctions.get('RegisterFunction')!;
-    const commentCreateFunction = props.lambdaFunctions.get('CommentCreateFunction')!;
-    const commentUpdateFunction = props.lambdaFunctions.get('CommentUpdateFunction')!;
-    const commentListFunction = props.lambdaFunctions.get('CommentListFunction')!;
+    const userCreateFunction = props.lambdaFunctions.get('UsersHandlerFunction')!;
+    const userUpdateFunction = props.lambdaFunctions.get('UsersHandlerFunction')!;
+    const userDeleteFunction = props.lambdaFunctions.get('UsersHandlerFunction')!;
+    const registerFunction = props.lambdaFunctions.get('AuthHandlerFunction')!;
+    const commentCreateFunction = props.lambdaFunctions.get('CommentsHandlerFunction')!;
+    const commentUpdateFunction = props.lambdaFunctions.get('CommentsHandlerFunction')!;
+    const commentListFunction = props.lambdaFunctions.get('CommentsHandlerFunction')!;
 
     this.dashboardName = `cms-phase2-${env}`;
     const phase2Dashboard = new cloudwatch.Dashboard(this, 'Phase2Dashboard', {
