@@ -3,7 +3,27 @@ import { useEffect, useRef, useState } from 'react';
 
 mermaid.initialize({
   startOnLoad: false,
-  theme: 'dark',
+  theme: 'base',
+  themeVariables: {
+    background: '#1e293b',
+    primaryColor: '#334155',
+    primaryTextColor: '#e2e8f0',
+    primaryBorderColor: '#475569',
+    secondaryColor: '#1e293b',
+    secondaryTextColor: '#e2e8f0',
+    secondaryBorderColor: '#475569',
+    tertiaryColor: '#0f172a',
+    tertiaryTextColor: '#e2e8f0',
+    tertiaryBorderColor: '#475569',
+    lineColor: '#94a3b8',
+    textColor: '#e2e8f0',
+    mainBkg: '#334155',
+    nodeBorder: '#475569',
+    clusterBkg: '#1e293b',
+    titleColor: '#e2e8f0',
+    edgeLabelBackground: '#1e293b',
+    nodeTextColor: '#e2e8f0',
+  },
   securityLevel: 'loose',
 });
 
