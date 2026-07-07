@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { slugifyHeading } from '../../../shared/markdown/slugify';
-import { shouldShowToc, extractToc } from '../../../shared/markdown/toc';
+import { shouldShowToc } from '../../../shared/markdown/toc';
 import { renderMarkdownToHtml } from '../../../shared/markdown/renderMarkdown';
 import type { TocItem } from '../../../shared/markdown/types';
 

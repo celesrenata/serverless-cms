@@ -127,6 +127,7 @@ function toKebab(str: string): string {
 }
 
 // --- Build CSS custom properties map from tokens ---
+// eslint-disable-next-line react-refresh/only-export-components
 export function buildCSSVariables(tokens: ThemeTokens): Map<string, string> {
   const vars = new Map<string, string>();
 
@@ -341,6 +342,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext);
   if (!context) {

@@ -18,7 +18,6 @@ class MockIntersectionObserver implements IntersectionObserver {
 
   constructor(
     private readonly callback: IntersectionObserverCallback,
-    _options?: IntersectionObserverInit,
   ) {
     intersectionObserverInstances.push(this as unknown as MockIntersectionObserverInstance);
   }
