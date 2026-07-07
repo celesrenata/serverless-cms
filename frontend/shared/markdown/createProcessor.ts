@@ -18,7 +18,11 @@ import rehypeMermaidPassthrough from './plugins/rehypeMermaidPassthrough';
 import type { TocItem } from './types';
 
 export interface ProcessorResult {
-  processor: ReturnType<typeof unified>;
+  // Unified processor type varies based on plugin chain; use structural typing
+  processor: {
+    process(file: unknown): Promise<{ toString(): string }>;
+    processSync(file: unknown): { toString(): string };
+  };
   tocItems: TocItem[];
 }
 

@@ -14,9 +14,30 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "unified": ["./node_modules/unified"],
+      "remark-parse": ["./node_modules/remark-parse"],
+      "remark-gfm": ["./node_modules/remark-gfm"],
+      "remark-math": ["./node_modules/remark-math"],
+      "remark-rehype": ["./node_modules/remark-rehype"],
+      "rehype-katex": ["./node_modules/rehype-katex"],
+      "rehype-prism-plus": ["./node_modules/rehype-prism-plus"],
+      "rehype-sanitize": ["./node_modules/rehype-sanitize"],
+      "rehype-stringify": ["./node_modules/rehype-stringify"],
+      "hast": ["./node_modules/@types/hast"],
+      "hast-util-to-string": ["./node_modules/hast-util-to-string"],
+      "hast-util-is-element": ["./node_modules/hast-util-is-element"],
+      "hast-util-sanitize": ["./node_modules/hast-util-sanitize"],
+      "unist-util-visit": ["./node_modules/unist-util-visit"],
+      "unist": ["./node_modules/@types/unist"],
+      "mdast": ["./node_modules/@types/mdast"],
+      "mdast-util-find-and-replace": ["./node_modules/mdast-util-find-and-replace"],
+      "mdast-util-to-string": ["./node_modules/mdast-util-to-string"]
+    }
   },
-  "include": ["src"],
+  "include": ["src", "../shared"],
   "exclude": ["src/**/__tests__/**", "src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.spec.ts", "src/**/*.spec.tsx", "src/test"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
