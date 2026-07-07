@@ -14,6 +14,18 @@ from shared.db import ContentRepository
 
 SLUG = "how-we-built-this-serverless-cms"
 
+CDN_URLS = {
+    "dev": "https://d391evgc81s5g2.cloudfront.net",
+    "staging": "https://d27ovunfkwufk9.cloudfront.net",
+    "prod": "https://d2cbtkeb5df7ne.cloudfront.net",
+    "production": "https://d2cbtkeb5df7ne.cloudfront.net",
+}
+
+
+def get_cdn_base(env: str) -> str:
+    """Get the media CDN base URL for the given environment."""
+    return CDN_URLS.get(env, CDN_URLS["dev"])
+
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -24,8 +36,99 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def build_article_content() -> str:
+def build_article_content(cdn_base: str) -> str:
     """Build the article body content."""
+    CDN = f"{cdn_base}/architecture-article"
+
+    def figure(filename: str, alt: str, caption: str) -> str:
+        return (
+            f'<figure class="my-8">'
+            f'<img src="{CDN}/{filename}" alt="{alt}" class="w-full rounded-lg shadow-lg" />'
+            f'<figcaption class="text-center text-sm text-slate-400 mt-2">{caption}</figcaption>'
+            f'</figure>\n'
+        )
+
+    img_homepage = figure(
+        "01-homepage-2026-07-07T04-05-59-855Z.png",
+        "The serverless CMS landing page delivered through CloudFront",
+        "The serverless CMS landing page &mdash; everything delivered through CloudFront",
+    )
+    img_blog_listing = figure(
+        "02-blog-listing-2026-07-07T04-06-09-812Z.png",
+        "Blog listing with automatic metadata extraction and responsive cards",
+        "Blog listing with automatic metadata extraction and responsive cards",
+    )
+    img_article_hero = figure(
+        "03-article-hero-2026-07-07T04-06-20-068Z.png",
+        "This very article rendered live on the platform",
+        "This very article, rendered live on the platform",
+    )
+    img_mermaid_system = figure(
+        "04-mermaid-system-architecture-2026-07-07T04-06-29-771Z.png",
+        "Mermaid diagrams rendered client-side with theme-aware colors",
+        "Mermaid diagrams rendered client-side with theme-aware colors",
+    )
+    img_mermaid_cdk = figure(
+        "05-mermaid-cdk-construct-tree-2026-07-07T04-06-39-709Z.png",
+        "CDK construct tree visualized as a live Mermaid diagram",
+        "CDK construct tree visualized as a live Mermaid diagram",
+    )
+    img_code_typescript = figure(
+        "06-code-block-typescript-2026-07-07T04-06-51-481Z.png",
+        "Syntax-highlighted TypeScript with the Nord color scheme",
+        "Syntax-highlighted TypeScript with the Nord color scheme",
+    )
+    img_mermaid_request = figure(
+        "07-mermaid-request-lifecycle-2026-07-07T04-07-02-034Z.png",
+        "Request lifecycle from browser to DynamoDB and back",
+        "Request lifecycle from browser to DynamoDB and back",
+    )
+    img_code_python = figure(
+        "08-code-block-python-lambda-2026-07-07T04-07-12-594Z.png",
+        "Python Lambda handlers with the @require_auth decorator pattern",
+        "Python Lambda handlers with the @require_auth decorator pattern",
+    )
+    img_gallery = figure(
+        "09-gallery-page-2026-07-07T04-07-23-651Z.png",
+        "The gallery experience with responsive image grids and album navigation",
+        "The gallery experience with responsive image grids and album navigation",
+    )
+    img_admin_login = figure(
+        "10-admin-login-2026-07-07T04-07-38-739Z.png",
+        "AWS Cognito-powered authentication for the admin panel",
+        "AWS Cognito-powered authentication for the admin panel",
+    )
+    img_comments = figure(
+        "11-comments-section-2026-07-07T04-07-54-928Z.png",
+        "Public comment submission with moderation workflow",
+        "Public comment submission with moderation workflow",
+    )
+    img_mermaid_frontend = figure(
+        "12-mermaid-frontend-components-2026-07-07T04-08-04-730Z.png",
+        "Frontend component architecture showing shared rendering between public and admin",
+        "Frontend component architecture showing shared rendering between public and admin",
+    )
+    img_mermaid_data_flow = figure(
+        "13-mermaid-data-flow-2026-07-07T04-08-14-405Z.png",
+        "Content data flow from admin creation to public delivery",
+        "Content data flow from admin creation to public delivery",
+    )
+    img_mermaid_cicd = figure(
+        "14-mermaid-cicd-pipeline-2026-07-07T04-08-25-480Z.png",
+        "The deployment pipeline from git push to production",
+        "The deployment pipeline from git push to production",
+    )
+    img_blog_nixos = figure(
+        "15-blog-post-nixos-2026-07-07T04-08-36-425Z.png",
+        "Another article with WordPress-migrated content and Nord-themed code blocks",
+        "Another article with WordPress-migrated content and Nord-themed code blocks",
+    )
+    img_nixos_code = figure(
+        "16-nixos-code-block-nord-2026-07-07T04-08-48-029Z.png",
+        "Pre-rendered Shiki Nord syntax highlighting preserved from WordPress migration",
+        "Pre-rendered Shiki Nord syntax highlighting preserved from WordPress migration",
+    )
+
     title = '<h1>How We Built This Serverless CMS</h1>\n'
 
     introduction_section = (
@@ -863,11 +966,18 @@ def build_article_content() -> str:
     )
 
     return (
-        title + introduction_section + architecture_section
-        + infrastructure_section + backend_section
-        + frontend_section + auth_section
+        title + img_article_hero + introduction_section
+        + img_blog_listing + img_homepage
+        + architecture_section + img_mermaid_system
+        + infrastructure_section + img_mermaid_cdk + img_code_typescript
+        + backend_section + img_mermaid_request + img_code_python
+        + frontend_section + img_mermaid_frontend + img_blog_nixos
+        + auth_section + img_admin_login
         + media_section + content_features_section
-        + operations_section + cicd_section + conclusion_section
+        + img_mermaid_data_flow + img_gallery + img_comments
+        + operations_section + img_nixos_code
+        + cicd_section + img_mermaid_cicd
+        + conclusion_section
     )
 
 
@@ -887,7 +997,8 @@ def upsert_article(repo: ContentRepository, env: str, table_name: str) -> None:
     try:
         now = int(time.time())
 
-        html_content = build_article_content()
+        cdn_base = get_cdn_base(env)
+        html_content = build_article_content(cdn_base)
         metadata = build_metadata()
 
         title = "How We Built This Serverless CMS"
