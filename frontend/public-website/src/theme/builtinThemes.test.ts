@@ -3,8 +3,8 @@ import { validateTokens } from './tokens';
 import { BUILTIN_THEMES } from './builtinThemes';
 
 describe('Built-in themes validation', () => {
-  it('should have exactly 5 built-in themes', () => {
-    expect(BUILTIN_THEMES).toHaveLength(5);
+  it('should have exactly 6 built-in themes', () => {
+    expect(BUILTIN_THEMES).toHaveLength(6);
   });
 
   it.each(BUILTIN_THEMES.map((t) => [t.name, t]))(
@@ -29,6 +29,7 @@ describe('Built-in themes validation', () => {
   it('includes expected theme IDs', () => {
     const ids = BUILTIN_THEMES.map((t) => t.id);
     expect(ids).toContain('celestium-neon');
+    expect(ids).toContain('celestium-bromide');
     expect(ids).toContain('aws-console-after-dark');
     expect(ids).toContain('glass-circuit');
     expect(ids).toContain('paper-systems');
