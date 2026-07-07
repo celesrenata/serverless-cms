@@ -5,9 +5,19 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider, useTheme } from '../../theme/ThemeProvider';
 import { CustomCSSPreviewIndicator } from '../CustomCSSPreviewIndicator';
 import CSSUploadControl from '../ThemePanel/CSSUploadControl';
+
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { retry: false },
+    },
+  });
+}
 
 const CUSTOM_CSS_STORAGE_KEY = 'celestium.theme.custom';
 
@@ -44,19 +54,25 @@ function TestHarness() {
 }
 
 function renderHarness() {
+  const queryClient = createTestQueryClient();
   return render(
-    <ThemeProvider>
-      <TestHarness />
-    </ThemeProvider>,
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <TestHarness />
+      </ThemeProvider>
+    </QueryClientProvider>,
   );
 }
 
 function renderUploadFlow() {
+  const queryClient = createTestQueryClient();
   return render(
-    <ThemeProvider>
-      <CSSUploadControl />
-      <CustomCSSPreviewIndicator />
-    </ThemeProvider>,
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <CSSUploadControl />
+        <CustomCSSPreviewIndicator />
+      </ThemeProvider>
+    </QueryClientProvider>,
   );
 }
 

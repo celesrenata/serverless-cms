@@ -1,10 +1,10 @@
 // Feature: serverless-site-facelift-theme-engine, Property 8: Theme persistence round-trip via localStorage
 // Validates: Requirements 4.3, 4.4, 17.1
 
-import React from 'react';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as fc from 'fast-check';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { ThemeProvider, useTheme } from '../theme/ThemeProvider';
 
@@ -33,11 +33,23 @@ function ThemeTestConsumer({ themeToSet }: { themeToSet: BuiltinThemeId }) {
   );
 }
 
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { retry: false },
+    },
+  });
+}
+
 function renderThemeProvider(themeToSet: BuiltinThemeId) {
+  const queryClient = createTestQueryClient();
   return render(
-    <ThemeProvider>
-      <ThemeTestConsumer themeToSet={themeToSet} />
-    </ThemeProvider>,
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <ThemeTestConsumer themeToSet={themeToSet} />
+      </ThemeProvider>
+    </QueryClientProvider>,
   );
 }
 
