@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import SectionForm from '../SectionForm';
 import { renderWithProviders } from '../../test/utils/renderWithProviders';
 import type { SectionTreeNode } from '../../../../shared/sections/types';

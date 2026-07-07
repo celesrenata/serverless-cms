@@ -14,7 +14,7 @@ vi.mock('../../hooks/useSections', () => ({
   })),
 }));
 
-import { useSections, useUpdateSection } from '../../hooks/useSections';
+import { useSections } from '../../hooks/useSections';
 
 const mockSections: SectionTreeNode[] = [
   {
