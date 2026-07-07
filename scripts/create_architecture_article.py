@@ -1003,7 +1003,7 @@ def upsert_article(repo: ContentRepository, env: str, table_name: str) -> None:
 
         title = "How We Built This Serverless CMS"
         excerpt = "A technical deep dive into the serverless architecture behind serverless.celestium.life..."
-        author = ""
+        author = "38d17320-d0e1-70d5-42e1-bc71650714a5"
         featured_image = ""
         status = "published"
 
