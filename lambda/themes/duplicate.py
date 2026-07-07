@@ -10,7 +10,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.auth import require_auth
 from shared.themes_db import ThemeRepository
-from themes.builtin_themes import is_builtin_theme, get_builtin_theme
+try:
+    from builtin_themes import is_builtin_theme, get_builtin_theme
+except ImportError:
+    from themes.builtin_themes import is_builtin_theme, get_builtin_theme
 
 
 HEADERS = {

@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.auth import require_auth
 from shared.sections_db import SectionRepository
-from sections.service import build_tree
+from service import build_tree
 
 
 HEADERS = {

@@ -19,7 +19,7 @@ from boto3.dynamodb.conditions import Key, Attr
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.sections_db import SectionRepository
-from sections.service import build_tree, resolve_path
+from service import build_tree, resolve_path
 
 
 HEADERS = {

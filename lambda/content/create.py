@@ -16,11 +16,18 @@ from shared.auth import require_auth
 from shared.db import ContentRepository, UserRepository
 from shared.plugins import PluginManager
 from shared.logger import create_logger, log_performance
-from content.section_helpers import (
-    validate_section_assignment,
-    compute_section_path_ids,
-    validate_content_markdown,
-)
+try:
+    from section_helpers import (
+        validate_section_assignment,
+        compute_section_path_ids,
+        validate_content_markdown,
+    )
+except ImportError:
+    from content.section_helpers import (
+        validate_section_assignment,
+        compute_section_path_ids,
+        validate_content_markdown,
+    )
 import boto3
 
 

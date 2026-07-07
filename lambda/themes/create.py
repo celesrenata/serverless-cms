@@ -10,7 +10,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.auth import require_auth
 from shared.themes_db import ThemeRepository
-from themes.validator import validate_theme
+try:
+    from validator import validate_theme
+except ImportError:
+    from themes.validator import validate_theme
 
 
 HEADERS = {

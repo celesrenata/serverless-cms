@@ -11,11 +11,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from shared.auth import require_auth, extract_user_from_event
 from shared.db import SettingsRepository
 from shared.themes_db import ThemeRepository
-from themes.builtin_themes import (
-    get_builtin_theme,
-    is_builtin_theme,
-    get_all_builtin_metadata,
-)
+try:
+    from builtin_themes import (
+        get_builtin_theme,
+        is_builtin_theme,
+        get_all_builtin_metadata,
+    )
+except ImportError:
+    from themes.builtin_themes import (
+        get_builtin_theme,
+        is_builtin_theme,
+        get_all_builtin_metadata,
+    )
 
 
 HEADERS = {

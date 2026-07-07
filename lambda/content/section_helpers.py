@@ -17,7 +17,10 @@ if lambda_directory not in sys.path:
     sys.path.insert(0, lambda_directory)
 
 from shared.sections_db import SectionRepository
-from sections.service import ROOT_PARENT_ID, build_path
+try:
+    from shared.section_service import ROOT_PARENT_ID, build_path
+except ImportError:
+    from sections.service import ROOT_PARENT_ID, build_path
 
 
 MAX_CONTENT_MARKDOWN_LENGTH = 500_000

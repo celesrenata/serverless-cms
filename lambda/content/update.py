@@ -13,11 +13,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from shared.auth import require_auth
 from shared.db import ContentRepository
 from shared.plugins import PluginManager
-from content.section_helpers import (
-    validate_section_assignment,
-    compute_section_path_ids,
-    validate_content_markdown,
-)
+try:
+    from section_helpers import (
+        validate_section_assignment,
+        compute_section_path_ids,
+        validate_content_markdown,
+    )
+except ImportError:
+    from content.section_helpers import (
+        validate_section_assignment,
+        compute_section_path_ids,
+        validate_content_markdown,
+    )
 from boto3.dynamodb.conditions import Attr
 
 

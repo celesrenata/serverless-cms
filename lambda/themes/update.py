@@ -10,13 +10,22 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.auth import require_auth
 from shared.themes_db import ThemeRepository
-from themes.builtin_themes import is_builtin_theme
-from themes.validator import (
-    validate_tokens,
-    sanitize_css,
-    MAX_NAME_LENGTH,
-    MAX_DESCRIPTION_LENGTH,
-)
+try:
+    from builtin_themes import is_builtin_theme
+    from validator import (
+        validate_tokens,
+        sanitize_css,
+        MAX_NAME_LENGTH,
+        MAX_DESCRIPTION_LENGTH,
+    )
+except ImportError:
+    from themes.builtin_themes import is_builtin_theme
+    from themes.validator import (
+        validate_tokens,
+        sanitize_css,
+        MAX_NAME_LENGTH,
+        MAX_DESCRIPTION_LENGTH,
+    )
 
 
 HEADERS = {

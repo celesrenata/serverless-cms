@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.auth import require_auth
 from shared.sections_db import SectionRepository
-from sections.service import (
+from service import (
     validate_section_input,
     compute_depth,
     build_path,
