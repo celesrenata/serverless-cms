@@ -12,13 +12,7 @@ Routes:
   PUT    /plugins/{id}/settings      -> update plugin settings
 """
 import json
-
-from install import handler as install_handler
-from activate import handler as activate_handler
-from deactivate import handler as deactivate_handler
-from list import handler as list_handler
-from get_settings import handler as get_settings_handler
-from update_settings import handler as update_settings_handler
+import traceback
 
 
 HEADERS = {
@@ -29,39 +23,51 @@ HEADERS = {
 
 def handler(event, context):
     """Route incoming requests to the appropriate plugin handler."""
-    http_method = event.get('httpMethod', '').upper()
-    path = event.get('path', '') or event.get('rawPath', '')
-    resource = event.get('resource', '')
+    try:
+        http_method = event.get('httpMethod', '').upper()
+        path = event.get('path', '') or event.get('rawPath', '')
+        resource = event.get('resource', '')
 
-    if http_method == 'GET':
-        # GET /plugins/{id}/settings -> get_settings
-        if path.endswith('/settings') or resource.endswith('/settings'):
-            return get_settings_handler(event, context)
-        # GET /plugins -> list
-        return list_handler(event, context)
+        if http_method == 'GET':
+            if path.endswith('/settings') or resource.endswith('/settings'):
+                from get_settings import handler as get_settings_handler
+                return get_settings_handler(event, context)
+            from list import handler as list_handler
+            return list_handler(event, context)
 
-    elif http_method == 'POST':
-        # POST /plugins/install -> install
-        if path.endswith('/install') or resource.endswith('/install'):
-            return install_handler(event, context)
-        # POST /plugins/{id}/activate -> activate
-        if path.endswith('/activate') or resource.endswith('/activate'):
-            return activate_handler(event, context)
-        # POST /plugins/{id}/deactivate -> deactivate
-        if path.endswith('/deactivate') or resource.endswith('/deactivate'):
-            return deactivate_handler(event, context)
+        elif http_method == 'POST':
+            if path.endswith('/install') or resource.endswith('/install'):
+                from install import handler as install_handler
+                return install_handler(event, context)
+            if path.endswith('/activate') or resource.endswith('/activate'):
+                from activate import handler as activate_handler
+                return activate_handler(event, context)
+            if path.endswith('/deactivate') or resource.endswith('/deactivate'):
+                from deactivate import handler as deactivate_handler
+                return deactivate_handler(event, context)
 
-    elif http_method == 'PUT':
-        # PUT /plugins/{id}/settings -> update_settings
-        if path.endswith('/settings') or resource.endswith('/settings'):
-            return update_settings_handler(event, context)
+        elif http_method == 'PUT':
+            if path.endswith('/settings') or resource.endswith('/settings'):
+                from update_settings import handler as update_settings_handler
+                return update_settings_handler(event, context)
 
-    # Method not allowed
-    return {
-        'statusCode': 405,
-        'headers': HEADERS,
-        'body': json.dumps({
-            'error': 'Method not allowed',
-            'message': f'HTTP method {http_method} is not supported for this endpoint',
-        }),
-    }
+        return {
+            'statusCode': 405,
+            'headers': HEADERS,
+            'body': json.dumps({
+                'error': 'Method not allowed',
+                'message': f'HTTP method {http_method} is not supported for this endpoint',
+            }),
+        }
+    except Exception as e:
+        error_detail = traceback.format_exc()
+        print(f"PLUGINS HANDLER ERROR: {error_detail}")
+        return {
+            'statusCode': 500,
+            'headers': HEADERS,
+            'body': json.dumps({
+                'error': 'Internal server error',
+                'message': str(e),
+                'trace': error_detail,
+            }),
+        }

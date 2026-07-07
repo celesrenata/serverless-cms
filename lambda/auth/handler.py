@@ -8,9 +8,7 @@ Routes (public, no auth):
   POST   /auth/verify-email  -> verify email address
 """
 import json
-
-from register import handler as register_handler
-from verify_email import handler as verify_email_handler
+import traceback
 
 
 HEADERS = {
@@ -21,23 +19,35 @@ HEADERS = {
 
 def handler(event, context):
     """Route incoming requests to the appropriate auth handler."""
-    http_method = event.get('httpMethod', '').upper()
-    path = event.get('path', '') or event.get('rawPath', '')
+    try:
+        http_method = event.get('httpMethod', '').upper()
+        path = event.get('path', '') or event.get('rawPath', '')
 
-    if http_method == 'POST':
-        # POST /auth/register -> register
-        if path.endswith('/register'):
-            return register_handler(event, context)
-        # POST /auth/verify-email -> verify_email
-        if path.endswith('/verify-email'):
-            return verify_email_handler(event, context)
+        if http_method == 'POST':
+            if path.endswith('/register'):
+                from register import handler as register_handler
+                return register_handler(event, context)
+            if path.endswith('/verify-email'):
+                from verify_email import handler as verify_email_handler
+                return verify_email_handler(event, context)
 
-    # Method not allowed
-    return {
-        'statusCode': 405,
-        'headers': HEADERS,
-        'body': json.dumps({
-            'error': 'Method not allowed',
-            'message': f'HTTP method {http_method} is not supported for this endpoint',
-        }),
-    }
+        return {
+            'statusCode': 405,
+            'headers': HEADERS,
+            'body': json.dumps({
+                'error': 'Method not allowed',
+                'message': f'HTTP method {http_method} is not supported for this endpoint',
+            }),
+        }
+    except Exception as e:
+        error_detail = traceback.format_exc()
+        print(f"AUTH HANDLER ERROR: {error_detail}")
+        return {
+            'statusCode': 500,
+            'headers': HEADERS,
+            'body': json.dumps({
+                'error': 'Internal server error',
+                'message': str(e),
+                'trace': error_detail,
+            }),
+        }
