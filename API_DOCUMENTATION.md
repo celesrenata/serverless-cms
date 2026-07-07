@@ -22,6 +22,7 @@ Authorization: Bearer <your-jwt-token>
 - [Comment Endpoints](#comment-endpoints)
 - [Registration Endpoints](#registration-endpoints)
 - [Settings Endpoints](#settings-endpoints)
+- [Theme Endpoints](#theme-endpoints)
 - [Plugin Endpoints](#plugin-endpoints)
 - [Error Responses](#error-responses)
 
@@ -1234,6 +1235,304 @@ Returns the updated settings (same format as "Get Settings").
 - `400 Bad Request` - Invalid data
 - `401 Unauthorized` - Missing or invalid authentication token
 - `403 Forbidden` - Insufficient permissions (not admin)
+
+---
+
+## Theme Endpoints
+
+### List Themes
+
+Retrieve all available themes (builtin + custom).
+
+**Endpoint:** `GET /themes`
+
+**Authentication:** Required (admin or editor)
+
+**Response:** `200 OK`
+
+```json
+{
+  "items": [
+    {
+      "id": "celestium-neon",
+      "name": "Celestium Neon",
+      "description": "Dark cyberpunk theme with neon accents",
+      "builtin": true,
+      "is_active": true,
+      "preview_colors": {
+        "primary": "139 92 246",
+        "background": "3 7 18",
+        "surface": "30 41 59",
+        "accent": "34 211 238"
+      }
+    },
+    {
+      "id": "uuid-custom-theme",
+      "name": "My Custom Theme",
+      "description": "A personalized theme",
+      "builtin": false,
+      "is_active": false,
+      "preview_colors": {
+        "primary": "59 130 246",
+        "background": "255 255 255",
+        "surface": "248 250 252",
+        "accent": "236 72 153"
+      },
+      "created_at": 1783400000,
+      "updated_at": 1783400000
+    }
+  ]
+}
+```
+
+---
+
+### Create Theme
+
+Create a new custom theme.
+
+**Endpoint:** `POST /themes`
+
+**Authentication:** Required (admin or editor)
+
+**Request Body:**
+
+```json
+{
+  "name": "My Theme",
+  "description": "Optional description",
+  "tokens": {
+    "colors": {
+      "primary": "139 92 246",
+      "background": "3 7 18",
+      "surface": "30 41 59",
+      "accent": "34 211 238"
+    },
+    "typography": {
+      "font_family": "Inter, sans-serif",
+      "size_base": "16px",
+      "scale": 1.25,
+      "line_height": 1.6,
+      "weights": { "normal": 400, "medium": 500, "bold": 700 }
+    },
+    "radius": { "sm": "0.25rem", "md": "0.5rem", "lg": "1rem", "full": "9999px" },
+    "shadows": { "sm": "0 1px 2px", "md": "0 4px 6px", "lg": "0 10px 15px", "glow": "0 0 15px" },
+    "motion": { "duration_fast": "150ms", "duration_normal": "300ms", "easing": "ease-in-out" }
+  },
+  "custom_css": "/* optional custom CSS */"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| name | string | Yes | Theme display name (max 100 chars) |
+| description | string | No | Short description (max 500 chars) |
+| tokens | object | Yes | Full ThemeTokens object |
+| custom_css | string | No | Custom CSS string (max 100KB) |
+
+**Response:** `201 Created`
+
+Returns the created theme object including `id`, `created_by`, `created_at`, and `updated_at`.
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid tokens, malicious CSS, or validation failure
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions
+- `409 Conflict` - Theme limit reached (max 50 custom themes)
+
+---
+
+### Get Theme
+
+Retrieve a single theme by ID.
+
+**Endpoint:** `GET /themes/{id}`
+
+**Authentication:** Required (admin or editor)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Theme UUID or builtin theme ID |
+
+**Response:** `200 OK`
+
+Returns the full theme object including tokens and custom_css.
+
+**Error Responses:**
+
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Theme not found
+
+---
+
+### Update Theme
+
+Update an existing custom theme.
+
+**Endpoint:** `PUT /themes/{id}`
+
+**Authentication:** Required (admin or editor)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Theme UUID |
+
+**Request Body:**
+
+```json
+{
+  "name": "Updated Name",
+  "description": "Updated description",
+  "tokens": { "..." : "..." },
+  "custom_css": "/* updated CSS */"
+}
+```
+
+All fields are optional. Only provided fields will be updated.
+
+**Response:** `200 OK`
+
+Returns the updated theme object.
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid data
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Cannot modify builtin themes
+- `404 Not Found` - Theme not found
+
+---
+
+### Delete Theme
+
+Delete a custom theme.
+
+**Endpoint:** `DELETE /themes/{id}`
+
+**Authentication:** Required (admin only)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Theme UUID |
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "Theme deleted successfully"
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Cannot delete builtin themes
+- `404 Not Found` - Theme not found
+- `409 Conflict` - Cannot delete the currently active theme
+
+---
+
+### Activate Theme
+
+Set a theme as the active (default) theme for the public website.
+
+**Endpoint:** `POST /themes/{id}/activate`
+
+**Authentication:** Required (admin only)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Theme UUID or builtin theme ID |
+
+**Response:** `200 OK`
+
+```json
+{
+  "active_theme_id": "celestium-neon"
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions (not admin)
+- `404 Not Found` - Theme not found
+
+---
+
+### Duplicate Theme
+
+Create a copy of an existing theme with a new UUID.
+
+**Endpoint:** `POST /themes/{id}/duplicate`
+
+**Authentication:** Required (admin or editor)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Theme UUID or builtin theme ID to copy |
+
+**Response:** `201 Created`
+
+Returns the newly created theme object with name "Copy of {original}" and a new UUID.
+
+**Error Responses:**
+
+- `401 Unauthorized` - Missing or invalid authentication token
+- `403 Forbidden` - Insufficient permissions
+- `404 Not Found` - Source theme not found
+- `409 Conflict` - Theme limit reached (max 50 custom themes)
+
+---
+
+### Get Active Theme (Public)
+
+Retrieve the currently active theme's full tokens for the public website to apply.
+
+**Endpoint:** `GET /themes/active`
+
+**Authentication:** Not required (public endpoint)
+
+**Response:** `200 OK`
+
+```json
+{
+  "id": "celestium-neon",
+  "name": "Celestium Neon",
+  "tokens": {
+    "colors": {
+      "primary": "139 92 246",
+      "background": "3 7 18",
+      "surface": "30 41 59",
+      "accent": "34 211 238"
+    },
+    "typography": { "..." : "..." },
+    "radius": { "..." : "..." },
+    "shadows": { "..." : "..." },
+    "motion": { "..." : "..." }
+  },
+  "custom_css": "/* optional */"
+}
+```
+
+**Notes:**
+
+- This is a public endpoint that does not require authentication
+- Used by the public website's ThemeProvider to load the admin-configured default theme
+- Returns the active theme's full token set and custom CSS
 
 ---
 

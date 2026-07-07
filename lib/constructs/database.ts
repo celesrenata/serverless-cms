@@ -15,6 +15,7 @@ export class DatabaseConstruct extends Construct {
   public readonly pluginsTable: dynamodb.Table;
   public readonly commentsTable: dynamodb.Table;
   public readonly sectionsTable: dynamodb.Table;
+  public readonly themesTable: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props: DatabaseConstructProps) {
     super(scope, id);
@@ -147,6 +148,16 @@ export class DatabaseConstruct extends Construct {
       indexName: 'parent_id-sort_order-index',
       partitionKey: { name: 'parent_id', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'sort_order', type: dynamodb.AttributeType.NUMBER },
+    });
+
+    // Themes Table
+    this.themesTable = new dynamodb.Table(this, 'ThemesTable', {
+      tableName: `cms-themes-${props.environment}`,
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
     });
   }
 }

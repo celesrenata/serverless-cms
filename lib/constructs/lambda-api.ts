@@ -20,6 +20,7 @@ export interface LambdaApiConstructProps {
   pluginsTable: dynamodb.ITable;
   commentsTable: dynamodb.ITable;
   sectionsTable: dynamodb.ITable;
+  themesTable: dynamodb.ITable;
   mediaBucket: s3.Bucket;
   userPool: cognito.IUserPool;
   userPoolClient: cognito.IUserPoolClient;
@@ -75,6 +76,7 @@ export class LambdaApiConstruct extends Construct {
       PLUGINS_TABLE: props.pluginsTable.tableName,
       COMMENTS_TABLE: props.commentsTable.tableName,
       SECTIONS_TABLE: props.sectionsTable.tableName,
+      THEMES_TABLE: props.themesTable.tableName,
       MEDIA_BUCKET: props.mediaBucket.bucketName,
       MEDIA_CDN_URL: props.mediaCdnUrl,
       COGNITO_REGION: cdk.Stack.of(this).region,
@@ -345,6 +347,38 @@ export class LambdaApiConstruct extends Construct {
       logicalId: 'SectionPublicFunction',
     });
 
+    // ─── Theme Lambda Functions ─────────────────────────────────────────
+    const themeCreate = this.createFunction({
+      id: 'ThemeCreateFunction', nameSuffix: 'theme-create',
+      handler: 'create', codePath: 'lambda/themes',
+      logicalId: 'ThemeCreateFunction',
+    });
+    const themeGet = this.createFunction({
+      id: 'ThemeGetFunction', nameSuffix: 'theme-get',
+      handler: 'get', codePath: 'lambda/themes',
+      logicalId: 'ThemeGetFunction',
+    });
+    const themeUpdate = this.createFunction({
+      id: 'ThemeUpdateFunction', nameSuffix: 'theme-update',
+      handler: 'update', codePath: 'lambda/themes',
+      logicalId: 'ThemeUpdateFunction',
+    });
+    const themeDelete = this.createFunction({
+      id: 'ThemeDeleteFunction', nameSuffix: 'theme-delete',
+      handler: 'delete', codePath: 'lambda/themes',
+      logicalId: 'ThemeDeleteFunction',
+    });
+    const themeActivate = this.createFunction({
+      id: 'ThemeActivateFunction', nameSuffix: 'theme-activate',
+      handler: 'activate', codePath: 'lambda/themes',
+      logicalId: 'ThemeActivateFunction',
+    });
+    const themeDuplicate = this.createFunction({
+      id: 'ThemeDuplicateFunction', nameSuffix: 'theme-duplicate',
+      handler: 'duplicate', codePath: 'lambda/themes',
+      logicalId: 'ThemeDuplicateFunction',
+    });
+
     // ─── Scheduler Function (custom env, no shared layer) ───────────────
     this.schedulerFunction = new lambda.Function(this, 'SchedulerFunction', {
       functionName: `cms-scheduler-${props.environment}`,
@@ -509,6 +543,18 @@ export class LambdaApiConstruct extends Construct {
       this.grantDynamoDbIndexQuery(fn, props.contentTable),
     );
     [sectionCreate, sectionUpdate, sectionDelete].forEach((fn) =>
+      props.usersTable.grantReadData(fn),
+    );
+
+    // Theme function permissions
+    [themeCreate, themeGet, themeUpdate, themeDelete, themeActivate, themeDuplicate].forEach((fn) =>
+      props.themesTable.grantReadWriteData(fn),
+    );
+    [themeGet, themeActivate].forEach((fn) =>
+      props.settingsTable.grantReadData(fn),
+    );
+    props.settingsTable.grantReadWriteData(themeActivate);
+    [themeCreate, themeUpdate, themeDelete, themeActivate, themeDuplicate].forEach((fn) =>
       props.usersTable.grantReadData(fn),
     );
 
@@ -716,6 +762,47 @@ export class LambdaApiConstruct extends Construct {
     const publicSectionIdResource = publicSectionsResource.addResource('{id}');
     const publicSectionPostsResource = publicSectionIdResource.addResource('posts');
     publicSectionPostsResource.addMethod('GET', new apigateway.LambdaIntegration(sectionPublic));
+
+    // Theme endpoints: /api/v1/themes
+    const themesResource = apiV1.addResource('themes');
+    themesResource.addMethod('GET', new apigateway.LambdaIntegration(themeGet), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    themesResource.addMethod('POST', new apigateway.LambdaIntegration(themeCreate), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // Public endpoint: GET /api/v1/themes/active (no auth)
+    const themeActiveResource = themesResource.addResource('active');
+    themeActiveResource.addMethod('GET', new apigateway.LambdaIntegration(themeGet));
+
+    const themeIdResource = themesResource.addResource('{id}');
+    themeIdResource.addMethod('GET', new apigateway.LambdaIntegration(themeGet), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    themeIdResource.addMethod('PUT', new apigateway.LambdaIntegration(themeUpdate), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    themeIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(themeDelete), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    const themeActivateResource = themeIdResource.addResource('activate');
+    themeActivateResource.addMethod('POST', new apigateway.LambdaIntegration(themeActivate), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    const themeDuplicateResource = themeIdResource.addResource('duplicate');
+    themeDuplicateResource.addMethod('POST', new apigateway.LambdaIntegration(themeDuplicate), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
 
     // Apply deferred logical ID overrides for service role default policies
     this.applyDeferredPolicyOverrides();

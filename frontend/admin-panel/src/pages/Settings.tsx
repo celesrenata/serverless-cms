@@ -6,7 +6,6 @@ export function Settings() {
   
   const [siteTitle, setSiteTitle] = useState('');
   const [siteDescription, setSiteDescription] = useState('');
-  const [theme, setTheme] = useState('default');
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const [commentsEnabled, setCommentsEnabled] = useState(false);
   const [commentModerationEnabled, setCommentModerationEnabled] = useState(true);
@@ -18,7 +17,6 @@ export function Settings() {
     if (settings) {
       setSiteTitle(settings.site_title || '');
       setSiteDescription(settings.site_description || '');
-      setTheme(settings.theme || 'default');
       setRegistrationEnabled(Boolean(settings.registration_enabled ?? false));
       setCommentsEnabled(Boolean(settings.comments_enabled ?? false));
       setCommentModerationEnabled(Boolean(settings.comment_moderation_enabled ?? true));
@@ -35,7 +33,6 @@ export function Settings() {
         {
           site_title: siteTitle,
           site_description: siteDescription,
-          theme: theme,
           registration_enabled: registrationEnabled,
           comments_enabled: commentsEnabled,
           comment_moderation_enabled: commentModerationEnabled,
@@ -112,34 +109,6 @@ export function Settings() {
             />
             <p className="mt-1 text-sm text-gray-500">
               A short description used in search results and social media
-            </p>
-          </div>
-
-          {/* Theme Selector */}
-          <div>
-            <label htmlFor="theme" className="block text-sm font-medium text-gray-700 mb-2">
-              Theme
-            </label>
-            <select
-              id="theme"
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-              className="input w-full"
-            >
-              <option value="celestium-neon">Celestium Neon (Dark Cyberpunk)</option>
-              <option value="celestium-bromide">Celestium Bromide (celestium.life)</option>
-              <option value="aws-console-after-dark">AWS Console After Dark</option>
-              <option value="glass-circuit">Glass Circuit</option>
-              <option value="paper-systems">Paper Systems (Light)</option>
-              <option value="terminal-witchcraft">Terminal Witchcraft</option>
-              <option value="default">Default</option>
-              <option value="dark">Dark (Legacy)</option>
-              <option value="light">Light (Legacy)</option>
-              <option value="minimal">Minimal</option>
-              <option value="custom">Custom</option>
-            </select>
-            <p className="mt-1 text-sm text-gray-500">
-              Choose the visual theme for your public website. Visitors can also switch themes via the theme panel.
             </p>
           </div>
 

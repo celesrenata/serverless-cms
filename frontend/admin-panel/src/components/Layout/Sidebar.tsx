@@ -9,6 +9,7 @@ export function Sidebar() {
     { to: '/users', label: 'Users', icon: '👥' },
     { to: '/comments', label: 'Comments', icon: '💬' },
     { to: '/settings', label: 'Settings', icon: '⚙️' },
+    { to: '/appearance', label: 'Appearance', icon: '🎨' },
     { to: '/plugins', label: 'Plugins', icon: '🔌' },
   ];
 

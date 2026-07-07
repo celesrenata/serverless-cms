@@ -36,6 +36,7 @@ export class ServerlessCmsStack extends cdk.Stack {
   public readonly pluginsTable: dynamodb.ITable;
   public readonly commentsTable: dynamodb.Table;
   public readonly sectionsTable: dynamodb.Table;
+  public readonly themesTable: dynamodb.Table;
   public readonly mediaBucket: s3.Bucket;
   public readonly adminBucket: s3.Bucket;
   public readonly publicBucket: s3.Bucket;
@@ -164,6 +165,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       pluginsTable: database.pluginsTable,
       commentsTable: database.commentsTable,
       sectionsTable: database.sectionsTable,
+      themesTable: database.themesTable,
       mediaBucket: storage.mediaBucket,
       userPool: auth.userPool,
       userPoolClient: auth.userPoolClient,
@@ -193,6 +195,7 @@ export class ServerlessCmsStack extends cdk.Stack {
     this.pluginsTable = database.pluginsTable;
     this.commentsTable = database.commentsTable;
     this.sectionsTable = database.sectionsTable;
+    this.themesTable = database.themesTable;
     this.mediaBucket = storage.mediaBucket;
     this.adminBucket = storage.adminBucket;
     this.publicBucket = storage.publicBucket;
@@ -258,6 +261,12 @@ export class ServerlessCmsStack extends cdk.Stack {
       description: 'Sections table name',
     });
     sectionsTableOutput.overrideLogicalId('SectionsTableName');
+
+    const themesTableOutput = new cdk.CfnOutput(this, 'ThemesTableName', {
+      value: this.themesTable.tableName,
+      description: 'Themes table name',
+    });
+    themesTableOutput.overrideLogicalId('ThemesTableName');
 
     const mediaBucketOutput = new cdk.CfnOutput(this, 'MediaBucketName', {
       value: this.mediaBucket.bucketName,

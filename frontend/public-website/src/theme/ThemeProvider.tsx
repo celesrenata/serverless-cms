@@ -3,11 +3,13 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import {
   ThemeTokens,
@@ -22,6 +24,26 @@ const ACTIVE_THEME_KEY = 'celestium.theme.active';
 const CUSTOM_THEME_KEY = 'celestium.theme.custom';
 const MOTION_OVERRIDE_KEY = 'celestium.motion.override';
 
+// --- Server active theme response ---
+interface ActiveThemeResponse {
+  id: string;
+  name: string;
+  tokens: ThemeTokens;
+  custom_css?: string;
+}
+
+// --- API base URL ---
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+
+// --- Fetch the server active theme ---
+async function fetchActiveTheme(): Promise<ActiveThemeResponse> {
+  const response = await fetch(`${API_BASE_URL}/themes/active`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch active theme: ${response.status}`);
+  }
+  return response.json();
+}
+
 // --- Public interface ---
 export interface ThemeContextValue {
   activeTheme: string;
@@ -29,6 +51,7 @@ export interface ThemeContextValue {
   builtinThemes: ThemeTokens[];
   customTheme: ThemeTokens | null;
   isPreviewActive: boolean;
+  isServerThemeLoading: boolean;
   setTheme: (themeId: string) => void;
   applyCustomTheme: (tokens: ThemeTokens) => void;
   exportTheme: () => void;
@@ -121,6 +144,11 @@ function resolveInitialMotion(): 'system' | 'reduce' | 'no-preference' {
   return 'system';
 }
 
+// --- Check if user has an explicit theme preference in localStorage ---
+function hasUserThemePreference(): boolean {
+  return safeGetItem(ACTIVE_THEME_KEY) !== null;
+}
+
 // --- Convert camelCase to kebab-case ---
 function toKebab(str: string): string {
   return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
@@ -179,17 +207,72 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [motionOverride, setMotionOverrideState] = useState<
     'system' | 'reduce' | 'no-preference'
   >(resolveInitialMotion);
+  const [serverThemeTokens, setServerThemeTokens] = useState<ThemeTokens | null>(null);
 
   const previousVarsRef = useRef<Set<string>>(new Set());
   const previewStyleRef = useRef<HTMLStyleElement | null>(null);
+  const serverCssStyleRef = useRef<HTMLStyleElement | null>(null);
+  const hasAppliedServerTheme = useRef(false);
+
+  // --- Fetch active theme from server with 5-minute stale time ---
+  const { data: serverThemeData, isLoading: isServerThemeLoading } = useQuery<ActiveThemeResponse>({
+    queryKey: ['themes', 'active'],
+    queryFn: fetchActiveTheme,
+    staleTime: 5 * 60 * 1000, // 5-minute stale time
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  // --- Apply server theme as default when no user preference exists ---
+  useEffect(() => {
+    if (!serverThemeData || hasAppliedServerTheme.current) return;
+
+    const serverTokens = serverThemeData.tokens;
+    if (!serverTokens) return;
+
+    hasAppliedServerTheme.current = true;
+
+    // Only apply server theme if user has no explicit localStorage preference
+    if (!hasUserThemePreference()) {
+      setServerThemeTokens(serverTokens);
+      setActiveThemeState(serverTokens.id);
+    }
+
+    // Apply custom_css from active theme into @layer user stylesheet
+    if (serverThemeData.custom_css) {
+      let el = serverCssStyleRef.current;
+      if (!el) {
+        el = document.createElement('style');
+        el.setAttribute('data-server-theme-css', '');
+        document.head.appendChild(el);
+        serverCssStyleRef.current = el;
+      }
+      el.textContent = `@layer user { ${serverThemeData.custom_css} }`;
+    }
+  }, [serverThemeData]);
+
+  // Cleanup server CSS style element on unmount
+  useEffect(() => {
+    return () => {
+      if (serverCssStyleRef.current) {
+        serverCssStyleRef.current.remove();
+        serverCssStyleRef.current = null;
+      }
+    };
+  }, []);
 
   // Resolve active tokens
   const tokens = useMemo<ThemeTokens>(() => {
     if (customTheme && customTheme.id === activeTheme) {
       return customTheme;
     }
+    // Check if server theme matches the active theme
+    if (serverThemeTokens && serverThemeTokens.id === activeTheme) {
+      return serverThemeTokens;
+    }
     return BUILTIN_THEMES.find((t) => t.id === activeTheme) ?? DEFAULT_THEME;
-  }, [activeTheme, customTheme]);
+  }, [activeTheme, customTheme, serverThemeTokens]);
 
   // Req 4.1, 4.2: apply theme via data-theme + CSS custom properties in single rAF
   useLayoutEffect(() => {
@@ -312,6 +395,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       builtinThemes: BUILTIN_THEMES,
       customTheme,
       isPreviewActive,
+      isServerThemeLoading,
       setTheme,
       applyCustomTheme,
       exportTheme,
@@ -327,6 +411,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       tokens,
       customTheme,
       isPreviewActive,
+      isServerThemeLoading,
       setTheme,
       applyCustomTheme,
       exportTheme,

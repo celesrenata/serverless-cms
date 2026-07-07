@@ -1,6 +1,29 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider, useTheme, buildCSSVariables } from './ThemeProvider';
 import { DEFAULT_THEME } from './tokens';
+
+// Helper to create a fresh QueryClient for each test
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: 0,
+      },
+    },
+  });
+}
+
+// Wrapper that provides QueryClient
+function TestWrapper({ children }: { children: React.ReactNode }) {
+  const queryClient = createTestQueryClient();
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+}
 
 function TestConsumer() {
   const theme = useTheme();
@@ -9,6 +32,7 @@ function TestConsumer() {
     <div>
       <span data-testid="active-theme">{theme.activeTheme}</span>
       <span data-testid="motion">{theme.motionOverride}</span>
+      <span data-testid="server-loading">{theme.isServerThemeLoading ? 'true' : 'false'}</span>
       <button data-testid="set-theme" onClick={() => theme.setTheme('test-theme')}>
         set
       </button>
@@ -30,6 +54,12 @@ describe('ThemeProvider', () => {
       return 0;
     });
     vi.stubGlobal('cancelAnimationFrame', () => {});
+
+    // Mock fetch to return 404 by default (no active theme on server)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+    }));
   });
 
   afterEach(() => {
@@ -42,9 +72,11 @@ describe('ThemeProvider', () => {
 
   it('renders children', () => {
     render(
-      <ThemeProvider>
-        <div data-testid="child">Hello theme</div>
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <div data-testid="child">Hello theme</div>
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('child')).toBeInTheDocument();
@@ -58,16 +90,18 @@ describe('ThemeProvider', () => {
       return <div />;
     }
 
-    expect(() => render(<Outside />)).toThrow(
+    expect(() => render(<TestWrapper><Outside /></TestWrapper>)).toThrow(
       'useTheme must be used within a ThemeProvider',
     );
   });
 
   it('initial activeTheme is celestium-neon', () => {
     render(
-      <ThemeProvider>
-        <TestConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <TestConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('active-theme')).toHaveTextContent('celestium-neon');
@@ -75,9 +109,11 @@ describe('ThemeProvider', () => {
 
   it('setTheme updates activeTheme and persists to localStorage', () => {
     render(
-      <ThemeProvider>
-        <TestConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <TestConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     act(() => {
@@ -90,9 +126,11 @@ describe('ThemeProvider', () => {
 
   it('sets data-theme attribute on document element after setTheme', () => {
     render(
-      <ThemeProvider>
-        <TestConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <TestConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     act(() => {
@@ -106,9 +144,11 @@ describe('ThemeProvider', () => {
     localStorage.setItem('celestium.theme.active', 'celestium-neon');
 
     render(
-      <ThemeProvider>
-        <TestConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <TestConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('active-theme')).toHaveTextContent('celestium-neon');
@@ -118,9 +158,11 @@ describe('ThemeProvider', () => {
     localStorage.setItem('celestium.theme.active', 'nonexistent-theme');
 
     render(
-      <ThemeProvider>
-        <TestConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <TestConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('active-theme')).toHaveTextContent('celestium-neon');
@@ -128,9 +170,11 @@ describe('ThemeProvider', () => {
 
   it('motionOverride defaults to system and setMotionOverride persists', () => {
     render(
-      <ThemeProvider>
-        <TestConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <TestConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('motion')).toHaveTextContent('system');
@@ -161,9 +205,11 @@ describe('ThemeProvider', () => {
     }
 
     render(
-      <ThemeProvider>
-        <ImportConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <ImportConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     act(() => {
@@ -193,9 +239,11 @@ describe('ThemeProvider', () => {
     }
 
     render(
-      <ThemeProvider>
-        <ImportConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <ImportConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     act(() => {
@@ -275,6 +323,12 @@ describe('ThemeProvider - custom theme persistence (Req 17.2)', () => {
       return 0;
     });
     vi.stubGlobal('cancelAnimationFrame', () => {});
+
+    // Mock fetch to return 404 by default (no active theme on server)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+    }));
   });
 
   afterEach(() => {
@@ -308,9 +362,11 @@ describe('ThemeProvider - custom theme persistence (Req 17.2)', () => {
     }
 
     render(
-      <ThemeProvider>
-        <CustomConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <CustomConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     act(() => {
@@ -348,9 +404,11 @@ describe('ThemeProvider - custom theme persistence (Req 17.2)', () => {
     }
 
     render(
-      <ThemeProvider>
-        <CustomConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <CustomConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('active')).toHaveTextContent('stored-custom');
@@ -368,9 +426,11 @@ describe('ThemeProvider - custom theme persistence (Req 17.2)', () => {
     }
 
     render(
-      <ThemeProvider>
-        <CustomConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <CustomConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     // Falls back to system preference / default (celestium-neon)
@@ -399,9 +459,11 @@ describe('ThemeProvider - custom theme persistence (Req 17.2)', () => {
     }
 
     render(
-      <ThemeProvider>
-        <CSSConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <CSSConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     act(() => {
@@ -448,9 +510,11 @@ describe('ThemeProvider - custom theme persistence (Req 17.2)', () => {
     }
 
     render(
-      <ThemeProvider>
-        <CustomConsumer />
-      </ThemeProvider>,
+      <TestWrapper>
+        <ThemeProvider>
+          <CustomConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
     );
 
     // Should not throw
@@ -462,5 +526,251 @@ describe('ThemeProvider - custom theme persistence (Req 17.2)', () => {
     expect(screen.getByTestId('active')).toHaveTextContent('quota-theme');
 
     Storage.prototype.setItem = originalSetItem;
+  });
+});
+
+
+describe('ThemeProvider - Server theme loading (Task 8)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    document.documentElement.removeAttribute('data-theme');
+    document.documentElement.style.cssText = '';
+
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      cb(0);
+      return 0;
+    });
+    vi.stubGlobal('cancelAnimationFrame', () => {});
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+    document.documentElement.removeAttribute('data-theme');
+    document.documentElement.style.cssText = '';
+    // Remove any injected style elements
+    document.querySelectorAll('[data-server-theme-css]').forEach((el) => el.remove());
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('applies server theme tokens when no localStorage preference exists', async () => {
+    const serverTheme = {
+      id: 'server-custom-theme',
+      name: 'Server Custom',
+      tokens: {
+        ...DEFAULT_THEME,
+        id: 'server-custom-theme',
+        name: 'Server Custom',
+      },
+    };
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(serverTheme),
+    }));
+
+    function Consumer() {
+      const theme = useTheme();
+      return (
+        <div>
+          <span data-testid="active">{theme.activeTheme}</span>
+          <span data-testid="name">{theme.tokens.name}</span>
+        </div>
+      );
+    }
+
+    render(
+      <TestWrapper>
+        <ThemeProvider>
+          <Consumer />
+        </ThemeProvider>
+      </TestWrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('active')).toHaveTextContent('server-custom-theme');
+    });
+
+    expect(screen.getByTestId('name')).toHaveTextContent('Server Custom');
+  });
+
+  it('respects localStorage user preference over server default', async () => {
+    // User has already chosen a theme
+    localStorage.setItem('celestium.theme.active', 'celestium-neon');
+
+    const serverTheme = {
+      id: 'server-different-theme',
+      name: 'Server Different',
+      tokens: {
+        ...DEFAULT_THEME,
+        id: 'server-different-theme',
+        name: 'Server Different',
+      },
+    };
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(serverTheme),
+    }));
+
+    function Consumer() {
+      const theme = useTheme();
+      return (
+        <div>
+          <span data-testid="active">{theme.activeTheme}</span>
+          <span data-testid="name">{theme.tokens.name}</span>
+        </div>
+      );
+    }
+
+    render(
+      <TestWrapper>
+        <ThemeProvider>
+          <Consumer />
+        </ThemeProvider>
+      </TestWrapper>,
+    );
+
+    // Wait for query to resolve
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+    });
+
+    // User's localStorage preference should be retained
+    expect(screen.getByTestId('active')).toHaveTextContent('celestium-neon');
+    expect(screen.getByTestId('name')).toHaveTextContent('Celestium Neon');
+  });
+
+  it('injects custom_css from server theme into @layer user stylesheet', async () => {
+    const serverTheme = {
+      id: 'css-theme',
+      name: 'CSS Theme',
+      tokens: {
+        ...DEFAULT_THEME,
+        id: 'css-theme',
+        name: 'CSS Theme',
+      },
+      custom_css: '.hero { background: purple; }',
+    };
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(serverTheme),
+    }));
+
+    render(
+      <TestWrapper>
+        <ThemeProvider>
+          <TestConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
+    );
+
+    await waitFor(() => {
+      const styleEl = document.querySelector('[data-server-theme-css]');
+      expect(styleEl).not.toBeNull();
+    });
+
+    const styleEl = document.querySelector('[data-server-theme-css]');
+    expect(styleEl!.textContent).toContain('@layer user');
+    expect(styleEl!.textContent).toContain('.hero { background: purple; }');
+  });
+
+  it('gracefully falls back to bundled default on API failure', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+    }));
+
+    function Consumer() {
+      const theme = useTheme();
+      return (
+        <div>
+          <span data-testid="active">{theme.activeTheme}</span>
+          <span data-testid="name">{theme.tokens.name}</span>
+        </div>
+      );
+    }
+
+    render(
+      <TestWrapper>
+        <ThemeProvider>
+          <Consumer />
+        </ThemeProvider>
+      </TestWrapper>,
+    );
+
+    // Wait for query to fail
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+    });
+
+    // Should still render with the default theme (no crash)
+    expect(screen.getByTestId('active')).toHaveTextContent('celestium-neon');
+    expect(screen.getByTestId('name')).toHaveTextContent('Celestium Neon');
+  });
+
+  it('gracefully falls back when fetch throws a network error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
+
+    function Consumer() {
+      const theme = useTheme();
+      return (
+        <div>
+          <span data-testid="active">{theme.activeTheme}</span>
+          <span data-testid="name">{theme.tokens.name}</span>
+        </div>
+      );
+    }
+
+    render(
+      <TestWrapper>
+        <ThemeProvider>
+          <Consumer />
+        </ThemeProvider>
+      </TestWrapper>,
+    );
+
+    // Wait for query to fail
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+    });
+
+    // Should still render with the default theme (no crash)
+    expect(screen.getByTestId('active')).toHaveTextContent('celestium-neon');
+    expect(screen.getByTestId('name')).toHaveTextContent('Celestium Neon');
+  });
+
+  it('does not inject style element when server theme has no custom_css', async () => {
+    const serverTheme = {
+      id: 'no-css-theme',
+      name: 'No CSS Theme',
+      tokens: {
+        ...DEFAULT_THEME,
+        id: 'no-css-theme',
+        name: 'No CSS Theme',
+      },
+      // No custom_css field
+    };
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(serverTheme),
+    }));
+
+    render(
+      <TestWrapper>
+        <ThemeProvider>
+          <TestConsumer />
+        </ThemeProvider>
+      </TestWrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('active-theme')).toHaveTextContent('no-css-theme');
+    });
+
+    const styleEl = document.querySelector('[data-server-theme-css]');
+    expect(styleEl).toBeNull();
   });
 });
