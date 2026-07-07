@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 mermaid.initialize({
   startOnLoad: false,
-  theme: 'default',
+  theme: 'dark',
   securityLevel: 'loose',
 });
 
