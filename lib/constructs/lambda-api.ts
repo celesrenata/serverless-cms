@@ -74,6 +74,7 @@ export class LambdaApiConstruct extends Construct {
       PLUGINS_TABLE: props.pluginsTable.tableName,
       COMMENTS_TABLE: props.commentsTable.tableName,
       MEDIA_BUCKET: props.mediaBucket.bucketName,
+      MEDIA_CDN_URL: props.mediaCdnUrl,
       COGNITO_REGION: cdk.Stack.of(this).region,
       USER_POOL_ID: props.userPool.userPoolId,
       USER_POOL_CLIENT_ID: props.userPoolClient.userPoolClientId,
@@ -426,8 +427,13 @@ export class LambdaApiConstruct extends Construct {
       props.pluginsTable.grantReadWriteData(fn),
     );
     [pluginList, pluginGetSettings].forEach((fn) => props.pluginsTable.grantReadData(fn));
+    props.pluginsTable.grantReadWriteData(pluginUpdateSettings);
     props.settingsTable.grantReadData(pluginGetSettings);
     props.settingsTable.grantReadWriteData(pluginUpdateSettings);
+    // All plugin functions need users table read access for auth role lookup
+    [pluginInstall, pluginActivate, pluginDeactivate, pluginList, pluginGetSettings, pluginUpdateSettings].forEach(
+      (fn) => props.usersTable.grantReadData(fn),
+    );
 
     // Comment function permissions
     props.commentsTable.grantReadData(commentList);
