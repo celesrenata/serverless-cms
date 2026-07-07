@@ -265,12 +265,79 @@ export const TERMINAL_WITCHCRAFT: ThemeTokens = {
 };
 
 /**
+ * Celestium Bromide
+ * The signature celestium.life aesthetic: pure-black backgrounds, electric purple accents,
+ * elegant serif headings (EB Garamond), clean Inter body text, and Nord-themed code blocks.
+ */
+export const CELESTIUM_BROMIDE: ThemeTokens = {
+  id: 'celestium-bromide',
+  name: 'Celestium Bromide',
+  description:
+    'Pure-black dark theme with electric purple accents, serif headings, and subtle texture inspired by celestium.life',
+  colors: {
+    primary: '130 36 227',
+    primaryHover: '149 65 237',
+    secondary: '171 113 245',
+    background: '0 0 0',
+    backgroundAlt: '8 8 12',
+    surface: '14 14 20',
+    surfaceAlt: '22 22 30',
+    text: '230 230 230',
+    textMuted: '180 180 190',
+    textInverse: '0 0 0',
+    border: '50 40 65',
+    borderLight: '38 30 50',
+    accent: '171 113 245',
+    success: '52 211 153',
+    warning: '251 191 36',
+    error: '248 113 113',
+    info: '141 162 251',
+  },
+  typography: {
+    fontFamily:
+      '"Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontFamilyMono:
+      '"JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace',
+    fontSizeBase: '1.125rem',
+    fontSizeScale: 1.25,
+    lineHeight: '1.75',
+    fontWeightNormal: 400,
+    fontWeightBold: 700,
+  },
+  radius: {
+    sm: '0.25rem',
+    md: '0.5rem',
+    lg: '0.75rem',
+    full: '9999px',
+  },
+  shadow: {
+    sm: '0 1px 3px rgba(0, 0, 0, 0.5)',
+    md: '0 8px 24px rgba(0, 0, 0, 0.6)',
+    lg: '0 20px 48px rgba(0, 0, 0, 0.7)',
+    glow: '0 0 24px rgba(130, 36, 227, 0.3)',
+  },
+  motion: {
+    durationFast: '120ms',
+    durationNormal: '200ms',
+    durationSlow: '320ms',
+    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    reducedMotion: false,
+  },
+  patterns: {
+    type: 'dots',
+    opacity: 0.04,
+    color: 'rgba(130, 36, 227, 0.15)',
+  },
+};
+
+/**
  * All built-in themes in display order.
  * The first theme (Celestium Neon) is used as the default for dark preference.
  * Paper Systems is used as the default for light preference.
  */
 export const BUILTIN_THEMES: ThemeTokens[] = [
   DEFAULT_THEME,
+  CELESTIUM_BROMIDE,
   AWS_CONSOLE_AFTER_DARK,
   GLASS_CIRCUIT,
   PAPER_SYSTEMS,

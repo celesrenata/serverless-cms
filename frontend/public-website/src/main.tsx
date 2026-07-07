@@ -17,6 +17,7 @@ import './themes/dark.css';
 import './themes/light.css';
 import './themes/minimal.css';
 import './themes/custom.css';
+import './themes/celestium-bromide.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
