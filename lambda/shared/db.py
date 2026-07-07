@@ -109,13 +109,13 @@ class ContentRepository:
             expr_attr_names = {}
             expr_attr_values = {}
             
-            for key, value in updates.items():
-                # Use attribute names to handle reserved keywords
-                attr_name = f"#{key}"
-                attr_value = f":{key}"
-                update_expr_parts.append(f"{attr_name} = {attr_value}")
-                expr_attr_names[attr_name] = key
-                expr_attr_values[attr_value] = value
+            for idx, (key, value) in enumerate(updates.items()):
+                # Use sanitized aliases to handle keys with special characters
+                safe_alias = f"#attr{idx}"
+                safe_value = f":val{idx}"
+                update_expr_parts.append(f"{safe_alias} = {safe_value}")
+                expr_attr_names[safe_alias] = key
+                expr_attr_values[safe_value] = value
             
             update_expr = "SET " + ", ".join(update_expr_parts)
             
