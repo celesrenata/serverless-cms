@@ -13,18 +13,14 @@ Routes:
   POST   /users/{id}/reset-password -> reset user password
 """
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from users.get_me import handler as get_me_handler
-from users.update_me import handler as update_me_handler
-from users.list import handler as list_handler
-from users.create import handler as create_handler
-from users.update import handler as update_handler
-from users.delete import handler as delete_handler
-from users.reset_password import handler as reset_password_handler
+from get_me import handler as get_me_handler
+from update_me import handler as update_me_handler
+from list import handler as list_handler
+from create import handler as create_handler
+from update import handler as update_handler
+from delete import handler as delete_handler
+from reset_password import handler as reset_password_handler
 
 
 HEADERS = {

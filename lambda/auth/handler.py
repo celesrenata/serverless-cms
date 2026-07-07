@@ -8,13 +8,9 @@ Routes (public, no auth):
   POST   /auth/verify-email  -> verify email address
 """
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from auth.register import handler as register_handler
-from auth.verify_email import handler as verify_email_handler
+from register import handler as register_handler
+from verify_email import handler as verify_email_handler
 
 
 HEADERS = {

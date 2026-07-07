@@ -16,16 +16,12 @@ Routes (public, no auth):
   GET    /public/sections/{id}/posts   -> get posts for section
 """
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from sections.get import handler as get_handler
-from sections.create import handler as create_handler
-from sections.update import handler as update_handler
-from sections.delete import handler as delete_handler
-from sections.public import handler as public_handler
+from get import handler as get_handler
+from create import handler as create_handler
+from update import handler as update_handler
+from delete import handler as delete_handler
+from public import handler as public_handler
 
 
 HEADERS = {

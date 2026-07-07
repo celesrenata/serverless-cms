@@ -14,17 +14,13 @@ Routes:
   POST   /themes/{id}/duplicate -> duplicate theme
 """
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from themes.get import handler as get_handler
-from themes.create import handler as create_handler
-from themes.update import handler as update_handler
-from themes.delete import handler as delete_handler
-from themes.activate import handler as activate_handler
-from themes.duplicate import handler as duplicate_handler
+from get import handler as get_handler
+from create import handler as create_handler
+from update import handler as update_handler
+from delete import handler as delete_handler
+from activate import handler as activate_handler
+from duplicate import handler as duplicate_handler
 
 
 HEADERS = {

@@ -10,15 +10,11 @@ Routes:
   DELETE /media/{id}     -> delete media
 """
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from media.upload import handler as upload_handler
-from media.get import handler as get_handler
-from media.list import handler as list_handler
-from media.delete import handler as delete_handler
+from upload import handler as upload_handler
+from get import handler as get_handler
+from list import handler as list_handler
+from delete import handler as delete_handler
 
 
 HEADERS = {

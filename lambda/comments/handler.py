@@ -13,15 +13,11 @@ Routes (admin, authenticated):
   DELETE /comments/{id}          -> delete comment
 """
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from comments.list import handler as list_handler
-from comments.create import handler as create_handler
-from comments.update import handler as update_handler
-from comments.delete import handler as delete_handler
+from list import handler as list_handler
+from create import handler as create_handler
+from update import handler as update_handler
+from delete import handler as delete_handler
 
 
 HEADERS = {

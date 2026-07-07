@@ -12,17 +12,13 @@ Routes:
   PUT    /plugins/{id}/settings      -> update plugin settings
 """
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from plugins.install import handler as install_handler
-from plugins.activate import handler as activate_handler
-from plugins.deactivate import handler as deactivate_handler
-from plugins.list import handler as list_handler
-from plugins.get_settings import handler as get_settings_handler
-from plugins.update_settings import handler as update_settings_handler
+from install import handler as install_handler
+from activate import handler as activate_handler
+from deactivate import handler as deactivate_handler
+from list import handler as list_handler
+from get_settings import handler as get_settings_handler
+from update_settings import handler as update_settings_handler
 
 
 HEADERS = {

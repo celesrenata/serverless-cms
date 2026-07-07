@@ -9,14 +9,10 @@ Routes:
   GET    /settings/public  -> get public settings (no auth)
 """
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from settings.get import handler as get_handler
-from settings.update import handler as update_handler
-from settings.get_public import handler as get_public_handler
+from get import handler as get_handler
+from update import handler as update_handler
+from get_public import handler as get_public_handler
 
 
 HEADERS = {
