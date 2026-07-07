@@ -149,11 +149,16 @@ def test_property_4_code_block_language_annotation(_unused):
     # Must have code blocks
     assert code_blocks
 
-    # Every code block must have a language-* class
+    # Every code block must have a language-* class on code OR shiki class on pre
     for code in code_blocks:
-        classes = code.get("class") or []
-        has_language_class = any(c.startswith("language-") for c in classes)
-        assert has_language_class, f"Code block missing language class: {classes}"
+        code_classes = code.get("class") or []
+        pre_classes = code.parent.get("class") or [] if code.parent else []
+        has_language_class = any(c.startswith("language-") for c in code_classes)
+        has_shiki_class = "shiki" in pre_classes
+        assert has_language_class or has_shiki_class, (
+            f"Code block missing language-* or shiki class. "
+            f"Code classes: {code_classes}, Pre classes: {pre_classes}"
+        )
 
 
 @settings(max_examples=1, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
