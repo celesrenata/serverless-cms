@@ -15,6 +15,8 @@ from create_architecture_article import (  # noqa: E402
     upsert_article,
 )
 
+TEST_CDN_BASE = "https://d391evgc81s5g2.cloudfront.net"
+
 
 def test_parse_args_default_env():
     with patch("sys.argv", ["script"]):
@@ -41,7 +43,7 @@ def test_build_metadata_has_required_fields():
 
 
 def test_build_article_content_non_empty_with_key_terms():
-    content = build_article_content()
+    content = build_article_content(TEST_CDN_BASE)
 
     assert content
     assert "CDK" in content

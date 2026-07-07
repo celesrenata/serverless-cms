@@ -1,0 +1,71 @@
+.hero-grid-pattern {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-grid-pattern::before,
+.hero-grid-pattern::after {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  pointer-events: none;
+}
+
+/* Grid lines using theme primary color */
+.hero-grid-pattern::before {
+  background-image:
+    linear-gradient(
+      rgb(var(--color-primary) / 0.08) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgb(var(--color-primary) / 0.08) 1px,
+      transparent 1px
+    );
+  background-size: 48px 48px;
+  animation: hero-grid-drift 28s linear infinite;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
+  -webkit-mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
+}
+
+/* Dot overlay for added depth */
+.hero-grid-pattern::after {
+  background-image: radial-gradient(
+    circle,
+    rgb(var(--color-accent) / 0.12) 1px,
+    transparent 1.5px
+  );
+  background-size: 24px 24px;
+  opacity: 0.4;
+  animation: hero-dots-drift 36s linear infinite;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 65%);
+  -webkit-mask-image: radial-gradient(circle at center, black 0%, transparent 65%);
+}
+
+@keyframes hero-grid-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(48px, 48px, 0);
+  }
+}
+
+@keyframes hero-dots-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-24px, 24px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-grid-pattern::before,
+  .hero-grid-pattern::after {
+    animation: none;
+  }
+}

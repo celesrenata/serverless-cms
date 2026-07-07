@@ -1,16 +1,13 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useContentBySlug } from '../hooks/useContent';
-import { useSiteSettings } from '../hooks/useSiteSettings';
+import { PageMeta } from '../components/PageMeta';
 import { Lightbox } from '../components/Lightbox';
-import { formatAlbumTitle } from '../utils/galleryUtils';
 import type { Media } from '../types';
 
 export const AlbumPage = () => {
   const { slug = '' } = useParams<{ slug: string }>();
   const { data: album, isLoading, isError } = useContentBySlug(slug);
-  const { data: siteSettings } = useSiteSettings();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (isLoading) {
@@ -46,7 +43,6 @@ export const AlbumPage = () => {
     );
   }
 
-  const siteTitle = siteSettings?.site_title ?? '';
   const images: Media[] = album.metadata.media ?? [];
 
   const handleNext = () => {
@@ -65,10 +61,11 @@ export const AlbumPage = () => {
 
   return (
     <div className="bg-white min-h-screen">
-      <Helmet>
-        <title>{formatAlbumTitle(album.title, siteTitle)}</title>
-        <meta name="description" content={album.excerpt} />
-      </Helmet>
+      <PageMeta
+        title={`${album.title} - Gallery`}
+        description={album.excerpt || `Photo album: ${album.title}`}
+        canonical={`/gallery/${slug}`}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Link

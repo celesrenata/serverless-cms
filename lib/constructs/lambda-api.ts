@@ -19,6 +19,7 @@ export interface LambdaApiConstructProps {
   settingsTable: dynamodb.ITable;
   pluginsTable: dynamodb.ITable;
   commentsTable: dynamodb.ITable;
+  sectionsTable: dynamodb.ITable;
   mediaBucket: s3.Bucket;
   userPool: cognito.IUserPool;
   userPoolClient: cognito.IUserPoolClient;
@@ -73,6 +74,7 @@ export class LambdaApiConstruct extends Construct {
       SETTINGS_TABLE: props.settingsTable.tableName,
       PLUGINS_TABLE: props.pluginsTable.tableName,
       COMMENTS_TABLE: props.commentsTable.tableName,
+      SECTIONS_TABLE: props.sectionsTable.tableName,
       MEDIA_BUCKET: props.mediaBucket.bucketName,
       MEDIA_CDN_URL: props.mediaCdnUrl,
       COGNITO_REGION: cdk.Stack.of(this).region,
@@ -316,6 +318,33 @@ export class LambdaApiConstruct extends Construct {
       defaultPolicyLogicalId: 'VerifyEmailFunctionServiceRoleDefaultPolicy7444358B',
     });
 
+    // ─── Section Lambda Functions ───────────────────────────────────────
+    const sectionCreate = this.createFunction({
+      id: 'SectionCreateFunction', nameSuffix: 'section-create',
+      handler: 'create', codePath: 'lambda/sections',
+      logicalId: 'SectionCreateFunction',
+    });
+    const sectionGet = this.createFunction({
+      id: 'SectionGetFunction', nameSuffix: 'section-get',
+      handler: 'get', codePath: 'lambda/sections',
+      logicalId: 'SectionGetFunction',
+    });
+    const sectionUpdate = this.createFunction({
+      id: 'SectionUpdateFunction', nameSuffix: 'section-update',
+      handler: 'update', codePath: 'lambda/sections',
+      logicalId: 'SectionUpdateFunction',
+    });
+    const sectionDelete = this.createFunction({
+      id: 'SectionDeleteFunction', nameSuffix: 'section-delete',
+      handler: 'delete', codePath: 'lambda/sections',
+      logicalId: 'SectionDeleteFunction',
+    });
+    const sectionPublic = this.createFunction({
+      id: 'SectionPublicFunction', nameSuffix: 'section-public',
+      handler: 'public', codePath: 'lambda/sections',
+      logicalId: 'SectionPublicFunction',
+    });
+
     // ─── Scheduler Function (custom env, no shared layer) ───────────────
     this.schedulerFunction = new lambda.Function(this, 'SchedulerFunction', {
       functionName: `cms-scheduler-${props.environment}`,
@@ -464,6 +493,23 @@ export class LambdaApiConstruct extends Construct {
     // CloudWatch PutMetricData permissions
     [commentCreate, commentUpdate, userCreate, register].forEach((fn) =>
       this.grantCloudWatchPutMetricData(fn),
+    );
+
+    // Section function permissions
+    [sectionCreate, sectionGet, sectionUpdate, sectionDelete, sectionPublic].forEach((fn) =>
+      props.sectionsTable.grantReadWriteData(fn),
+    );
+    [sectionCreate, sectionGet, sectionUpdate, sectionDelete, sectionPublic].forEach((fn) =>
+      props.contentTable.grantReadData(fn),
+    );
+    [sectionCreate, sectionGet, sectionUpdate, sectionDelete, sectionPublic].forEach((fn) =>
+      this.grantDynamoDbIndexQuery(fn, props.sectionsTable),
+    );
+    [sectionPublic].forEach((fn) =>
+      this.grantDynamoDbIndexQuery(fn, props.contentTable),
+    );
+    [sectionCreate, sectionUpdate, sectionDelete].forEach((fn) =>
+      props.usersTable.grantReadData(fn),
     );
 
     // ─── API Gateway Routes ─────────────────────────────────────────────
@@ -630,6 +676,46 @@ export class LambdaApiConstruct extends Construct {
 
     const verifyEmailResource = authResource.addResource('verify-email');
     verifyEmailResource.addMethod('POST', new apigateway.LambdaIntegration(verifyEmail));
+
+    // Section endpoints: /api/v1/sections (authenticated)
+    const sectionsResource = apiV1.addResource('sections');
+    sectionsResource.addMethod('POST', new apigateway.LambdaIntegration(sectionCreate), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    sectionsResource.addMethod('GET', new apigateway.LambdaIntegration(sectionGet), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    const sectionIdResource = sectionsResource.addResource('{id}');
+    sectionIdResource.addMethod('GET', new apigateway.LambdaIntegration(sectionGet), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    sectionIdResource.addMethod('PUT', new apigateway.LambdaIntegration(sectionUpdate), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    sectionIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(sectionDelete), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // Public section endpoints: /api/v1/public/sections (unauthenticated)
+    const publicResource = apiV1.addResource('public');
+    const publicSectionsResource = publicResource.addResource('sections');
+
+    const publicSectionsTreeResource = publicSectionsResource.addResource('tree');
+    publicSectionsTreeResource.addMethod('GET', new apigateway.LambdaIntegration(sectionPublic));
+
+    const publicSectionsPathResource = publicSectionsResource.addResource('path');
+    const publicSectionsPathProxy = publicSectionsPathResource.addResource('{path+}');
+    publicSectionsPathProxy.addMethod('GET', new apigateway.LambdaIntegration(sectionPublic));
+
+    const publicSectionIdResource = publicSectionsResource.addResource('{id}');
+    const publicSectionPostsResource = publicSectionIdResource.addResource('posts');
+    publicSectionPostsResource.addMethod('GET', new apigateway.LambdaIntegration(sectionPublic));
 
     // Apply deferred logical ID overrides for service role default policies
     this.applyDeferredPolicyOverrides();

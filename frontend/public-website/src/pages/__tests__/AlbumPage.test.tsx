@@ -5,7 +5,6 @@ import { useContentBySlug } from '../../hooks/useContent';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 import { renderWithProviders } from '../../test/utils/renderWithProviders';
 import { createMockContent } from '../../test/mocks/data';
-import { formatAlbumTitle } from '../../utils/galleryUtils';
 import type { Media } from '../../types';
 
 vi.mock('../../hooks/useContent', () => ({ useContentBySlug: vi.fn() }));
@@ -271,7 +270,7 @@ describe('AlbumPage', () => {
     renderAlbumPage();
 
     await waitFor(() => {
-      expect(document.title).toBe(formatAlbumTitle('Test Album', 'Test Site'));
+      expect(document.title).toBe('Test Album - Gallery | Celestium');
     });
 
     const metaDescription = document.querySelector('meta[name="description"]');

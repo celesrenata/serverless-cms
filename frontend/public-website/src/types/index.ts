@@ -17,6 +17,8 @@ export interface Content {
     media?: Media[];
     custom_fields?: Record<string, any>;
   };
+  content_markdown?: string;
+  content_format?: 'markdown' | 'html';
   created_at: number;
   updated_at: number;
   published_at?: number;

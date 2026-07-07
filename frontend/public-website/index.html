@@ -3,9 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Public Website</title>
+    <title>Celestium</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
+    <script>
+      // FOUC prevention: read theme from localStorage before first paint
+      (function(){try{var t=localStorage.getItem('celestium.theme.active');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme',window.matchMedia('(prefers-color-scheme:light)').matches?'paper-systems':'celestium-neon')}}catch(e){document.documentElement.setAttribute('data-theme','celestium-neon')}})();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

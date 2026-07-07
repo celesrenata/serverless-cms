@@ -9,18 +9,23 @@ export interface ContentMetadata {
   custom_fields?: Record<string, string | number | boolean>;
 }
 
+export type ContentFormat = 'markdown' | 'html';
+
 export interface Content {
   id: string;
   type: ContentType;
   title: string;
   slug: string;
   content: string;
+  content_markdown?: string;
+  content_format?: ContentFormat;
   excerpt: string;
   author: string;
   author_name?: string;
   status: ContentStatus;
   featured_image?: string;
   metadata: ContentMetadata;
+  section_id?: string;
   created_at: number;
   updated_at: number;
   published_at?: number;
@@ -32,10 +37,13 @@ export interface ContentCreate {
   title: string;
   slug?: string;
   content: string;
+  content_markdown?: string;
+  content_format?: ContentFormat;
   excerpt?: string;
   status?: ContentStatus;
   featured_image?: string;
   metadata?: ContentMetadata;
+  section_id?: string;
   scheduled_at?: number;
 }
 
@@ -43,10 +51,13 @@ export interface ContentUpdate {
   title?: string;
   slug?: string;
   content?: string;
+  content_markdown?: string;
+  content_format?: ContentFormat;
   excerpt?: string;
   status?: ContentStatus;
   featured_image?: string;
   metadata?: ContentMetadata;
+  section_id?: string;
   scheduled_at?: number;
 }
 

@@ -25,6 +25,8 @@ os.environ.setdefault("AWS_DEFAULT_REGION", "us-east-1")
 from create_architecture_article import SLUG, build_article_content, upsert_article
 from shared.db import ContentRepository
 
+TEST_CDN_BASE = "https://d391evgc81s5g2.cloudfront.net"
+
 
 TABLE_NAME = "test-cms-content"
 TEST_ENV = "test"
@@ -112,7 +114,7 @@ def test_property_3_mermaid_block_format_consistency(_unused):
 
     **Validates: Requirements 4.7**
     """
-    html_content = build_article_content()
+    html_content = build_article_content(TEST_CDN_BASE)
     soup = BeautifulSoup(html_content, "html.parser")
 
     # Find all code elements with language-mermaid class
@@ -140,7 +142,7 @@ def test_property_4_code_block_language_annotation(_unused):
 
     **Validates: Requirements 5.5**
     """
-    html_content = build_article_content()
+    html_content = build_article_content(TEST_CDN_BASE)
     soup = BeautifulSoup(html_content, "html.parser")
 
     # Find all <pre><code> blocks
@@ -168,7 +170,7 @@ def test_property_5_heading_hierarchy_validity(_unused):
 
     **Validates: Requirements 6.1**
     """
-    html_content = build_article_content()
+    html_content = build_article_content(TEST_CDN_BASE)
     soup = BeautifulSoup(html_content, "html.parser")
 
     # Extract all heading elements

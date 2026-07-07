@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { sanitizeWordPressContent } from '../utils/sanitizeContent';
 import { FullscreenOverlay } from './FullscreenOverlay';
 import { MermaidRenderer } from './MermaidRenderer';
+import { MarkdownContent } from './MarkdownContent';
 
 interface BlogContentProps {
   html: string;
+  contentMarkdown?: string;
 }
 
 type ContentSegment = {
@@ -131,7 +133,27 @@ function ExpandableHtmlSegment({ html }: { html: string }) {
   );
 }
 
-export const BlogContent = ({ html }: BlogContentProps) => {
+export const BlogContent = ({ html, contentMarkdown }: BlogContentProps) => {
+  // Rendering path selection: if content_markdown is non-empty, use markdown renderer
+  if (contentMarkdown && contentMarkdown.trim().length > 0) {
+    return <MarkdownBlogContent markdown={contentMarkdown} />;
+  }
+
+  return <HtmlBlogContent html={html} />;
+};
+
+/**
+ * Renders markdown content through the MarkdownContent pipeline,
+ * then extracts and renders Mermaid diagrams from the HTML output.
+ */
+function MarkdownBlogContent({ markdown }: { markdown: string }) {
+  return <MarkdownContent markdown={markdown} />;
+}
+
+/**
+ * Existing HTML rendering path with Mermaid support.
+ */
+function HtmlBlogContent({ html }: { html: string }) {
   const sanitizedHtml = useMemo(() => sanitizeWordPressContent(html), [html]);
 
   const segments = useMemo<ContentSegment[]>(() => {
@@ -167,4 +189,4 @@ export const BlogContent = ({ html }: BlogContentProps) => {
       })}
     </>
   );
-};
+}

@@ -12,6 +12,7 @@ import { Plugins } from './pages/Plugins';
 import { Profile } from './pages/Profile';
 import Users from './pages/Users';
 import Comments from './pages/Comments';
+import { SectionManager } from './pages/SectionManager';
 import { Login } from './pages/Login';
 
 const queryClient = new QueryClient({
@@ -43,6 +44,7 @@ function App() {
               <Route path="/content" element={<ContentList />} />
               <Route path="/content/new" element={<ContentEditor />} />
               <Route path="/content/edit/:id" element={<ContentEditor />} />
+              <Route path="/sections" element={<SectionManager />} />
               <Route path="/media" element={<MediaLibrary />} />
               <Route path="/users" element={<Users />} />
               <Route path="/comments" element={<Comments />} />

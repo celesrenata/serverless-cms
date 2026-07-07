@@ -25,6 +25,15 @@ vi.mock('../../components/Editor/MediaPicker', () => ({
     isOpen ? <div data-testid="media-picker" /> : null,
 }));
 
+vi.mock('../../../../shared/markdown', () => ({
+  renderMarkdownToHtml: vi.fn(() => ({
+    html: '',
+    toc: [],
+    shouldShowToc: false,
+    warnings: [],
+  })),
+}));
+
 describe('ContentEditor', () => {
   beforeEach(() => {
     vi.clearAllMocks();

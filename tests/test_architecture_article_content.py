@@ -12,11 +12,13 @@ sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "lambda"))
 from create_architecture_article import build_article_content  # noqa: E402
 
+TEST_CDN_BASE = "https://d391evgc81s5g2.cloudfront.net"
+
 
 @pytest.fixture(scope="module")
 def article_html() -> str:
     """Generate the article HTML once for all tests in this module."""
-    return build_article_content()
+    return build_article_content(TEST_CDN_BASE)
 
 
 @pytest.fixture(scope="module")

@@ -1,0 +1,15 @@
+/**
+ * CSS Layer Architecture
+ *
+ * Defines the cascade layer order for the theme engine.
+ * Layers listed first have lowest precedence; layers listed last win on conflicts.
+ *
+ * - reset:      Browser normalization
+ * - tokens:     Default token values (:root custom properties)
+ * - base:       Tailwind base + semantic HTML styles
+ * - components: Tailwind components + component classes
+ * - utilities:  Tailwind utilities
+ * - themes:     [data-theme="X"] variable overrides
+ * - user:       Custom uploaded CSS (scoped)
+ */
+@layer reset, tokens, base, components, utilities, themes, user;

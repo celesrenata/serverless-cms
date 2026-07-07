@@ -4,6 +4,7 @@ export function Sidebar() {
   const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: '📊' },
     { to: '/content', label: 'Content', icon: '📝' },
+    { to: '/sections', label: 'Sections', icon: '📂' },
     { to: '/media', label: 'Media', icon: '🖼️' },
     { to: '/users', label: 'Users', icon: '👥' },
     { to: '/comments', label: 'Comments', icon: '💬' },
