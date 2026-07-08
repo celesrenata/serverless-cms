@@ -188,6 +188,11 @@ const katexAndPrismClassNameRule: AttributeRule = [
   ...katexClassNames,
   ...prismClassNames,
 ];
+const katexAndGalleryClassNameRule: AttributeRule = [
+  'className',
+  ...katexClassNames,
+  'gallery-embed',
+];
 const ariaHiddenRule: AttributeRule = ['ariaHidden', 'true'];
 const katexStyleRule: AttributeRule = ['style', katexStyleValue];
 
@@ -243,7 +248,7 @@ export function getSanitizeSchema(): Schema {
         katexStyleRule,
       ],
 
-      div: [...attributesFor('div'), katexClassNameRule],
+      div: [...attributesFor('div'), katexAndGalleryClassNameRule, 'data-album-id', 'data-layout', 'data-limit', 'data-show-description', 'data-show-title'],
 
       pre: [...attributesFor('pre'), prismClassNameRule, 'dataLanguage'],
       code: [...attributesFor('code'), prismClassNameRule],

@@ -3,9 +3,10 @@ import { Editor } from '@tiptap/react';
 interface EditorToolbarProps {
   editor: Editor;
   onMediaInsert: () => void;
+  onGalleryInsert: () => void;
 }
 
-export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor, onMediaInsert }) => {
+export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor, onMediaInsert, onGalleryInsert }) => {
   const ToolbarButton = ({ 
     onClick, 
     isActive = false, 
@@ -168,6 +169,14 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor, onMediaIns
         title="Insert Image"
       >
         🖼️
+      </ToolbarButton>
+
+      {/* Gallery */}
+      <ToolbarButton
+        onClick={onGalleryInsert}
+        title="Insert Gallery"
+      >
+        🖼️📁
       </ToolbarButton>
 
       <div className="w-px bg-gray-300 mx-1" />

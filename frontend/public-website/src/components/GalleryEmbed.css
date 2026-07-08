@@ -1,0 +1,56 @@
+/* GalleryEmbed — supplementary styles beyond Tailwind utilities */
+
+/* Carousel: hide scrollbar across all browsers */
+.gallery-embed-carousel {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.gallery-embed-carousel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Image hover: scale transform with smooth easing */
+.gallery-embed-image-hover {
+  transition: transform 200ms ease-out;
+}
+
+.gallery-embed-image-hover:hover {
+  transform: scale(1.05);
+}
+
+/* Skeleton: pulse animation for loading placeholders */
+.gallery-embed-skeleton {
+  animation: gallery-embed-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes gallery-embed-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Masonry: prevent layout shift during image load */
+.gallery-embed-masonry img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Carousel navigation buttons: fade in on container hover */
+.gallery-embed-nav-button {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+
+.gallery-embed-carousel-container:hover .gallery-embed-nav-button {
+  opacity: 1;
+}
+
+/* Focus-visible: always show nav buttons when focused via keyboard */
+.gallery-embed-nav-button:focus-visible {
+  opacity: 1;
+}

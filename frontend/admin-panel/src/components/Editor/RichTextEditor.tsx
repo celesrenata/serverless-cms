@@ -3,8 +3,10 @@ import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import CodeBlock from '@tiptap/extension-code-block';
 import Link from '@tiptap/extension-link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { EditorToolbar } from './EditorToolbar';
+import { MediaPickerDialog } from './MediaPickerDialog';
+import type { Media } from '../../types/media';
 
 interface RichTextEditorProps {
   content: string;
@@ -16,9 +18,11 @@ interface RichTextEditorProps {
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
   onChange,
-  onMediaInsert,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onMediaInsert: _onMediaInsert,
   onEditorReady
 }) => {
+  const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -72,12 +76,30 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     return <div>Loading editor...</div>;
   }
 
+  const handleMediaSelect = (media: Media) => {
+    if (editor) {
+      editor.chain().focus().setImage({ src: media.s3_url, alt: media.metadata?.alt_text || media.filename }).run();
+    }
+  };
+
+  const handleGalleryInsert = (directive: string) => {
+    if (editor) {
+      editor.chain().focus().insertContent(`<p>${directive}</p>`).run();
+    }
+  };
+
   return (
     <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
-      <EditorToolbar editor={editor} onMediaInsert={onMediaInsert} />
+      <EditorToolbar editor={editor} onMediaInsert={() => setMediaDialogOpen(true)} onGalleryInsert={() => setMediaDialogOpen(true)} />
       <div className="border-t border-gray-300">
         <EditorContent editor={editor} />
       </div>
+      <MediaPickerDialog
+        isOpen={mediaDialogOpen}
+        onClose={() => setMediaDialogOpen(false)}
+        onSelectMedia={handleMediaSelect}
+        onInsertGallery={handleGalleryInsert}
+      />
     </div>
   );
 };

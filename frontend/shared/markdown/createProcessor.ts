@@ -14,6 +14,7 @@ import { rehypeExtractToc } from './plugins/rehypeExtractToc';
 import remarkDefinitionList from './plugins/remarkDefinitionList';
 import remarkAbbreviations from './plugins/remarkAbbreviations';
 import remarkSuperSub from './plugins/remarkSuperSub';
+import remarkGalleryEmbed from './plugins/remarkGalleryEmbed';
 import rehypeMermaidPassthrough from './plugins/rehypeMermaidPassthrough';
 import type { TocItem } from './types';
 
@@ -48,6 +49,7 @@ export function createProcessorWithToc(): ProcessorResult {
     .use(remarkDefinitionList)
     .use(remarkAbbreviations)
     .use(remarkSuperSub)
+    .use(remarkGalleryEmbed)
     .use(remarkRehype, { allowDangerousHtml: false })
     .use(rehypeHeadingIds)
     .use(rehypeExtractToc, { tocItems })
@@ -71,6 +73,7 @@ export function createProcessor() {
     .use(remarkDefinitionList)
     .use(remarkAbbreviations)
     .use(remarkSuperSub)
+    .use(remarkGalleryEmbed)
     .use(remarkRehype, { allowDangerousHtml: false })
     .use(rehypeHeadingIds)
     .use(rehypeKatex)

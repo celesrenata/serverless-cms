@@ -1,0 +1,465 @@
+{
+  "pbtResults": {
+    "1.5 Write property tests for pipeline integrity (Properties 4–5)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783494531375
+    },
+    "1.4 Write property tests for directive parsing (Properties 1–3)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783494662009
+    },
+    "3.5 Write property test for directive generation (Property 6)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783495414242
+    },
+    "6.4 Write property tests for GalleryEmbed (Properties 7–9)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783495626015
+    }
+  },
+  "executionHistory": {
+    "1.1 Create `remarkGalleryEmbed` plugin at `frontend/shared/markdown/plugins/remarkGalleryEmbed.ts`": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662308
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493699954
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494059826
+      }
+    ],
+    "1.2 Update `frontend/shared/markdown/sanitizeSchema.ts` to allow gallery-embed data attributes": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662339
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494064475
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494254167
+      }
+    ],
+    "1.3 Register `remarkGalleryEmbed` in `frontend/shared/markdown/createProcessor.ts`": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662370
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494065334
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494255022
+      }
+    ],
+    "1.4 Write property tests for directive parsing (Properties 1–3)": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662405
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494259848
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494785578
+      }
+    ],
+    "1.5 Write property tests for pipeline integrity (Properties 4–5)": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662448
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494260680
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494786394
+      }
+    ],
+    "2. Checkpoint - Ensure pipeline tests pass": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662489
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495838833
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495885634
+      }
+    ],
+    "3.1 Create `AlbumPickerDialog` component at `frontend/admin-panel/src/components/Editor/AlbumPickerDialog.tsx`": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662526
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494261699
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494787396
+      }
+    ],
+    "3.2 Add gallery insert button to `frontend/admin-panel/src/components/Editor/EditorToolbar.tsx`": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662559
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494792863
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495141542
+      }
+    ],
+    "3.3 Integrate AlbumPickerDialog into CodeMirror `MarkdownEditor.tsx`": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662590
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494793711
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495142529
+      }
+    ],
+    "3.4 Integrate AlbumPickerDialog into TipTap editor": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662623
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494794529
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495143449
+      }
+    ],
+    "3.5 Write property test for directive generation (Property 6)": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662663
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495150736
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495432296
+      }
+    ],
+    "3.6 Write unit tests for AlbumPickerDialog and toolbar": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662694
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495151465
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495433155
+      }
+    ],
+    "4.1 Create `GalleryEmbedPreview` at `frontend/admin-panel/src/components/Editor/GalleryEmbedPreview.tsx`": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662721
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494795544
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495144473
+      }
+    ],
+    "4.2 Modify `frontend/admin-panel/src/components/MarkdownPreview.tsx` to detect gallery-embed divs": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662752
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495152312
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495434102
+      }
+    ],
+    "4.3 Write unit tests for GalleryEmbedPreview": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662788
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495441404
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495640147
+      }
+    ],
+    "5. Checkpoint - Ensure admin panel tests pass": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662824
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495890283
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495983509
+      }
+    ],
+    "6.1 Create `GalleryEmbed` component at `frontend/public-website/src/components/GalleryEmbed.tsx`": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662868
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494796480
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495145469
+      }
+    ],
+    "6.2 Create `GalleryEmbed.css` at `frontend/public-website/src/components/GalleryEmbed.css`": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662903
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495153236
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495435114
+      }
+    ],
+    "6.3 Add accessibility attributes to GalleryEmbed": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662945
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495154031
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495435888
+      }
+    ],
+    "6.4 Write property tests for GalleryEmbed (Properties 7–9)": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493662978
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495442220
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495641140
+      }
+    ],
+    "6.5 Write unit tests for GalleryEmbed component": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493663007
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495443022
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495642030
+      }
+    ],
+    "7.1 Modify `frontend/public-website/src/components/MarkdownContent.tsx` to extract gallery segments": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493663039
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495443858
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495642978
+      }
+    ],
+    "7.2 Write integration test for full pipeline rendering": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493663072
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495648740
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495828699
+      }
+    ],
+    "8. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783493663106
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495989256
+      },
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783496134369
+      }
+    ],
+    "1. Implement remark plugin and shared pipeline": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783494786428
+      }
+    ],
+    "3. Implement Album Picker Dialog and editor toolbar": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495433203
+      }
+    ],
+    "4. Implement editor preview component": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495640196
+      }
+    ],
+    "6. Implement public website GalleryEmbed component": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495642077
+      }
+    ],
+    "7. Integrate GalleryEmbed into MarkdownContent": [
+      {
+        "executionId": "5be22ca4-c6de-41b2-9e52-046b3b652f92",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783495828738
+      }
+    ]
+  }
+}

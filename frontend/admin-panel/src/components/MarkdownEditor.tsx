@@ -4,6 +4,8 @@ import { EditorState, Transaction } from '@codemirror/state';
 import { markdown } from '@codemirror/lang-markdown';
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language';
 import { MarkdownPreview } from './MarkdownPreview';
+import { MediaPickerDialog } from './Editor/MediaPickerDialog';
+import type { Media } from '../types/media';
 
 interface MarkdownEditorProps {
   value: string;
@@ -43,6 +45,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   showPreview = false,
 }) => {
   const [previewVisible, setPreviewVisible] = useState(showPreview);
+  const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const isInternalUpdate = useRef(false);
@@ -127,13 +130,38 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     }
   }, [value]);
 
+  const handleMediaSelect = (media: Media) => {
+    setMediaDialogOpen(false);
+    const view = viewRef.current;
+    if (!view) return;
+    const pos = view.state.selection.main.head;
+    const alt = media.metadata?.alt_text || media.filename;
+    const insertText = `\n![${alt}](${media.s3_url})\n`;
+    view.dispatch({ changes: { from: pos, insert: insertText } });
+  };
+
+  const handleGalleryInsert = (directive: string) => {
+    setMediaDialogOpen(false);
+    const view = viewRef.current;
+    if (!view) return;
+    const pos = view.state.selection.main.head;
+    view.dispatch({ changes: { from: pos, insert: `\n${directive}\n` } });
+  };
+
   const isOverLimit = charCount > maxLength;
   const isNearLimit = charCount > maxLength * 0.9;
 
   return (
     <div className={`border border-gray-300 rounded-lg overflow-hidden bg-white ${className}`}>
       {/* Preview toggle bar */}
-      <div className="flex items-center justify-end px-4 py-2 border-b border-gray-200 bg-gray-50">
+      <div className="flex items-center justify-end px-4 py-2 border-b border-gray-200 bg-gray-50 gap-2">
+        <button
+          type="button"
+          onClick={() => setMediaDialogOpen(true)}
+          className="px-3 py-1 text-xs font-medium rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+        >
+          🖼️ Media
+        </button>
         <button
           type="button"
           onClick={() => setPreviewVisible(!previewVisible)}
@@ -174,6 +202,13 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           {charCount.toLocaleString()} / {maxLength.toLocaleString()}
         </span>
       </div>
+
+      <MediaPickerDialog
+        isOpen={mediaDialogOpen}
+        onClose={() => setMediaDialogOpen(false)}
+        onSelectMedia={handleMediaSelect}
+        onInsertGallery={handleGalleryInsert}
+      />
     </div>
   );
 };
