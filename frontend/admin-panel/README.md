@@ -35,6 +35,27 @@ src/
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 
+## Features
+
+### Appearance / Theme Management
+
+The Appearance page (`/appearance`) provides a full visual theme management system:
+
+- **Theme Gallery** — Browse all available themes (builtin + custom) in a responsive grid. Active theme is highlighted with a badge.
+- **Visual Theme Editor** — Two-column editor (`/appearance/edit/:id` or `/appearance/new`) with live preview. Edit color tokens, typography, spacing, effects, patterns, and custom CSS.
+- **Theme Actions** — Activate, duplicate, export (JSON), import, and delete themes directly from the gallery.
+- **Builtin Themes** — Ships with several pre-built themes (Celestium Neon, Celestium Bromide, etc.) that cannot be modified but can be duplicated.
+- **Custom Themes** — Create up to 50 custom themes with full token customization and optional CSS overrides.
+
+**Key files:**
+- `src/pages/Appearance.tsx` — Gallery page
+- `src/pages/ThemeEditor.tsx` — Visual editor
+- `src/components/ThemeCard.tsx` — Theme card component
+- `src/services/themeService.ts` — API client
+- `src/hooks/useThemes.ts` — React Query hooks
+
+**Navigation:** The Appearance item appears in the sidebar between Settings and Plugins (🎨 icon).
+
 ## Development
 
 1. Install dependencies: `npm install`

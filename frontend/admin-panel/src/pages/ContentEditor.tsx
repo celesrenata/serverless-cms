@@ -1,11 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useContent } from '../hooks/useContent';
+import { useSections } from '../hooks/useSections';
 import { RichTextEditor } from '../components/Editor/RichTextEditor';
+import { MarkdownEditor } from '../components/MarkdownEditor';
 import { MediaPicker } from '../components/Editor/MediaPicker';
-import { ContentType, ContentStatus, ContentCreate, ContentUpdate } from '../types/content';
+import { ContentType, ContentStatus, ContentFormat, ContentCreate, ContentUpdate } from '../types/content';
 import { Media } from '../types/media';
 import { Editor } from '@tiptap/react';
+import { renderMarkdownToHtml } from '../../../shared/markdown';
+import type { SectionTreeNode } from '../../../shared/sections/types';
 
 export const ContentEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +17,7 @@ export const ContentEditor: React.FC = () => {
   const isEditMode = !!id;
 
   const { content, isLoading, create, update, isCreating, isUpdating } = useContent(id);
+  const { data: sectionsTree = [], isLoading: isSectionsLoading } = useSections();
 
   console.log('ContentEditor - id:', id, 'content:', content, 'isLoading:', isLoading);
 
@@ -31,6 +36,10 @@ export const ContentEditor: React.FC = () => {
   const [scheduledAt, setScheduledAt] = useState<string>('');
   const [tagInput, setTagInput] = useState('');
   const [categoryInput, setCategoryInput] = useState('');
+  const [sectionId, setSectionId] = useState<string>('');
+  const [contentMarkdown, setContentMarkdown] = useState('');
+  const [contentFormat, setContentFormat] = useState<ContentFormat>('html');
+  const [showModeWarning, setShowModeWarning] = useState(false);
 
   // UI state
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
@@ -38,6 +47,21 @@ export const ContentEditor: React.FC = () => {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [editor, setEditor] = useState<Editor | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Flatten section tree for the dropdown selector
+  const flattenedSections = useMemo(() => {
+    const result: { id: string; name: string; depth: number }[] = [];
+    const flatten = (nodes: SectionTreeNode[]) => {
+      for (const node of nodes) {
+        result.push({ id: node.id, name: node.name, depth: node.depth });
+        if (node.children && node.children.length > 0) {
+          flatten(node.children);
+        }
+      }
+    };
+    flatten(sectionsTree);
+    return result;
+  }, [sectionsTree]);
 
   // Load content data in edit mode
   useEffect(() => {
@@ -54,6 +78,13 @@ export const ContentEditor: React.FC = () => {
       setSeoDescription(content.metadata?.seo_description || '');
       setTags(content.metadata?.tags || []);
       setCategories(content.metadata?.categories || []);
+      setSectionId(content.section_id || '');
+      if (content.content_markdown) {
+        setContentMarkdown(content.content_markdown);
+      }
+      if (content.content_format) {
+        setContentFormat(content.content_format as ContentFormat);
+      }
       if (content.scheduled_at) {
         setScheduledAt(new Date(content.scheduled_at * 1000).toISOString().slice(0, 16));
       }
@@ -82,7 +113,7 @@ export const ContentEditor: React.FC = () => {
       newErrors.slug = 'Slug is required';
     }
 
-    if (!contentBody.trim()) {
+    if (!contentBody.trim() && !(contentFormat === 'markdown' && contentMarkdown.trim())) {
       newErrors.content = 'Content is required';
     }
 
@@ -96,6 +127,35 @@ export const ContentEditor: React.FC = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleModeSwitch = (newMode: ContentFormat) => {
+    if (newMode === contentFormat) return;
+
+    if (newMode === 'markdown') {
+      // Switching from WYSIWYG to markdown
+      if (!contentMarkdown && contentBody.trim()) {
+        setShowModeWarning(true);
+        return;
+      }
+      setContentFormat('markdown');
+    } else {
+      // Switching from markdown to WYSIWYG
+      if (contentMarkdown.trim()) {
+        const result = renderMarkdownToHtml(contentMarkdown);
+        setContentBody(result.html);
+      }
+      setContentFormat('html');
+    }
+  };
+
+  const confirmModeSwitch = () => {
+    setShowModeWarning(false);
+    setContentFormat('markdown');
+  };
+
+  const cancelModeSwitch = () => {
+    setShowModeWarning(false);
   };
 
   const handleSave = async (saveStatus?: ContentStatus) => {
@@ -126,9 +186,18 @@ export const ContentEditor: React.FC = () => {
         tags: tags.length > 0 ? tags : undefined,
         categories: categories.length > 0 ? categories : undefined,
       },
+      section_id: sectionId || undefined,
+      content_format: contentFormat,
+      content_markdown: contentFormat === 'markdown' ? contentMarkdown : undefined,
       // Only include scheduled_at if status is draft and a time is set
       scheduled_at: finalStatus === 'draft' && scheduledTimestamp > 0 ? scheduledTimestamp : 0,
     };
+
+    // When in markdown mode, render the HTML for the content field
+    if (contentFormat === 'markdown' && contentMarkdown.trim()) {
+      const rendered = renderMarkdownToHtml(contentMarkdown);
+      data.content = rendered.html;
+    }
 
     try {
       if (isEditMode && id) {
@@ -350,15 +419,75 @@ export const ContentEditor: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Content *
               </label>
-              <RichTextEditor
-                content={contentBody}
-                onChange={setContentBody}
-                onMediaInsert={() => {
-                  setMediaPickerMode('content');
-                  setIsMediaPickerOpen(true);
-                }}
-                onEditorReady={setEditor}
-              />
+
+              {/* Mode Toggle */}
+              <div className="flex gap-1 mb-4 p-1 bg-gray-100 rounded-lg w-fit">
+                <button
+                  type="button"
+                  onClick={() => handleModeSwitch('html')}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    contentFormat === 'html'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  WYSIWYG
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleModeSwitch('markdown')}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    contentFormat === 'markdown'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Markdown
+                </button>
+              </div>
+
+              {/* Mode Switch Warning */}
+              {showModeWarning && (
+                <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm text-amber-800 mb-3">
+                    Switching to markdown mode. Any rich text formatting may not convert perfectly.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={confirmModeSwitch}
+                      className="px-3 py-1.5 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelModeSwitch}
+                      className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Editor Area */}
+              {contentFormat === 'html' ? (
+                <RichTextEditor
+                  content={contentBody}
+                  onChange={setContentBody}
+                  onMediaInsert={() => {
+                    setMediaPickerMode('content');
+                    setIsMediaPickerOpen(true);
+                  }}
+                  onEditorReady={setEditor}
+                />
+              ) : (
+                <MarkdownEditor
+                  value={contentMarkdown}
+                  onChange={setContentMarkdown}
+                />
+              )}
               {errors.content && (
                 <p className="text-red-500 text-sm mt-1">{errors.content}</p>
               )}
@@ -424,6 +553,27 @@ export const ContentEditor: React.FC = () => {
                 <option value="published">Published</option>
                 <option value="archived">Archived</option>
               </select>
+            </div>
+
+            {/* Section */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Section</h3>
+              <select
+                value={sectionId}
+                onChange={(e) => setSectionId(e.target.value)}
+                disabled={isSectionsLoading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">None</option>
+                {flattenedSections.map((section) => (
+                  <option key={section.id} value={section.id}>
+                    {'\u00A0'.repeat((section.depth - 1) * 2)}{section.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Assign this content to a blog section
+              </p>
             </div>
 
             {/* Scheduled Publishing */}

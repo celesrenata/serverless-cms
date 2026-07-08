@@ -1,9 +1,9 @@
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useState } from 'react';
 import { useContentBySlug, useContentList } from '../hooks/useContent';
 import { useComments } from '../hooks/useComments';
 import { useSiteSettings } from '../hooks/useSiteSettings';
+import { PageMeta } from '../components/PageMeta';
 import { CommentForm } from '../components/CommentForm';
 import { CommentList } from '../components/CommentList';
 import { Content } from '../types';
@@ -62,22 +62,13 @@ export const Post = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{post.metadata?.seo_title || post.title}</title>
-        <meta
-          name="description"
-          content={post.metadata?.seo_description || post.excerpt}
-        />
-        {post.metadata?.tags && (
-          <meta name="keywords" content={post.metadata.tags.join(', ')} />
-        )}
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.excerpt} />
-        {(post.featured_image || extractFirstImageFromContent(post.content)) && (
-          <meta property="og:image" content={(post.featured_image || extractFirstImageFromContent(post.content))!} />
-        )}
-        <meta property="og:type" content="article" />
-      </Helmet>
+      <PageMeta
+        title={post.metadata?.seo_title || post.title}
+        description={post.metadata?.seo_description || post.excerpt}
+        canonical={`/blog/${slug}`}
+        ogImage={post.featured_image || extractFirstImageFromContent(post.content) || undefined}
+        ogType="article"
+      />
 
       <article className="bg-white min-h-screen">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -147,7 +138,7 @@ export const Post = () => {
 
           {/* Post Content */}
           <div className="mb-12">
-            <BlogContent html={post.content} />
+            <BlogContent html={post.content} contentMarkdown={post.content_markdown} />
           </div>
 
           {/* Related Posts */}

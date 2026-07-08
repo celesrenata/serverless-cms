@@ -1,0 +1,474 @@
+{
+  "pbtResults": {
+    "2.1 Write property test for navigation index bounds (Property 6)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783301251554
+    },
+    "2.3 Write property test for swipe detection (Property 7)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783301289427
+    },
+    "2.5 Write property test for position indicator (Property 9)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783301310128
+    },
+    "2.4 Write property test for caption presence (Property 8)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783301337616
+    },
+    "2.2 Write property test for toAlbumCard transformation (Property 2)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783301364631
+    },
+    "2.6 Write property test for SEO metadata (Property 10)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783301457932
+    },
+    "2.7 Write property test for album card link (Property 3)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783301459749
+    }
+  },
+  "executionHistory": {
+    "1.1 Install fast-check as a dev dependency": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909539
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300925137
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301150707
+      }
+    ],
+    "1.2 Create gallery utility functions module": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909571
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300925963
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301151295
+      }
+    ],
+    "2.1 Write property test for navigation index bounds (Property 6)": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909606
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301156655
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301378937
+      }
+    ],
+    "2.2 Write property test for toAlbumCard transformation (Property 2)": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909637
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301157288
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301379724
+      }
+    ],
+    "2.3 Write property test for swipe detection (Property 7)": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909671
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301158216
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301380481
+      }
+    ],
+    "2.4 Write property test for caption presence (Property 8)": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909702
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301158581
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301381113
+      }
+    ],
+    "2.5 Write property test for position indicator (Property 9)": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909738
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301159196
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301381820
+      }
+    ],
+    "2.6 Write property test for SEO metadata (Property 10)": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909764
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301386037
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301472351
+      }
+    ],
+    "2.7 Write property test for album card link (Property 3)": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909789
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301386754
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301473028
+      }
+    ],
+    "3. Checkpoint - Utility functions and property tests": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909821
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302331942
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302504229
+      }
+    ],
+    "4.1 Refactor Gallery.tsx to render album cards (GalleryIndex)": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909861
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301493577
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301696416
+      }
+    ],
+    "5.1 Create AlbumPage component": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909894
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301700639
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301841562
+      }
+    ],
+    "5.2 Add album route to App.tsx": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909921
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301847011
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302056130
+      }
+    ],
+    "6.1 Create useSwipe hook": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909948
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301701288
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301842886
+      }
+    ],
+    "6.2 Enhance Lightbox with swipe support and improved captions": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300909977
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301847578
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302057073
+      }
+    ],
+    "7. Checkpoint - Full feature integration": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300910004
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302332599
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302504866
+      }
+    ],
+    "8.1 Write unit tests for Gallery (GalleryIndex) page": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300910037
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302062305
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302313832
+      }
+    ],
+    "8.2 Write unit tests for AlbumPage": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300910064
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302062949
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302314526
+      }
+    ],
+    "8.3 Write unit tests for enhanced Lightbox": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300910097
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302063548
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302315098
+      }
+    ],
+    "8.4 Write unit tests for useSwipe hook": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300910136
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302064248
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302315763
+      }
+    ],
+    "9. Final checkpoint - Build and lint": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300910170
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302333182
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302503567
+      }
+    ],
+    "10.1 Commit, push, and deploy to staging": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300910197
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302509275
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302649829
+      }
+    ],
+    "10.2 Verify on staging site": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783300910227
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302654182
+      },
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783303133362
+      }
+    ],
+    "1. Install dependencies and extract pure utility functions": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301151320
+      }
+    ],
+    "2. Property-based tests for utility functions": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301473060
+      }
+    ],
+    "4. Refactor Gallery page to album cards": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783301696449
+      }
+    ],
+    "5. Create AlbumPage component and route": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302056165
+      }
+    ],
+    "6. Create useSwipe hook and enhance Lightbox": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302057107
+      }
+    ],
+    "8. Component unit tests": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783302315796
+      }
+    ],
+    "10. Deploy and verify on staging": [
+      {
+        "executionId": "1bad3f71-8e42-444c-838f-effae7907452",
+        "chatSessionId": "sess_f9489407-0bce-41b5-ac15-78af6fec40d6",
+        "timestamp": 1783303133392
+      }
+    ]
+  }
+}

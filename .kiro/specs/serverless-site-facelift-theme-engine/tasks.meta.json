@@ -1,0 +1,1080 @@
+{
+  "pbtResults": {
+    "2.7 Write property test: theme application produces valid CSS properties (Property 4)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783407390978
+    },
+    "2.3 Write property test: token round-trip (Property 1)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783407417370
+    },
+    "2.4 Write property test: schema rejects invalid types (Property 2)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783407490772
+    },
+    "2.5 Write property test: unknown keys ignored (Property 5)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783407501730
+    },
+    "7.4 Write property test: persistence round-trip (Property 8)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783409850979
+    },
+    "8.2 Write property test: CSS rejects dangerous patterns (Property 3)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783410678768
+    },
+    "8.4 Write property test: CSS size limit enforcement (Property 7)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783410764968
+    },
+    "10.3 Write property test: fuzzy search relevance (Property 6)": {
+      "status": "passed",
+      "lastRunTimestamp": 1783411845685
+    }
+  },
+  "executionHistory": {
+    "1.1 Create site audit documentation": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561203
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404581325
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406176955
+      }
+    ],
+    "1.2 Implement CSS layer architecture": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561238
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404582393
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406177710
+      }
+    ],
+    "1.3 Refactor layout to semantic HTML landmarks": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561286
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406183146
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406512333
+      }
+    ],
+    "1.4 Implement SEO and metadata foundation": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561327
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406183930
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406513334
+      }
+    ],
+    "1.5 Write unit tests for layout landmarks and metadata": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561364
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406517902
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406882479
+      }
+    ],
+    "2.1 Define ThemeTokens TypeScript interface and token schema": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561401
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406518765
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406883453
+      }
+    ],
+    "2.2 Implement token serialization and import normalization": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561442
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406888695
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407263536
+      }
+    ],
+    "2.3 Write property test: token round-trip (Property 1)": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561488
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407268797
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407609205
+      }
+    ],
+    "2.4 Write property test: schema rejects invalid types (Property 2)": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561537
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407269632
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407610106
+      }
+    ],
+    "2.5 Write property test: unknown keys ignored (Property 5)": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561579
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407270551
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407610956
+      }
+    ],
+    "2.6 Implement ThemeProvider context and theme application": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561620
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406890537
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407262743
+      }
+    ],
+    "2.7 Write property test: theme application produces valid CSS properties (Property 4)": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561661
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407271376
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407611965
+      }
+    ],
+    "2.8 Build reusable themed UI primitives": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561703
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407272251
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407612840
+      }
+    ],
+    "2.9 Write unit tests for UI primitives": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561751
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407618114
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407888495
+      }
+    ],
+    "3. Checkpoint - Design system stable": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561789
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407903006
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407907371
+      }
+    ],
+    "4.1 Implement Hero section": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561857
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407914507
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408134680
+      }
+    ],
+    "4.2 Implement Capability Cards section": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561897
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407915291
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408136459
+      }
+    ],
+    "4.3 Implement Projects/Build Notes section": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561936
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408141925
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408607041
+      }
+    ],
+    "4.4 Implement Contact/Links section": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404561984
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408142707
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408607799
+      }
+    ],
+    "4.5 Wire homepage sections with responsive layout": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562021
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408143481
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408608630
+      }
+    ],
+    "4.6 Write component tests for homepage sections": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562068
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408619315
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409002032
+      }
+    ],
+    "5.1 Define architecture map data model": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562109
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407916090
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408135608
+      }
+    ],
+    "5.2 Implement SVG architecture map rendering": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562150
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408144275
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408609426
+      }
+    ],
+    "5.3 Implement hover/tap tooltips with mode toggle": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562186
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408620124
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409002800
+      }
+    ],
+    "5.4 Implement keyboard navigation for architecture map": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562227
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409009771
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409666339
+      }
+    ],
+    "5.5 Write unit tests for architecture map": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562269
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409674586
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409865556
+      }
+    ],
+    "6. Checkpoint - Homepage and map complete": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562318
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409875036
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409879608
+      }
+    ],
+    "7.1 Implement five built-in themes": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562377
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783408620982
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409003716
+      }
+    ],
+    "7.2 Build Theme Panel UI": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562417
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409010565
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409667148
+      }
+    ],
+    "7.3 Implement theme persistence and state management": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562455
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409011405
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409667987
+      }
+    ],
+    "7.4 Write property test: persistence round-trip (Property 8)": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562497
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409673796
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409866696
+      }
+    ],
+    "7.5 Implement JSON import and export": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562544
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409675445
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409867519
+      }
+    ],
+    "7.6 Write integration tests for theme panel and import/export": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562595
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409884388
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410245057
+      }
+    ],
+    "8.1 Implement csstree-based CSS validation": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562636
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409885193
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410244234
+      }
+    ],
+    "8.2 Write property test: CSS rejects dangerous patterns (Property 3)": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562677
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410251091
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410696383
+      }
+    ],
+    "8.3 Implement CSS size limit validation": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562719
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410251934
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410697446
+      }
+    ],
+    "8.4 Write property test: CSS size limit enforcement (Property 7)": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562762
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410703750
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410868107
+      }
+    ],
+    "8.5 Build CSS upload and preview UI": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562798
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410704799
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410868831
+      }
+    ],
+    "8.6 Implement safe CSS preview injection": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562843
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410874233
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411086906
+      }
+    ],
+    "8.7 Add preview active indicator": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562886
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410875082
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411087675
+      }
+    ],
+    "8.8 Write integration tests for CSS upload flow": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562928
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411092579
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411465509
+      }
+    ],
+    "9. Checkpoint - Theme engine and CSS preview complete": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404562970
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411472416
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411477194
+      }
+    ],
+    "10.1 Implement command palette action registry": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563012
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411093405
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411466370
+      }
+    ],
+    "10.2 Implement fuzzy search utility": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563054
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411483921
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411748272
+      }
+    ],
+    "10.3 Write property test: fuzzy search relevance (Property 6)": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563095
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411754817
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412376404
+      }
+    ],
+    "10.4 Build command palette UI": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563137
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411755050
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412377111
+      }
+    ],
+    "10.5 Implement scroll reveal system": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563176
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411484708
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411748302
+      }
+    ],
+    "10.6 Integrate reduced-motion support for scroll reveal": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563228
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411755962
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412377963
+      }
+    ],
+    "10.7 Write tests for command palette and scroll reveal": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563262
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412383281
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412444728
+      }
+    ],
+    "11.1 Accessibility hardening": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563304
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412450989
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412946991
+      }
+    ],
+    "11.2 Performance validation": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563353
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412451776
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412947753
+      }
+    ],
+    "11.3 Security validation": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563395
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412452555
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412948641
+      }
+    ],
+    "11.4 Complete per-page SEO metadata": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563437
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412953945
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413256075
+      }
+    ],
+    "11.5 Mobile responsiveness pass": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563480
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412954734
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413255308
+      }
+    ],
+    "11.6 Write final regression tests": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563519
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413262210
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413624376
+      }
+    ],
+    "11.7 Write integration smoke tests for primary flows": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563560
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413263040
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413625552
+      }
+    ],
+    "11.8 Verify property test suite completeness": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563602
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413263866
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413623610
+      }
+    ],
+    "12. Final checkpoint": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783404563645
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413631488
+      },
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413636929
+      }
+    ],
+    "1. Audit and Foundation": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783406882526
+      }
+    ],
+    "2. Design System": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783407888531
+      }
+    ],
+    "4. Homepage Facelift": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409002082
+      }
+    ],
+    "5. Architecture Map": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783409865611
+      }
+    ],
+    "7. Theme Engine": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783410245091
+      }
+    ],
+    "8. Custom CSS Preview": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783411465553
+      }
+    ],
+    "10. Site Mechanics": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783412444777
+      }
+    ],
+    "11. Quality Pass": [
+      {
+        "executionId": "25538b33-c046-4f3e-a950-55a2caf1d6ea",
+        "chatSessionId": "sess_39d2e4e9-ce29-4d31-be60-2c60728b8bd3",
+        "timestamp": 1783413625600
+      }
+    ]
+  }
+}

@@ -7,10 +7,10 @@ export const Header: React.FC = () => {
 
   return (
     <header className="bg-white shadow-sm">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav aria-label="Main navigation" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0">
-            <Link to="/" className="text-2xl font-bold text-gray-900">
+            <Link to="/" className="text-2xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">
               {settings?.site_title || 'My Website'}
             </Link>
           </div>
@@ -18,25 +18,25 @@ export const Header: React.FC = () => {
           <div className="hidden md:flex space-x-8">
             <Link
               to="/"
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium"
+              className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-3 py-2 text-sm font-medium"
             >
               Home
             </Link>
             <Link
               to="/blog"
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium"
+              className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-3 py-2 text-sm font-medium"
             >
               Blog
             </Link>
             <Link
               to="/gallery"
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium"
+              className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-3 py-2 text-sm font-medium"
             >
               Gallery
             </Link>
             <Link
               to="/projects"
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium"
+              className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-3 py-2 text-sm font-medium"
             >
               Projects
             </Link>
@@ -46,7 +46,7 @@ export const Header: React.FC = () => {
           <div className="md:hidden">
             <button
               type="button"
-              className="text-gray-700 hover:text-gray-900 p-2"
+              className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded p-2"
               aria-label="Toggle menu"
             >
               <svg

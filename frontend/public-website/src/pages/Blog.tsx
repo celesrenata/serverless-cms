@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useContentList } from '../hooks/useContent';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { PostCard } from '../components/PostCard';
+import { PageMeta } from '../components/PageMeta';
 import { Content } from '../types';
 
 export const Blog = () => {
@@ -51,13 +51,11 @@ export const Blog = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Blog - {settings?.site_title || 'My Website'}</title>
-        <meta
-          name="description"
-          content={`Read the latest blog posts from ${settings?.site_title || 'our website'}`}
-        />
-      </Helmet>
+      <PageMeta
+        title="Blog"
+        description={`Read the latest blog posts from ${settings?.site_title || 'Celestium'}`}
+        canonical="/blog"
+      />
 
       <div className="bg-white min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

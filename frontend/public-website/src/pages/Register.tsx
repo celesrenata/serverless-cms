@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useSiteSettings } from '../hooks/useSiteSettings';
+import { PageMeta } from '../components/PageMeta';
 
 export function Register() {
   const navigate = useNavigate();
@@ -138,6 +139,11 @@ export function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <PageMeta
+        title="Register"
+        description="Create a new account."
+        canonical="/register"
+      />
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

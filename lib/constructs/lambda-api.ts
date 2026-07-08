@@ -19,6 +19,8 @@ export interface LambdaApiConstructProps {
   settingsTable: dynamodb.ITable;
   pluginsTable: dynamodb.ITable;
   commentsTable: dynamodb.ITable;
+  sectionsTable: dynamodb.ITable;
+  themesTable: dynamodb.ITable;
   mediaBucket: s3.Bucket;
   userPool: cognito.IUserPool;
   userPoolClient: cognito.IUserPoolClient;
@@ -73,6 +75,8 @@ export class LambdaApiConstruct extends Construct {
       SETTINGS_TABLE: props.settingsTable.tableName,
       PLUGINS_TABLE: props.pluginsTable.tableName,
       COMMENTS_TABLE: props.commentsTable.tableName,
+      SECTIONS_TABLE: props.sectionsTable.tableName,
+      THEMES_TABLE: props.themesTable.tableName,
       MEDIA_BUCKET: props.mediaBucket.bucketName,
       MEDIA_CDN_URL: props.mediaCdnUrl,
       COGNITO_REGION: cdk.Stack.of(this).region,
@@ -84,236 +88,68 @@ export class LambdaApiConstruct extends Construct {
       SES_REGION: cdk.Stack.of(this).region,
     };
 
-    // ─── Content Lambda Functions ───────────────────────────────────────
-    const contentCreate = this.createFunction({
-      id: 'ContentCreateFunction', nameSuffix: 'content-create',
-      handler: 'create', codePath: 'lambda/content',
-      logicalId: 'ContentCreateFunctionFB3AF7E6',
-      serviceRoleLogicalId: 'ContentCreateFunctionServiceRole56A33F62',
-      defaultPolicyLogicalId: 'ContentCreateFunctionServiceRoleDefaultPolicyD3C35F0D',
-    });
-    const contentGet = this.createFunction({
-      id: 'ContentGetFunction', nameSuffix: 'content-get',
-      handler: 'get', codePath: 'lambda/content',
-      logicalId: 'ContentGetFunction0951B29C',
-      serviceRoleLogicalId: 'ContentGetFunctionServiceRole1C945F06',
-      defaultPolicyLogicalId: 'ContentGetFunctionServiceRoleDefaultPolicy735F6B85',
-    });
-    const contentList = this.createFunction({
-      id: 'ContentListFunction', nameSuffix: 'content-list',
-      handler: 'list', codePath: 'lambda/content',
-      logicalId: 'ContentListFunctionDB46B79B',
-      serviceRoleLogicalId: 'ContentListFunctionServiceRole961F5D99',
-      defaultPolicyLogicalId: 'ContentListFunctionServiceRoleDefaultPolicy29AD72B4',
-    });
-    const contentUpdate = this.createFunction({
-      id: 'ContentUpdateFunction', nameSuffix: 'content-update',
-      handler: 'update', codePath: 'lambda/content',
-      logicalId: 'ContentUpdateFunction675E2A12',
-      serviceRoleLogicalId: 'ContentUpdateFunctionServiceRoleB2B2336B',
-      defaultPolicyLogicalId: 'ContentUpdateFunctionServiceRoleDefaultPolicy069E926D',
-    });
-    const contentDelete = this.createFunction({
-      id: 'ContentDeleteFunction', nameSuffix: 'content-delete',
-      handler: 'delete', codePath: 'lambda/content',
-      logicalId: 'ContentDeleteFunction51AE9D08',
-      serviceRoleLogicalId: 'ContentDeleteFunctionServiceRole9A31BC8C',
-      defaultPolicyLogicalId: 'ContentDeleteFunctionServiceRoleDefaultPolicyCF18DB5B',
+    // ─── Content Lambda Function (unified handler) ────────────────────
+    const contentHandler = this.createFunction({
+      id: 'ContentHandlerFunction', nameSuffix: 'content-handler',
+      handler: 'handler', codePath: 'lambda/content',
+      logicalId: 'ContentHandlerFunction',
     });
 
-    // ─── Media Lambda Functions ─────────────────────────────────────────
-    const mediaUpload = this.createFunction({
-      id: 'MediaUploadFunction', nameSuffix: 'media-upload',
-      handler: 'upload', codePath: 'lambda/media',
+    // ─── Media Lambda Function (unified handler) ────────────────────────
+    const mediaHandler = this.createFunction({
+      id: 'MediaHandlerFunction', nameSuffix: 'media-handler',
+      handler: 'handler', codePath: 'lambda/media',
       timeout: 60, memorySize: 1024,
-      logicalId: 'MediaUploadFunction290EA71A',
-      serviceRoleLogicalId: 'MediaUploadFunctionServiceRoleCC22C504',
-      defaultPolicyLogicalId: 'MediaUploadFunctionServiceRoleDefaultPolicy10030EB7',
-    });
-    const mediaGet = this.createFunction({
-      id: 'MediaGetFunction', nameSuffix: 'media-get',
-      handler: 'get', codePath: 'lambda/media',
-      logicalId: 'MediaGetFunction102C4DFC',
-      serviceRoleLogicalId: 'MediaGetFunctionServiceRole7D90BC8D',
-      defaultPolicyLogicalId: 'MediaGetFunctionServiceRoleDefaultPolicy92D3540A',
-    });
-    const mediaList = this.createFunction({
-      id: 'MediaListFunction', nameSuffix: 'media-list',
-      handler: 'list', codePath: 'lambda/media',
-      logicalId: 'MediaListFunction4FCCAB01',
-      serviceRoleLogicalId: 'MediaListFunctionServiceRole9AFCB913',
-      defaultPolicyLogicalId: 'MediaListFunctionServiceRoleDefaultPolicy5455F96B',
-    });
-    const mediaDelete = this.createFunction({
-      id: 'MediaDeleteFunction', nameSuffix: 'media-delete',
-      handler: 'delete', codePath: 'lambda/media',
-      logicalId: 'MediaDeleteFunctionFEA25DE0',
-      serviceRoleLogicalId: 'MediaDeleteFunctionServiceRole3B0DEC19',
-      defaultPolicyLogicalId: 'MediaDeleteFunctionServiceRoleDefaultPolicyCF71AF8D',
+      logicalId: 'MediaHandlerFunction',
     });
 
-    // ─── User Lambda Functions ──────────────────────────────────────────
-    const userGetMe = this.createFunction({
-      id: 'UserGetMeFunction', nameSuffix: 'user-get-me',
-      handler: 'get_me', codePath: 'lambda/users',
-      logicalId: 'UserGetMeFunctionD6B5DD67',
-      serviceRoleLogicalId: 'UserGetMeFunctionServiceRoleBAE1810E',
-      defaultPolicyLogicalId: 'UserGetMeFunctionServiceRoleDefaultPolicyCEF4826F',
-    });
-    const userUpdateMe = this.createFunction({
-      id: 'UserUpdateMeFunction', nameSuffix: 'user-update-me',
-      handler: 'update_me', codePath: 'lambda/users',
-      logicalId: 'UserUpdateMeFunction1BBE4568',
-      serviceRoleLogicalId: 'UserUpdateMeFunctionServiceRoleFC768704',
-      defaultPolicyLogicalId: 'UserUpdateMeFunctionServiceRoleDefaultPolicyC03CCBE1',
-    });
-    const userList = this.createFunction({
-      id: 'UserListFunction', nameSuffix: 'user-list',
-      handler: 'list', codePath: 'lambda/users',
-      logicalId: 'UserListFunctionEC8E3907',
-      serviceRoleLogicalId: 'UserListFunctionServiceRole5565142B',
-      defaultPolicyLogicalId: 'UserListFunctionServiceRoleDefaultPolicy2B2EE246',
-    });
-    const userCreate = this.createFunction({
-      id: 'UserCreateFunction', nameSuffix: 'user-create',
-      handler: 'create', codePath: 'lambda/users',
-      logicalId: 'UserCreateFunction23667E2B',
-      serviceRoleLogicalId: 'UserCreateFunctionServiceRoleB4ECADEA',
-      defaultPolicyLogicalId: 'UserCreateFunctionServiceRoleDefaultPolicyA1F134A0',
-    });
-    const userUpdate = this.createFunction({
-      id: 'UserUpdateFunction', nameSuffix: 'user-update',
-      handler: 'update', codePath: 'lambda/users',
-      logicalId: 'UserUpdateFunction0C02E161',
-      serviceRoleLogicalId: 'UserUpdateFunctionServiceRole4972CE6D',
-      defaultPolicyLogicalId: 'UserUpdateFunctionServiceRoleDefaultPolicyAFBE8563',
-    });
-    const userDelete = this.createFunction({
-      id: 'UserDeleteFunction', nameSuffix: 'user-delete',
-      handler: 'delete', codePath: 'lambda/users',
-      logicalId: 'UserDeleteFunctionF8E8252A',
-      serviceRoleLogicalId: 'UserDeleteFunctionServiceRole34154FBE',
-      defaultPolicyLogicalId: 'UserDeleteFunctionServiceRoleDefaultPolicy7CA3A5A8',
-    });
-    const userResetPassword = this.createFunction({
-      id: 'UserResetPasswordFunction', nameSuffix: 'user-reset-password',
-      handler: 'reset_password', codePath: 'lambda/users',
-      logicalId: 'UserResetPasswordFunction3ED13732',
-      serviceRoleLogicalId: 'UserResetPasswordFunctionServiceRole9C9E4B30',
-      defaultPolicyLogicalId: 'UserResetPasswordFunctionServiceRoleDefaultPolicy6B34CC08',
+    // ─── Users Lambda Function (unified handler) ────────────────────────
+    const usersHandler = this.createFunction({
+      id: 'UsersHandlerFunction', nameSuffix: 'users-handler',
+      handler: 'handler', codePath: 'lambda/users',
+      logicalId: 'UsersHandlerFunction',
     });
 
-    // ─── Settings Lambda Functions ──────────────────────────────────────
-    const settingsGet = this.createFunction({
-      id: 'SettingsGetFunction', nameSuffix: 'settings-get',
-      handler: 'get', codePath: 'lambda/settings',
-      logicalId: 'SettingsGetFunction686DE50E',
-      serviceRoleLogicalId: 'SettingsGetFunctionServiceRole7F191F43',
-      defaultPolicyLogicalId: 'SettingsGetFunctionServiceRoleDefaultPolicy9E76353F',
-    });
-    const settingsUpdate = this.createFunction({
-      id: 'SettingsUpdateFunction', nameSuffix: 'settings-update',
-      handler: 'update', codePath: 'lambda/settings',
-      logicalId: 'SettingsUpdateFunctionA3AFBF5A',
-      serviceRoleLogicalId: 'SettingsUpdateFunctionServiceRoleEBB4AB0D',
-      defaultPolicyLogicalId: 'SettingsUpdateFunctionServiceRoleDefaultPolicyD7F4BF02',
-    });
-    const settingsGetPublic = this.createFunction({
-      id: 'SettingsGetPublicFunction', nameSuffix: 'settings-get-public',
-      handler: 'get_public', codePath: 'lambda/settings',
-      logicalId: 'SettingsGetPublicFunction191360CC',
-      serviceRoleLogicalId: 'SettingsGetPublicFunctionServiceRoleECA6D555',
-      defaultPolicyLogicalId: 'SettingsGetPublicFunctionServiceRoleDefaultPolicyC3DCEB2E',
+    // ─── Settings Lambda Function (unified handler) ─────────────────────
+    const settingsHandler = this.createFunction({
+      id: 'SettingsHandlerFunction', nameSuffix: 'settings-handler',
+      handler: 'handler', codePath: 'lambda/settings',
+      logicalId: 'SettingsHandlerFunction',
     });
 
-    // ─── Plugin Lambda Functions ────────────────────────────────────────
-    const pluginInstall = this.createFunction({
-      id: 'PluginInstallFunction', nameSuffix: 'plugin-install',
-      handler: 'install', codePath: 'lambda/plugins',
-      logicalId: 'PluginInstallFunctionF2861656',
-      serviceRoleLogicalId: 'PluginInstallFunctionServiceRole4C8558E9',
-      defaultPolicyLogicalId: 'PluginInstallFunctionServiceRoleDefaultPolicy135D9EBD',
-    });
-    const pluginActivate = this.createFunction({
-      id: 'PluginActivateFunction', nameSuffix: 'plugin-activate',
-      handler: 'activate', codePath: 'lambda/plugins',
-      logicalId: 'PluginActivateFunctionA6ACF8C2',
-      serviceRoleLogicalId: 'PluginActivateFunctionServiceRole4ABE723D',
-      defaultPolicyLogicalId: 'PluginActivateFunctionServiceRoleDefaultPolicyCA7F4ACF',
-    });
-    const pluginDeactivate = this.createFunction({
-      id: 'PluginDeactivateFunction', nameSuffix: 'plugin-deactivate',
-      handler: 'deactivate', codePath: 'lambda/plugins',
-      logicalId: 'PluginDeactivateFunction08F6104F',
-      serviceRoleLogicalId: 'PluginDeactivateFunctionServiceRole1BB8488E',
-      defaultPolicyLogicalId: 'PluginDeactivateFunctionServiceRoleDefaultPolicy1894A951',
-    });
-    const pluginList = this.createFunction({
-      id: 'PluginListFunction', nameSuffix: 'plugin-list',
-      handler: 'list', codePath: 'lambda/plugins',
-      logicalId: 'PluginListFunctionBBE09B77',
-      serviceRoleLogicalId: 'PluginListFunctionServiceRole10F3CBAF',
-      defaultPolicyLogicalId: 'PluginListFunctionServiceRoleDefaultPolicyE2F52F1A',
-    });
-    const pluginGetSettings = this.createFunction({
-      id: 'PluginGetSettingsFunction', nameSuffix: 'plugin-get-settings',
-      handler: 'get_settings', codePath: 'lambda/plugins',
-      logicalId: 'PluginGetSettingsFunctionB16EDA61',
-      serviceRoleLogicalId: 'PluginGetSettingsFunctionServiceRole259D0F16',
-      defaultPolicyLogicalId: 'PluginGetSettingsFunctionServiceRoleDefaultPolicyD293BCC3',
-    });
-    const pluginUpdateSettings = this.createFunction({
-      id: 'PluginUpdateSettingsFunction', nameSuffix: 'plugin-update-settings',
-      handler: 'update_settings', codePath: 'lambda/plugins',
-      logicalId: 'PluginUpdateSettingsFunctionEAAB4980',
-      serviceRoleLogicalId: 'PluginUpdateSettingsFunctionServiceRoleBB380169',
-      defaultPolicyLogicalId: 'PluginUpdateSettingsFunctionServiceRoleDefaultPolicyE7A8F1B0',
+    // ─── Plugins Lambda Function (unified handler) ──────────────────────
+    const pluginsHandler = this.createFunction({
+      id: 'PluginsHandlerFunction', nameSuffix: 'plugins-handler',
+      handler: 'handler', codePath: 'lambda/plugins',
+      logicalId: 'PluginsHandlerFunction',
     });
 
-    // ─── Comment Lambda Functions ───────────────────────────────────────
-    const commentList = this.createFunction({
-      id: 'CommentListFunction', nameSuffix: 'comment-list',
-      handler: 'list', codePath: 'lambda/comments',
-      logicalId: 'CommentListFunctionF86387CA',
-      serviceRoleLogicalId: 'CommentListFunctionServiceRole91BC6792',
-      defaultPolicyLogicalId: 'CommentListFunctionServiceRoleDefaultPolicy13246EA1',
-    });
-    const commentCreate = this.createFunction({
-      id: 'CommentCreateFunction', nameSuffix: 'comment-create',
-      handler: 'create', codePath: 'lambda/comments',
-      logicalId: 'CommentCreateFunctionAAAC6AA4',
-      serviceRoleLogicalId: 'CommentCreateFunctionServiceRoleB2DA0D3A',
-      defaultPolicyLogicalId: 'CommentCreateFunctionServiceRoleDefaultPolicyDE2D1CB7',
-    });
-    const commentUpdate = this.createFunction({
-      id: 'CommentUpdateFunction', nameSuffix: 'comment-update',
-      handler: 'update', codePath: 'lambda/comments',
-      logicalId: 'CommentUpdateFunction861A218F',
-      serviceRoleLogicalId: 'CommentUpdateFunctionServiceRole8C31742B',
-      defaultPolicyLogicalId: 'CommentUpdateFunctionServiceRoleDefaultPolicyE41D5B7A',
-    });
-    const commentDelete = this.createFunction({
-      id: 'CommentDeleteFunction', nameSuffix: 'comment-delete',
-      handler: 'delete', codePath: 'lambda/comments',
-      logicalId: 'CommentDeleteFunction213EACF6',
-      serviceRoleLogicalId: 'CommentDeleteFunctionServiceRole0D2E072F',
-      defaultPolicyLogicalId: 'CommentDeleteFunctionServiceRoleDefaultPolicyE68497E0',
+    // ─── Comments Lambda Function (unified handler) ─────────────────────
+    const commentsHandler = this.createFunction({
+      id: 'CommentsHandlerFunction', nameSuffix: 'comments-handler',
+      handler: 'handler', codePath: 'lambda/comments',
+      logicalId: 'CommentsHandlerFunction',
     });
 
-    // ─── Auth Lambda Functions ──────────────────────────────────────────
-    const register = this.createFunction({
-      id: 'RegisterFunction', nameSuffix: 'register',
-      handler: 'register', codePath: 'lambda/auth',
-      logicalId: 'RegisterFunction735506DF',
-      serviceRoleLogicalId: 'RegisterFunctionServiceRoleDB8F6C89',
-      defaultPolicyLogicalId: 'RegisterFunctionServiceRoleDefaultPolicyC4352E3C',
+    // ─── Auth Lambda Function (unified handler) ─────────────────────────
+    const authHandler = this.createFunction({
+      id: 'AuthHandlerFunction', nameSuffix: 'auth-handler',
+      handler: 'handler', codePath: 'lambda/auth',
+      logicalId: 'AuthHandlerFunction',
     });
-    const verifyEmail = this.createFunction({
-      id: 'VerifyEmailFunction', nameSuffix: 'verify-email',
-      handler: 'verify_email', codePath: 'lambda/auth',
-      logicalId: 'VerifyEmailFunction6AC00EBE',
-      serviceRoleLogicalId: 'VerifyEmailFunctionServiceRole39E7B4E3',
-      defaultPolicyLogicalId: 'VerifyEmailFunctionServiceRoleDefaultPolicy7444358B',
+
+    // ─── Section Lambda Function (unified handler) ────────────────────
+    const sectionHandler = this.createFunction({
+      id: 'SectionHandlerFunction', nameSuffix: 'section-handler',
+      handler: 'handler', codePath: 'lambda/sections',
+      logicalId: 'SectionHandlerFunction',
+    });
+
+    // ─── Theme Lambda Function (unified handler) ──────────────────────
+    const themeHandler = this.createFunction({
+      id: 'ThemeHandlerFunction', nameSuffix: 'theme-handler',
+      handler: 'handler', codePath: 'lambda/themes',
+      logicalId: 'ThemeHandlerFunction',
     });
 
     // ─── Scheduler Function (custom env, no shared layer) ───────────────
@@ -367,269 +203,314 @@ export class LambdaApiConstruct extends Construct {
 
     // ─── IAM Permissions ────────────────────────────────────────────────
 
-    // Content function permissions
-    [contentCreate, contentGet, contentList, contentUpdate, contentDelete].forEach((fn) =>
-      props.contentTable.grantReadWriteData(fn),
-    );
-    [contentCreate, contentGet, contentList].forEach((fn) =>
-      this.grantDynamoDbIndexQuery(fn, props.contentTable),
-    );
-    [contentCreate, contentGet, contentUpdate, contentDelete].forEach((fn) =>
-      props.pluginsTable.grantReadData(fn),
-    );
-    props.usersTable.grantReadWriteData(contentCreate);
-    [contentGet, contentList, contentUpdate, contentDelete].forEach((fn) =>
-      props.usersTable.grantReadData(fn),
-    );
-    this.grantCognito(contentCreate, ['cognito-idp:AdminGetUser']);
+    // Content handler permissions
+    props.contentTable.grantReadWriteData(contentHandler);
+    this.grantDynamoDbIndexQuery(contentHandler, props.contentTable);
+    props.pluginsTable.grantReadData(contentHandler);
+    props.usersTable.grantReadWriteData(contentHandler);
+    this.grantCognito(contentHandler, ['cognito-idp:AdminGetUser']);
 
-    // Media function permissions
-    [mediaUpload, mediaDelete].forEach((fn) => props.mediaTable.grantReadWriteData(fn));
-    [mediaGet, mediaList].forEach((fn) => props.mediaTable.grantReadData(fn));
-    props.mediaBucket.grantReadWrite(mediaUpload);
-    props.mediaBucket.grantRead(mediaGet);
-    props.mediaBucket.grantDelete(mediaDelete);
-    [mediaUpload, mediaDelete].forEach((fn) => {
-      props.pluginsTable.grantReadData(fn);
-      props.usersTable.grantReadData(fn);
-    });
+    // Media handler permissions
+    props.mediaTable.grantReadWriteData(mediaHandler);
+    props.mediaBucket.grantReadWrite(mediaHandler);
+    props.mediaBucket.grantDelete(mediaHandler);
+    props.pluginsTable.grantReadData(mediaHandler);
+    props.usersTable.grantReadData(mediaHandler);
 
-    // User function permissions
-    [userGetMe, userUpdateMe, userCreate, userUpdate, userDelete].forEach((fn) =>
-      props.usersTable.grantReadWriteData(fn),
-    );
-    [userList, userResetPassword].forEach((fn) => props.usersTable.grantReadData(fn));
-    this.grantCognito(userGetMe, ['cognito-idp:AdminGetUser']);
-    this.grantCognito(userUpdateMe, [
+    // Users handler permissions
+    props.usersTable.grantReadWriteData(usersHandler);
+    this.grantCognito(usersHandler, [
       'cognito-idp:AdminGetUser', 'cognito-idp:AdminUpdateUserAttributes',
-    ]);
-    this.grantCognito(userCreate, [
       'cognito-idp:AdminCreateUser', 'cognito-idp:AdminSetUserPassword',
-      'cognito-idp:AdminUpdateUserAttributes',
+      'cognito-idp:AdminDeleteUser', 'cognito-idp:AdminResetUserPassword',
     ]);
-    this.grantCognito(userUpdate, [
-      'cognito-idp:AdminGetUser', 'cognito-idp:AdminUpdateUserAttributes',
-    ]);
-    this.grantCognito(userDelete, [
-      'cognito-idp:AdminGetUser', 'cognito-idp:AdminDeleteUser',
-    ]);
-    this.grantCognito(userResetPassword, [
-      'cognito-idp:AdminGetUser', 'cognito-idp:AdminResetUserPassword',
-    ]);
+    this.grantSesSendEmail(usersHandler);
+    this.grantCloudWatchPutMetricData(usersHandler);
 
-    // Settings function permissions
-    [settingsGet, settingsGetPublic].forEach((fn) => props.settingsTable.grantReadData(fn));
-    props.settingsTable.grantReadWriteData(settingsUpdate);
-    [settingsGet, settingsUpdate].forEach((fn) => props.usersTable.grantReadData(fn));
+    // Settings handler permissions
+    props.settingsTable.grantReadWriteData(settingsHandler);
+    props.usersTable.grantReadData(settingsHandler);
 
-    // Plugin function permissions
-    [pluginInstall, pluginActivate, pluginDeactivate].forEach((fn) =>
-      props.pluginsTable.grantReadWriteData(fn),
-    );
-    [pluginList, pluginGetSettings].forEach((fn) => props.pluginsTable.grantReadData(fn));
-    props.pluginsTable.grantReadWriteData(pluginUpdateSettings);
-    props.settingsTable.grantReadData(pluginGetSettings);
-    props.settingsTable.grantReadWriteData(pluginUpdateSettings);
-    // All plugin functions need users table read access for auth role lookup
-    [pluginInstall, pluginActivate, pluginDeactivate, pluginList, pluginGetSettings, pluginUpdateSettings].forEach(
-      (fn) => props.usersTable.grantReadData(fn),
-    );
+    // Plugins handler permissions
+    props.pluginsTable.grantReadWriteData(pluginsHandler);
+    props.settingsTable.grantReadWriteData(pluginsHandler);
+    props.usersTable.grantReadData(pluginsHandler);
 
-    // Comment function permissions
-    props.commentsTable.grantReadData(commentList);
-    [commentCreate, commentUpdate, commentDelete].forEach((fn) =>
-      props.commentsTable.grantReadWriteData(fn),
-    );
-    this.grantDynamoDbIndexQuery(commentList, props.commentsTable);
-    props.contentTable.grantReadData(commentCreate);
-    [commentCreate, commentList, commentUpdate, commentDelete].forEach((fn) =>
-      props.settingsTable.grantReadData(fn),
-    );
-    [commentUpdate, commentDelete].forEach((fn) => props.usersTable.grantReadData(fn));
+    // Comments handler permissions
+    props.commentsTable.grantReadWriteData(commentsHandler);
+    this.grantDynamoDbIndexQuery(commentsHandler, props.commentsTable);
+    props.contentTable.grantReadData(commentsHandler);
+    props.settingsTable.grantReadData(commentsHandler);
+    props.usersTable.grantReadData(commentsHandler);
+    this.grantCloudWatchPutMetricData(commentsHandler);
 
-    // Auth function permissions
-    props.usersTable.grantReadWriteData(register);
-    props.usersTable.grantReadData(verifyEmail);
-    this.grantCognito(register, [
+    // Auth handler permissions
+    props.usersTable.grantReadWriteData(authHandler);
+    this.grantCognito(authHandler, [
       'cognito-idp:AdminCreateUser', 'cognito-idp:AdminSetUserPassword',
       'cognito-idp:AdminUpdateUserAttributes', 'cognito-idp:ListUsers',
+      'cognito-idp:AdminConfirmSignUp',
     ]);
-    this.grantCognito(verifyEmail, [
-      'cognito-idp:AdminConfirmSignUp', 'cognito-idp:AdminUpdateUserAttributes',
-    ]);
+    this.grantSesSendEmail(authHandler);
+    this.grantCloudWatchPutMetricData(authHandler);
 
-    // SES send email permissions
-    [userCreate, userResetPassword, register].forEach((fn) => this.grantSesSendEmail(fn));
+    // Section function permissions
+    props.sectionsTable.grantReadWriteData(sectionHandler);
+    props.contentTable.grantReadData(sectionHandler);
+    this.grantDynamoDbIndexQuery(sectionHandler, props.sectionsTable);
+    this.grantDynamoDbIndexQuery(sectionHandler, props.contentTable);
+    props.usersTable.grantReadData(sectionHandler);
 
-    // CloudWatch PutMetricData permissions
-    [commentCreate, commentUpdate, userCreate, register].forEach((fn) =>
-      this.grantCloudWatchPutMetricData(fn),
-    );
+    // Theme function permissions
+    props.themesTable.grantReadWriteData(themeHandler);
+    props.settingsTable.grantReadWriteData(themeHandler);
+    props.usersTable.grantReadData(themeHandler);
 
     // ─── API Gateway Routes ─────────────────────────────────────────────
     const apiV1 = props.api.root.addResource('api').addResource('v1');
 
     // Content endpoints: /api/v1/content
     const contentResource = apiV1.addResource('content');
-    contentResource.addMethod('POST', new apigateway.LambdaIntegration(contentCreate), {
+    contentResource.addMethod('POST', new apigateway.LambdaIntegration(contentHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
-    contentResource.addMethod('GET', new apigateway.LambdaIntegration(contentList));
+    contentResource.addMethod('GET', new apigateway.LambdaIntegration(contentHandler));
 
     const contentIdResource = contentResource.addResource('{id}');
-    contentIdResource.addMethod('GET', new apigateway.LambdaIntegration(contentGet));
-    contentIdResource.addMethod('PUT', new apigateway.LambdaIntegration(contentUpdate), {
+    contentIdResource.addMethod('GET', new apigateway.LambdaIntegration(contentHandler));
+    contentIdResource.addMethod('PUT', new apigateway.LambdaIntegration(contentHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
-    contentIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(contentDelete), {
+    contentIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(contentHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const contentSlugResource = contentResource.addResource('slug').addResource('{slug}');
-    contentSlugResource.addMethod('GET', new apigateway.LambdaIntegration(contentGet));
+    contentSlugResource.addMethod('GET', new apigateway.LambdaIntegration(contentHandler));
 
     // Media endpoints: /api/v1/media
     const mediaResource = apiV1.addResource('media');
-    mediaResource.addMethod('GET', new apigateway.LambdaIntegration(mediaList), {
+    mediaResource.addMethod('GET', new apigateway.LambdaIntegration(mediaHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const mediaUploadResource = mediaResource.addResource('upload');
-    mediaUploadResource.addMethod('POST', new apigateway.LambdaIntegration(mediaUpload), {
+    mediaUploadResource.addMethod('POST', new apigateway.LambdaIntegration(mediaHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const mediaIdResource = mediaResource.addResource('{id}');
-    mediaIdResource.addMethod('GET', new apigateway.LambdaIntegration(mediaGet), {
+    mediaIdResource.addMethod('GET', new apigateway.LambdaIntegration(mediaHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
-    mediaIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(mediaDelete), {
+    mediaIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(mediaHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     // User endpoints: /api/v1/users
     const usersResource = apiV1.addResource('users');
-    usersResource.addMethod('GET', new apigateway.LambdaIntegration(userList), {
+    usersResource.addMethod('GET', new apigateway.LambdaIntegration(usersHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
-    usersResource.addMethod('POST', new apigateway.LambdaIntegration(userCreate), {
+    usersResource.addMethod('POST', new apigateway.LambdaIntegration(usersHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const usersMeResource = usersResource.addResource('me');
-    usersMeResource.addMethod('GET', new apigateway.LambdaIntegration(userGetMe), {
+    usersMeResource.addMethod('GET', new apigateway.LambdaIntegration(usersHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
-    usersMeResource.addMethod('PUT', new apigateway.LambdaIntegration(userUpdateMe), {
+    usersMeResource.addMethod('PUT', new apigateway.LambdaIntegration(usersHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const userIdResource = usersResource.addResource('{id}');
-    userIdResource.addMethod('PUT', new apigateway.LambdaIntegration(userUpdate), {
+    userIdResource.addMethod('PUT', new apigateway.LambdaIntegration(usersHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
-    userIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(userDelete), {
+    userIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(usersHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const userResetPasswordResource = userIdResource.addResource('reset-password');
-    userResetPasswordResource.addMethod('POST', new apigateway.LambdaIntegration(userResetPassword), {
+    userResetPasswordResource.addMethod('POST', new apigateway.LambdaIntegration(usersHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     // Settings endpoints: /api/v1/settings
     const settingsResource = apiV1.addResource('settings');
-    settingsResource.addMethod('GET', new apigateway.LambdaIntegration(settingsGet), {
+    settingsResource.addMethod('GET', new apigateway.LambdaIntegration(settingsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
-    settingsResource.addMethod('PUT', new apigateway.LambdaIntegration(settingsUpdate), {
+    settingsResource.addMethod('PUT', new apigateway.LambdaIntegration(settingsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const settingsPublicResource = settingsResource.addResource('public');
-    settingsPublicResource.addMethod('GET', new apigateway.LambdaIntegration(settingsGetPublic));
+    settingsPublicResource.addMethod('GET', new apigateway.LambdaIntegration(settingsHandler));
 
     // Plugin endpoints: /api/v1/plugins
     const pluginsResource = apiV1.addResource('plugins');
-    pluginsResource.addMethod('GET', new apigateway.LambdaIntegration(pluginList), {
+    pluginsResource.addMethod('GET', new apigateway.LambdaIntegration(pluginsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const pluginInstallResource = pluginsResource.addResource('install');
-    pluginInstallResource.addMethod('POST', new apigateway.LambdaIntegration(pluginInstall), {
+    pluginInstallResource.addMethod('POST', new apigateway.LambdaIntegration(pluginsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const pluginIdResource = pluginsResource.addResource('{id}');
     const pluginActivateResource = pluginIdResource.addResource('activate');
-    pluginActivateResource.addMethod('POST', new apigateway.LambdaIntegration(pluginActivate), {
+    pluginActivateResource.addMethod('POST', new apigateway.LambdaIntegration(pluginsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const pluginDeactivateResource = pluginIdResource.addResource('deactivate');
-    pluginDeactivateResource.addMethod('POST', new apigateway.LambdaIntegration(pluginDeactivate), {
+    pluginDeactivateResource.addMethod('POST', new apigateway.LambdaIntegration(pluginsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const pluginSettingsResource = pluginIdResource.addResource('settings');
-    pluginSettingsResource.addMethod('GET', new apigateway.LambdaIntegration(pluginGetSettings), {
+    pluginSettingsResource.addMethod('GET', new apigateway.LambdaIntegration(pluginsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
-    pluginSettingsResource.addMethod('PUT', new apigateway.LambdaIntegration(pluginUpdateSettings), {
+    pluginSettingsResource.addMethod('PUT', new apigateway.LambdaIntegration(pluginsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
-    // Comment endpoints: /api/v1/content/{id}/comments
+    // Comment endpoints: /api/v1/content/{id}/comments (public)
     const contentCommentsResource = contentIdResource.addResource('comments');
-    contentCommentsResource.addMethod('GET', new apigateway.LambdaIntegration(commentList));
-    contentCommentsResource.addMethod('POST', new apigateway.LambdaIntegration(commentCreate));
+    contentCommentsResource.addMethod('GET', new apigateway.LambdaIntegration(commentsHandler));
+    contentCommentsResource.addMethod('POST', new apigateway.LambdaIntegration(commentsHandler));
 
-    // Comment moderation endpoints: /api/v1/comments
+    // Comment moderation endpoints: /api/v1/comments (authenticated)
     const commentsResource = apiV1.addResource('comments');
-    commentsResource.addMethod('GET', new apigateway.LambdaIntegration(commentList), {
+    commentsResource.addMethod('GET', new apigateway.LambdaIntegration(commentsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const commentIdResource = commentsResource.addResource('{id}');
-    commentIdResource.addMethod('PUT', new apigateway.LambdaIntegration(commentUpdate), {
+    commentIdResource.addMethod('PUT', new apigateway.LambdaIntegration(commentsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
-    commentIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(commentDelete), {
+    commentIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(commentsHandler), {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
-    // Auth endpoints: /api/v1/auth
+    // Auth endpoints: /api/v1/auth (public)
     const authResource = apiV1.addResource('auth');
     const registerResource = authResource.addResource('register');
-    registerResource.addMethod('POST', new apigateway.LambdaIntegration(register));
+    registerResource.addMethod('POST', new apigateway.LambdaIntegration(authHandler));
 
     const verifyEmailResource = authResource.addResource('verify-email');
-    verifyEmailResource.addMethod('POST', new apigateway.LambdaIntegration(verifyEmail));
+    verifyEmailResource.addMethod('POST', new apigateway.LambdaIntegration(authHandler));
+
+    // Section endpoints: /api/v1/sections (authenticated)
+    const sectionsResource = apiV1.addResource('sections');
+    sectionsResource.addMethod('POST', new apigateway.LambdaIntegration(sectionHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    sectionsResource.addMethod('GET', new apigateway.LambdaIntegration(sectionHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    const sectionIdResource = sectionsResource.addResource('{id}');
+    sectionIdResource.addMethod('GET', new apigateway.LambdaIntegration(sectionHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    sectionIdResource.addMethod('PUT', new apigateway.LambdaIntegration(sectionHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    sectionIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(sectionHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // Public section endpoints: /api/v1/public/sections (unauthenticated)
+    const publicResource = apiV1.addResource('public');
+    const publicSectionsResource = publicResource.addResource('sections');
+
+    const publicSectionsTreeResource = publicSectionsResource.addResource('tree');
+    publicSectionsTreeResource.addMethod('GET', new apigateway.LambdaIntegration(sectionHandler));
+
+    const publicSectionsPathResource = publicSectionsResource.addResource('path');
+    const publicSectionsPathProxy = publicSectionsPathResource.addResource('{path+}');
+    publicSectionsPathProxy.addMethod('GET', new apigateway.LambdaIntegration(sectionHandler));
+
+    const publicSectionIdResource = publicSectionsResource.addResource('{id}');
+    const publicSectionPostsResource = publicSectionIdResource.addResource('posts');
+    publicSectionPostsResource.addMethod('GET', new apigateway.LambdaIntegration(sectionHandler));
+
+    // Theme endpoints: /api/v1/themes
+    const themesResource = apiV1.addResource('themes');
+    themesResource.addMethod('GET', new apigateway.LambdaIntegration(themeHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    themesResource.addMethod('POST', new apigateway.LambdaIntegration(themeHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // Public endpoint: GET /api/v1/themes/active (no auth)
+    const themeActiveResource = themesResource.addResource('active');
+    themeActiveResource.addMethod('GET', new apigateway.LambdaIntegration(themeHandler));
+
+    const themeIdResource = themesResource.addResource('{id}');
+    themeIdResource.addMethod('GET', new apigateway.LambdaIntegration(themeHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    themeIdResource.addMethod('PUT', new apigateway.LambdaIntegration(themeHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    themeIdResource.addMethod('DELETE', new apigateway.LambdaIntegration(themeHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    const themeActivateResource = themeIdResource.addResource('activate');
+    themeActivateResource.addMethod('POST', new apigateway.LambdaIntegration(themeHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    const themeDuplicateResource = themeIdResource.addResource('duplicate');
+    themeDuplicateResource.addMethod('POST', new apigateway.LambdaIntegration(themeHandler), {
+      authorizer: props.authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
 
     // Apply deferred logical ID overrides for service role default policies
     this.applyDeferredPolicyOverrides();

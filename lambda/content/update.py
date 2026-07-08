@@ -13,6 +13,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from shared.auth import require_auth
 from shared.db import ContentRepository
 from shared.plugins import PluginManager
+try:
+    from section_helpers import (
+        validate_section_assignment,
+        compute_section_path_ids,
+        validate_content_markdown,
+    )
+except ImportError:
+    from content.section_helpers import (
+        validate_section_assignment,
+        compute_section_path_ids,
+        validate_content_markdown,
+    )
 from boto3.dynamodb.conditions import Attr
 
 
@@ -172,6 +184,52 @@ def handler(event, context, user_id, role):
             updates['scheduled_at'] = body['scheduled_at']
             if body['scheduled_at'] > 0:
                 updates['status'] = 'draft'  # Scheduled content must be draft
+        
+        # Validate and store section assignment
+        if 'section_id' in body:
+            section_id = body['section_id']
+            is_valid, error_msg, section_record = validate_section_assignment(section_id)
+            if not is_valid:
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    'body': json.dumps({
+                        'error': 'Validation error',
+                        'message': error_msg
+                    })
+                }
+            if section_record:
+                updates['section_id'] = section_id
+                updates['section_path_ids'] = compute_section_path_ids(section_record)
+            else:
+                # Empty/null section_id means unassign
+                updates['section_id'] = ''
+                updates['section_path_ids'] = []
+        
+        # Validate and store content_markdown
+        if 'content_markdown' in body:
+            content_markdown = body['content_markdown']
+            is_valid, error_msg = validate_content_markdown(content_markdown)
+            if not is_valid:
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    'body': json.dumps({
+                        'error': 'Validation error',
+                        'message': error_msg
+                    })
+                }
+            updates['content_markdown'] = content_markdown
+        
+        # Store content_format if provided
+        if body.get('content_format') in ('markdown', 'html'):
+            updates['content_format'] = body['content_format']
         
         # Execute plugin hook for content_update
         try:

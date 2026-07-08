@@ -1,6 +1,7 @@
 """
 S3 utilities for media file operations.
 Handles file uploads, thumbnail generation, and file deletion.
+Updated: 2026-02-15 - Added CloudFront URL conversion
 """
 
 import boto3
@@ -23,7 +24,7 @@ MEDIA_BUCKET = os.environ.get('MEDIA_BUCKET', '')
 
 def upload_file(file_data: bytes, filename: str, content_type: str) -> str:
     """
-    Upload file to S3 and return URL.
+    Upload file to S3 and return CloudFront URL.
     
     Args:
         file_data: Binary file content
@@ -31,7 +32,7 @@ def upload_file(file_data: bytes, filename: str, content_type: str) -> str:
         content_type: MIME type of the file
         
     Returns:
-        S3 URL of the uploaded file
+        CloudFront URL of the uploaded file
         
     Raises:
         Exception: If upload fails
@@ -51,8 +52,12 @@ def upload_file(file_data: bytes, filename: str, content_type: str) -> str:
             CacheControl='public, max-age=31536000',  # Cache for 1 year
         )
         
-        # Return public URL
-        url = f"https://{MEDIA_BUCKET}.s3.amazonaws.com/{key}"
+        # Return CloudFront URL if available, otherwise S3 URL
+        media_cdn_url = os.environ.get('MEDIA_CDN_URL', '')
+        if media_cdn_url:
+            url = f"{media_cdn_url}/{key}"
+        else:
+            url = f"https://{MEDIA_BUCKET}.s3.amazonaws.com/{key}"
         return url
         
     except ClientError as e:
@@ -138,8 +143,12 @@ def generate_thumbnails(s3_key: str, mime_type: str) -> Dict[str, str]:
                 CacheControl='public, max-age=31536000',
             )
             
-            # Store thumbnail URL
-            thumbnails[size_name] = f"https://{MEDIA_BUCKET}.s3.amazonaws.com/{thumb_key}"
+            # Store thumbnail URL (use CloudFront if available)
+            media_cdn_url = os.environ.get('MEDIA_CDN_URL', '')
+            if media_cdn_url:
+                thumbnails[size_name] = f"{media_cdn_url}/{thumb_key}"
+            else:
+                thumbnails[size_name] = f"https://{MEDIA_BUCKET}.s3.amazonaws.com/{thumb_key}"
         
         return thumbnails
         
@@ -214,14 +223,58 @@ def extract_s3_key_from_url(url: str) -> str:
     Returns:
         S3 key (path within bucket)
     """
-    # Handle both formats:
+    # Handle multiple S3 URL formats:
     # https://bucket.s3.amazonaws.com/key
+    # https://bucket.s3.us-west-2.amazonaws.com/key
     # https://s3.amazonaws.com/bucket/key
+    import re
     
+    # Match regional format: bucket.s3.REGION.amazonaws.com/key
+    match = re.search(r'\.s3\.[a-z0-9-]+\.amazonaws\.com/(.+)$', url)
+    if match:
+        return match.group(1)
+    
+    # Match non-regional format: bucket.s3.amazonaws.com/key
     if '.s3.amazonaws.com/' in url:
         return url.split('.s3.amazonaws.com/')[-1]
-    elif 's3.amazonaws.com/' in url:
+    
+    # Match path-style: s3.amazonaws.com/bucket/key
+    if 's3.amazonaws.com/' in url:
         parts = url.split('s3.amazonaws.com/')[-1].split('/', 1)
         return parts[1] if len(parts) > 1 else parts[0]
     
     return url
+
+
+def convert_s3_url_to_cdn(url: str) -> str:
+    """
+    Convert S3 URL to CloudFront CDN URL.
+    
+    Args:
+        url: S3 URL (e.g., https://bucket.s3.us-west-2.amazonaws.com/key)
+        
+    Returns:
+        CloudFront URL if MEDIA_CDN_URL is set, otherwise original URL
+    """
+    if not url:
+        return url
+    
+    media_cdn_url = os.environ.get('MEDIA_CDN_URL', '')
+    if not media_cdn_url:
+        return url
+    
+    # Only convert S3 URLs (regional and non-regional)
+    import re
+    is_s3_url = (
+        '.s3.amazonaws.com/' in url or
+        's3.amazonaws.com/' in url or
+        bool(re.search(r'\.s3\.[a-z0-9-]+\.amazonaws\.com/', url))
+    )
+    if not is_s3_url:
+        return url
+    
+    # Extract the S3 key
+    key = extract_s3_key_from_url(url)
+    
+    # Return CloudFront URL
+    return f"{media_cdn_url}/{key}"

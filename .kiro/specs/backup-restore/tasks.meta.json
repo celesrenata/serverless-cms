@@ -1,0 +1,582 @@
+{
+  "pbtResults": {
+    "6.2 Write property test for manifest counts accuracy": {
+      "status": "passed",
+      "lastRunTimestamp": 1783313938352
+    },
+    "6.4 Write property test for URL rewriting correctness": {
+      "status": "passed",
+      "lastRunTimestamp": 1783313991489
+    },
+    "6.1 Write property test for DynamoDB data round-trip preservation": {
+      "status": "passed",
+      "lastRunTimestamp": 1783314028749
+    },
+    "6.3 Write property test for archive directory naming": {
+      "status": "passed",
+      "lastRunTimestamp": 1783314055375
+    },
+    "6.5 Write property test for exponential backoff formula": {
+      "status": "passed",
+      "lastRunTimestamp": 1783314150395
+    },
+    "6.6 Write property test for resume idempotence": {
+      "status": "passed",
+      "lastRunTimestamp": 1783314161456
+    }
+  },
+  "executionHistory": {
+    "1.1 Add hypothesis to tests/requirements.txt": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783310999845
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311014798
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311322258
+      }
+    ],
+    "1.2 Implement ProgressReporter class in `scripts/backup_utils.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783310999877
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311016026
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311322995
+      }
+    ],
+    "1.3 Implement ManifestManager class in `scripts/backup_utils.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783310999913
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311327387
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311640200
+      }
+    ],
+    "1.4 Implement CheckpointManager class in `scripts/backup_utils.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783310999946
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311328131
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311640985
+      }
+    ],
+    "1.5 Implement URLRewriter class in `scripts/backup_utils.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783310999981
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311328991
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311641756
+      }
+    ],
+    "2.1 Implement DynamoDBExporter class in `scripts/backup.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000012
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311646946
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783312372038
+      }
+    ],
+    "2.2 Implement S3TransferManager download in `scripts/backup.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000038
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311647728
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783312372855
+      }
+    ],
+    "2.3 Implement backup CLI and main orchestration in `scripts/backup.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000062
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783312376789
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783312669142
+      }
+    ],
+    "3. Checkpoint - Ensure backup script works end-to-end": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000096
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783312684611
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313069528
+      }
+    ],
+    "4.1 Implement DynamoDBImporter class in `scripts/restore.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000122
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783312685307
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313070411
+      }
+    ],
+    "4.2 Implement S3TransferManager upload in `scripts/restore.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000162
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783312686172
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313071080
+      }
+    ],
+    "4.3 Implement safety checks and clean mode in `scripts/restore.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000205
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313075671
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313772029
+      }
+    ],
+    "4.4 Implement restore CLI and main orchestration in `scripts/restore.py`": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000231
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313076448
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313772787
+      }
+    ],
+    "5. Checkpoint - Ensure restore script works end-to-end": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000261
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313787494
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314067602
+      }
+    ],
+    "6.1 Write property test for DynamoDB data round-trip preservation": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000287
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313788278
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314068660
+      }
+    ],
+    "6.2 Write property test for manifest counts accuracy": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000311
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313789065
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314069426
+      }
+    ],
+    "6.3 Write property test for archive directory naming": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000337
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313789715
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314070179
+      }
+    ],
+    "6.4 Write property test for URL rewriting correctness": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000363
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313790509
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314070940
+      }
+    ],
+    "6.5 Write property test for exponential backoff formula": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000395
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313791270
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314322144
+      }
+    ],
+    "6.6 Write property test for resume idempotence": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000422
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314081835
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314322902
+      }
+    ],
+    "7.1 Write unit tests for CLI argument parsing": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000461
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314082428
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314323693
+      }
+    ],
+    "7.2 Write unit tests for URLRewriter": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000512
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314083339
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314324454
+      }
+    ],
+    "7.3 Write unit tests for ManifestManager and CheckpointManager": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000537
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314084101
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314325276
+      }
+    ],
+    "7.4 Write unit tests for safety checks": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000577
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314084830
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314769264
+      }
+    ],
+    "8.1 Write integration test for end-to-end backup": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000606
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314330291
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314770073
+      }
+    ],
+    "8.2 Write integration test for end-to-end restore": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000640
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314331076
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314770814
+      }
+    ],
+    "8.3 Write integration test for cross-stage restore with URL rewriting": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000673
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314331918
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314771666
+      }
+    ],
+    "8.4 Write integration test for clean restore": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000704
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314332644
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314772445
+      }
+    ],
+    "8.5 Write integration test for resume (backup and restore)": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000737
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314333467
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314978050
+      }
+    ],
+    "9. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311000765
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314777037
+      },
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314979102
+      }
+    ],
+    "1. Set up shared utilities and test dependencies": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783311641784
+      }
+    ],
+    "2. Implement backup script": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783312669176
+      }
+    ],
+    "4. Implement restore script": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783313772817
+      }
+    ],
+    "6. Property-based tests": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314322943
+      }
+    ],
+    "7. Unit tests": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314769306
+      }
+    ],
+    "8. Integration tests with moto": [
+      {
+        "executionId": "15d714e1-e6fd-4f0f-a8d3-61eb7b9b5831",
+        "chatSessionId": "sess_85f24807-230e-4123-beb3-600bd7d7143c",
+        "timestamp": 1783314978095
+      }
+    ]
+  }
+}

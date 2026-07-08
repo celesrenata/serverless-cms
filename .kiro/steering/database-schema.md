@@ -165,6 +165,64 @@ This document defines the DynamoDB table schemas for the serverless CMS. Always 
 }
 ```
 
+## Themes Table (`cms-themes-{env}`)
+
+**Primary Key:**
+- Partition Key: `id` (String) - UUID
+
+**Attributes:**
+```typescript
+{
+  id: string;                    // UUID
+  name: string;                  // Theme display name (max 100 chars)
+  description: string;           // Short description (max 500 chars)
+  tokens: {                      // Full ThemeTokens object (DynamoDB map)
+    colors: {
+      primary: string;           // Space-separated RGB, e.g. "139 92 246"
+      background: string;
+      surface: string;
+      accent: string;
+      // ... up to 17 color tokens
+    };
+    typography: {
+      font_family: string;
+      size_base: string;
+      scale: number;
+      line_height: number;
+      weights: Record<string, number>;
+    };
+    radius: {
+      sm: string;
+      md: string;
+      lg: string;
+      full: string;
+    };
+    shadows: {
+      sm: string;
+      md: string;
+      lg: string;
+      glow: string;
+    };
+    motion: {
+      duration_fast: string;
+      duration_normal: string;
+      easing: string;
+    };
+  };
+  custom_css?: string;           // Optional CSS string (max 100KB)
+  created_by: string;            // User ID (UUID)
+  created_at: number;            // Unix timestamp
+  updated_at: number;            // Unix timestamp
+}
+```
+
+**Notes:**
+- On-demand (PAY_PER_REQUEST) billing mode
+- No GSIs needed — all queries use the primary key or full table scan (max 50 themes)
+- Active theme tracking uses the existing `cms-settings-{env}` table with key `active_theme_id`
+- Builtin themes are stored as code constants, not in this table
+- Maximum 50 custom themes enforced at application level
+
 ## Comments Table (`cms-comments-{env}`)
 
 **Primary Key:**

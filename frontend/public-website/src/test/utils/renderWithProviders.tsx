@@ -2,6 +2,7 @@ import { ReactElement } from 'react';
 import { render, RenderResult } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { createMockSettingsContext, type MockSettingsOptions } from './createMockSettingsContext';
 
@@ -44,13 +45,15 @@ export function renderWithProviders(
   );
 
   const result = render(
-    <QueryClientProvider client={queryClient}>
-      <SettingsContext.Provider value={settingsContextValue}>
-        <MemoryRouter initialEntries={[route]}>
-          {wrappedUi}
-        </MemoryRouter>
-      </SettingsContext.Provider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <SettingsContext.Provider value={settingsContextValue}>
+          <MemoryRouter initialEntries={[route]}>
+            {wrappedUi}
+          </MemoryRouter>
+        </SettingsContext.Provider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 
   return {

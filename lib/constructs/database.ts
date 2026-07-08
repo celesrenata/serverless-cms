@@ -14,6 +14,8 @@ export class DatabaseConstruct extends Construct {
   public readonly settingsTable: dynamodb.Table;
   public readonly pluginsTable: dynamodb.Table;
   public readonly commentsTable: dynamodb.Table;
+  public readonly sectionsTable: dynamodb.Table;
+  public readonly themesTable: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props: DatabaseConstructProps) {
     super(scope, id);
@@ -44,6 +46,12 @@ export class DatabaseConstruct extends Construct {
     this.contentTable.addGlobalSecondaryIndex({
       indexName: 'status-published_at-index',
       partitionKey: { name: 'status', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'published_at', type: dynamodb.AttributeType.NUMBER },
+    });
+
+    this.contentTable.addGlobalSecondaryIndex({
+      indexName: 'section_id-published_at-index',
+      partitionKey: { name: 'section_id', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'published_at', type: dynamodb.AttributeType.NUMBER },
     });
 
@@ -119,6 +127,37 @@ export class DatabaseConstruct extends Construct {
       indexName: 'status-created_at-index',
       partitionKey: { name: 'status', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'created_at', type: dynamodb.AttributeType.NUMBER },
+    });
+
+    // Sections Table
+    this.sectionsTable = new dynamodb.Table(this, 'SectionsTable', {
+      tableName: `cms-sections-${props.environment}`,
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
+    });
+
+    this.sectionsTable.addGlobalSecondaryIndex({
+      indexName: 'slug-index',
+      partitionKey: { name: 'slug', type: dynamodb.AttributeType.STRING },
+    });
+
+    this.sectionsTable.addGlobalSecondaryIndex({
+      indexName: 'parent_id-sort_order-index',
+      partitionKey: { name: 'parent_id', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'sort_order', type: dynamodb.AttributeType.NUMBER },
+    });
+
+    // Themes Table
+    this.themesTable = new dynamodb.Table(this, 'ThemesTable', {
+      tableName: `cms-themes-${props.environment}`,
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
     });
   }
 }

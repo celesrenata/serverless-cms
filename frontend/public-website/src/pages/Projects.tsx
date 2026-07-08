@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
 import { useContentList } from '../hooks/useContent';
 import { useSiteSettings } from '../hooks/useSiteSettings';
+import { PageMeta } from '../components/PageMeta';
 import { CodeBlock } from '../components/CodeBlock';
 import { Content } from '../types';
 
@@ -29,13 +29,11 @@ export const Projects = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Projects - {settings?.site_title || 'My Website'}</title>
-        <meta
-          name="description"
-          content={`Code projects and technical work from ${settings?.site_title || 'our website'}`}
-        />
-      </Helmet>
+      <PageMeta
+        title="Projects"
+        description={`Code projects and technical work from ${settings?.site_title || 'Celestium'}`}
+        canonical="/projects"
+      />
 
       <div className="bg-white min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -16,6 +16,18 @@ from shared.auth import require_auth
 from shared.db import ContentRepository, UserRepository
 from shared.plugins import PluginManager
 from shared.logger import create_logger, log_performance
+try:
+    from section_helpers import (
+        validate_section_assignment,
+        compute_section_path_ids,
+        validate_content_markdown,
+    )
+except ImportError:
+    from content.section_helpers import (
+        validate_section_assignment,
+        compute_section_path_ids,
+        validate_content_markdown,
+    )
 import boto3
 
 
@@ -174,6 +186,52 @@ def handler(event, context, user_id, role):
                     scheduled_at=body['scheduled_at'])
         else:
             content_item['scheduled_at'] = 0
+        
+        # Validate and store section assignment
+        section_id = body.get('section_id')
+        if section_id is not None:
+            is_valid, error_msg, section_record = validate_section_assignment(section_id)
+            if not is_valid:
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    'body': json.dumps({
+                        'error': 'Validation error',
+                        'message': error_msg
+                    })
+                }
+            if section_record:
+                content_item['section_id'] = section_id
+                content_item['section_path_ids'] = compute_section_path_ids(section_record)
+            else:
+                # Empty/null section_id means unassign
+                content_item['section_id'] = ''
+                content_item['section_path_ids'] = []
+        
+        # Validate and store content_markdown
+        content_markdown = body.get('content_markdown')
+        if content_markdown is not None:
+            is_valid, error_msg = validate_content_markdown(content_markdown)
+            if not is_valid:
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    'body': json.dumps({
+                        'error': 'Validation error',
+                        'message': error_msg
+                    })
+                }
+            content_item['content_markdown'] = content_markdown
+        
+        # Store content_format if provided
+        if body.get('content_format') in ('markdown', 'html'):
+            content_item['content_format'] = body['content_format']
         
         # Execute plugin hook for content_create
         plugin_start = time.time()

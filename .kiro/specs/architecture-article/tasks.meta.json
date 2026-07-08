@@ -1,0 +1,269 @@
+{
+  "pbtResults": {
+    "4.3 Write property-based tests with Hypothesis": {
+      "status": "passed",
+      "lastRunTimestamp": 1783392385300
+    }
+  },
+  "executionHistory": {
+    "1.1 Implement script skeleton with CLI and repository integration": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104075
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389113129
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389406104
+      }
+    ],
+    "1.2 Implement upsert logic": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104104
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389410582
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783390210123
+      }
+    ],
+    "2.1 Implement `build_article_content()` function — Introduction and System Architecture sections": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104131
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389411306
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783390210971
+      }
+    ],
+    "2.2 Implement article content — Infrastructure as Code and Backend sections": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104156
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783390215506
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391015010
+      }
+    ],
+    "2.3 Implement article content — Frontend Architecture section": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104190
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783390216269
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391015813
+      }
+    ],
+    "2.4 Implement article content — Auth, Media, Content Features sections": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104225
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391020609
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391458793
+      }
+    ],
+    "2.5 Implement article content — Operations, CI/CD, and Conclusion sections": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104260
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391021423
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391459625
+      }
+    ],
+    "2.6 Implement `build_metadata()` function and wire content builder together": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104291
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391464074
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391669692
+      }
+    ],
+    "3. Checkpoint - Verify script runs locally": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104319
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391684207
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392073741
+      }
+    ],
+    "4.1 Create unit tests for script infrastructure": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104352
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391684964
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392074558
+      }
+    ],
+    "4.2 Create content validation tests": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104380
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391685682
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392075374
+      }
+    ],
+    "4.3 Write property-based tests with Hypothesis": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104415
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392080186
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392431437
+      }
+    ],
+    "4.4 Write integration tests with moto": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104442
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392080954
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392432205
+      }
+    ],
+    "5. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783389104484
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392437765
+      },
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392548138
+      }
+    ],
+    "1. Create script infrastructure": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783390210167
+      }
+    ],
+    "2. Create article content builder": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783391669734
+      }
+    ],
+    "4. Write tests": [
+      {
+        "executionId": "43338797-150f-4668-9a64-e433d33a3d51",
+        "chatSessionId": "sess_6a41c177-8d83-4e7c-8a2b-89c60d426d5c",
+        "timestamp": 1783392432244
+      }
+    ]
+  }
+}

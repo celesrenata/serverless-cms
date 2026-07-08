@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
+import { PageMeta } from '../components/PageMeta';
 
 export function VerifyEmail() {
   const location = useLocation();
@@ -51,6 +52,11 @@ export function VerifyEmail() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <PageMeta
+        title="Verify Email"
+        description="Verify your email address to activate your account."
+        canonical="/verify-email"
+      />
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

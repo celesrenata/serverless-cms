@@ -1,44 +1,8 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { screen } from '@testing-library/react';
 import { HelmetProvider } from 'react-helmet-async';
 import { renderWithProviders } from '../../test/utils/renderWithProviders';
-import { createMockContent, createMockSettings } from '../../test/mocks/data';
-import { Content, PaginatedResponse } from '../../types';
-
-vi.mock('../../services/api', () => ({
-  api: {
-    listContent: vi.fn(),
-    getPublicSettings: vi.fn(),
-  },
-}));
-
-import { api } from '../../services/api';
 import { Home } from '../Home';
-
-const mockPosts: PaginatedResponse<Content> = {
-  items: [
-    createMockContent({ id: 'post-1', title: 'Featured Post 1', slug: 'featured-1', excerpt: 'First featured post excerpt' }),
-    createMockContent({ id: 'post-2', title: 'Featured Post 2', slug: 'featured-2', excerpt: 'Second featured post excerpt' }),
-    createMockContent({ id: 'post-3', title: 'Featured Post 3', slug: 'featured-3', excerpt: 'Third featured post excerpt' }),
-  ],
-};
-
-const mockProjects: PaginatedResponse<Content> = {
-  items: [
-    createMockContent({ id: 'proj-1', type: 'project', title: 'Project Alpha', slug: 'project-alpha', excerpt: 'Alpha project description' }),
-  ],
-};
-
-const mockGallery: PaginatedResponse<Content> = {
-  items: [
-    createMockContent({ id: 'gallery-1', type: 'gallery', title: 'Gallery Item', slug: 'gallery-item', featured_image: 'https://example.com/gallery.jpg' }),
-  ],
-};
-
-const mockSettings = createMockSettings({
-  site_title: 'My Awesome Site',
-  site_description: 'Welcome to the best CMS',
-});
 
 function renderHome() {
   return renderWithProviders(
@@ -49,78 +13,77 @@ function renderHome() {
 }
 
 describe('Home', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-
-    vi.mocked(api.getPublicSettings).mockResolvedValue(mockSettings);
-    vi.mocked(api.listContent).mockImplementation((filters: any) => {
-      if (filters?.type === 'post') return Promise.resolve(mockPosts);
-      if (filters?.type === 'project') return Promise.resolve(mockProjects);
-      if (filters?.type === 'gallery') return Promise.resolve(mockGallery);
-      return Promise.resolve({ items: [] });
-    });
+  it('renders the HeroSection with site title', () => {
+    renderHome();
+    expect(screen.getByRole('heading', { level: 1, name: 'Celestium' })).toBeInTheDocument();
   });
 
-  it('renders page heading with site title', async () => {
+  it('renders the CapabilityCards section', () => {
     renderHome();
-
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1, name: 'My Awesome Site' })).toBeInTheDocument();
-    });
+    expect(screen.getByRole('heading', { name: 'What I Build' })).toBeInTheDocument();
   });
 
-  it('renders site description', async () => {
+  it('renders the ProjectsSection heading', () => {
     renderHome();
-
-    await waitFor(() => {
-      expect(screen.getByText('Welcome to the best CMS')).toBeInTheDocument();
-    });
+    expect(screen.getByRole('heading', { name: 'Recent Projects' })).toBeInTheDocument();
   });
 
-  it('renders Explore Blog link', async () => {
+  it('renders the ContactSection heading', () => {
     renderHome();
-
-    await waitFor(() => {
-      expect(screen.getByRole('link', { name: /explore blog/i })).toBeInTheDocument();
-    });
+    expect(screen.getByRole('heading', { name: 'Get In Touch' })).toBeInTheDocument();
   });
 
-  it('shows featured posts after data loads', async () => {
-    renderHome();
-
-    await waitFor(() => {
-      expect(screen.getByText('Featured Post 1')).toBeInTheDocument();
-    });
-
-    expect(screen.getByText('Featured Post 2')).toBeInTheDocument();
-    expect(screen.getByText('Featured Post 3')).toBeInTheDocument();
-    expect(screen.getByText('First featured post excerpt')).toBeInTheDocument();
+  it('renders with theme background class', () => {
+    const { container } = renderHome();
+    const wrapper = container.firstElementChild;
+    expect(wrapper).toHaveClass('bg-theme-background');
   });
 
-  it('shows Recent Posts section heading', async () => {
+  it('renders the hero CTA button', () => {
     renderHome();
-
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Recent Posts' })).toBeInTheDocument();
-    });
+    expect(screen.getByRole('button', { name: /explore architecture/i })).toBeInTheDocument();
   });
 
-  it('shows recent projects after data loads', async () => {
+  it('has proper section accessibility with aria-labelledby', () => {
     renderHome();
-
-    await waitFor(() => {
-      expect(screen.getByText('Project Alpha')).toBeInTheDocument();
-    });
-
-    expect(screen.getByText('Alpha project description')).toBeInTheDocument();
+    // CapabilityCards section
+    expect(document.getElementById('capability-cards-heading')).toBeInTheDocument();
+    // ProjectsSection
+    expect(document.getElementById('projects-section-heading')).toBeInTheDocument();
+    // ContactSection
+    expect(document.getElementById('contact-section-heading')).toBeInTheDocument();
   });
 
-  it('renders fallback text when settings are not loaded yet', () => {
-    vi.mocked(api.getPublicSettings).mockResolvedValue(undefined as any);
-    vi.mocked(api.listContent).mockResolvedValue({ items: [] });
-
+  it('renders the hero tagline "Elite Serverless Engineering"', () => {
     renderHome();
+    expect(screen.getByText('Elite Serverless Engineering')).toBeInTheDocument();
+  });
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Welcome' })).toBeInTheDocument();
+  it('renders capability cards with proper h3 headings', () => {
+    renderHome();
+    const expectedHeadings = [
+      'Serverless Architecture',
+      'Infrastructure as Code',
+      'CI/CD Pipelines',
+      'API Design',
+      'Cloud Security',
+      'Performance Optimization',
+    ];
+    const h3s = screen.getAllByRole('heading', { level: 3 });
+    const h3Texts = h3s.map((h) => h.textContent);
+    for (const heading of expectedHeadings) {
+      expect(h3Texts).toContain(heading);
+    }
+  });
+
+  it('all sections use constrained max-width to prevent horizontal overflow', () => {
+    const { container } = renderHome();
+    const sections = container.querySelectorAll('section');
+    for (const section of sections) {
+      // Each section should either have max-w-* itself or contain a child with max-w-*
+      const hasMaxWidth = section.className.includes('max-w-') ||
+        section.querySelector('[class*="max-w-"]') !== null;
+      expect(hasMaxWidth).toBe(true);
+    }
   });
 });

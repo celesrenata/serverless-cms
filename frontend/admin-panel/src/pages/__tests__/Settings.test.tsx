@@ -38,7 +38,6 @@ describe('Settings', () => {
       expect(screen.getByLabelText(/site description/i)).toHaveValue(
         mockSettings.site_description,
       );
-      expect(screen.getByLabelText(/theme/i)).toHaveValue(mockSettings.theme);
     });
   });
 

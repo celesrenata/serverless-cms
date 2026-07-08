@@ -1,0 +1,117 @@
+/**
+ * Markdown Code Block Styling
+ *
+ * Provides layout styles for syntax-highlighted code blocks rendered by
+ * rehype-prism-plus. The Prism token colors come from prismjs/themes/prism-tomorrow.css
+ * imported in main.tsx. This file handles overflow, scrolling, and spacing.
+ */
+
+/* Code blocks: horizontal scroll, no line wrap */
+.wp-content pre[class*="language-"],
+.markdown-content pre[class*="language-"] {
+  overflow-x: auto;
+  white-space: pre;
+  background: #2d2d2d;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+.wp-content pre[class*="language-"] > code,
+.markdown-content pre[class*="language-"] > code {
+  white-space: pre;
+  word-break: normal;
+  word-wrap: normal;
+  overflow-wrap: normal;
+  display: block;
+  background: transparent;
+  padding: 0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* Plain code blocks without language specification */
+.wp-content pre:not([class*="language-"]),
+.markdown-content pre:not([class*="language-"]) {
+  overflow-x: auto;
+  white-space: pre;
+  background: #2d2d2d;
+  color: #ccc;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.wp-content pre:not([class*="language-"]) > code,
+.markdown-content pre:not([class*="language-"]) > code {
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* Inline code (not inside pre) */
+.wp-content :where(code):not(pre code),
+.markdown-content :where(code):not(pre code) {
+  background: rgba(45, 45, 45, 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* Dark mode inline code */
+[data-theme="dark"] .wp-content :where(code):not(pre code),
+[data-theme="dark"] .markdown-content :where(code):not(pre code) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Mermaid blocks should NOT get dark code block styling */
+.wp-content pre.language-mermaid,
+.wp-content pre[data-language="mermaid"],
+.markdown-content pre.language-mermaid,
+.markdown-content pre[data-language="mermaid"] {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  margin: 0;
+  overflow: visible;
+}
+
+.wp-content pre.language-mermaid > code,
+.wp-content pre[data-language="mermaid"] > code,
+.markdown-content pre.language-mermaid > code,
+.markdown-content pre[data-language="mermaid"] > code {
+  background: transparent;
+  color: inherit;
+}
+
+/* Custom scrollbar for code blocks */
+.wp-content pre[class*="language-"]::-webkit-scrollbar,
+.markdown-content pre[class*="language-"]::-webkit-scrollbar {
+  height: 8px;
+}
+
+.wp-content pre[class*="language-"]::-webkit-scrollbar-track,
+.markdown-content pre[class*="language-"]::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.wp-content pre[class*="language-"]::-webkit-scrollbar-thumb,
+.markdown-content pre[class*="language-"]::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.wp-content pre[class*="language-"]::-webkit-scrollbar-thumb:hover,
+.markdown-content pre[class*="language-"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

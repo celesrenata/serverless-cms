@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useContentList } from '../hooks/useContent';
 import { useSiteSettings } from '../hooks/useSiteSettings';
-import { toAlbumCard, formatGalleryTitle } from '../utils/galleryUtils';
+import { PageMeta } from '../components/PageMeta';
+import { toAlbumCard } from '../utils/galleryUtils';
 import type { Content } from '../types';
 
 export const Gallery = () => {
@@ -16,9 +16,11 @@ export const Gallery = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{formatGalleryTitle(settings?.site_title || 'My Website')}</title>
-      </Helmet>
+      <PageMeta
+        title="Gallery"
+        description={`Browse photo galleries and albums from ${settings?.site_title || 'Celestium'}`}
+        canonical="/gallery"
+      />
 
       <div className="bg-white min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

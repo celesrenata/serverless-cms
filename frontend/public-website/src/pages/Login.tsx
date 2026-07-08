@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
+import { PageMeta } from '../components/PageMeta';
 
 export function Login() {
   const { data: settings } = useSiteSettings();
@@ -33,6 +34,11 @@ export function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <PageMeta
+        title="Login"
+        description="Sign in to your account."
+        canonical="/login"
+      />
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
