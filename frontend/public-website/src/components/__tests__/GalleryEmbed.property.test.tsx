@@ -10,56 +10,6 @@ vi.mock('../../services/api', () => ({
   api: { getContentBySlug: vi.fn() },
 }));
 
-// --- Generators ---
-
-function mediaArb(index: number): fc.Arbitrary<Media> {
-  return fc.record({
-    id: fc.constant(`media-${index}-${Math.random().toString(36).slice(2, 8)}`),
-    filename: fc.constant(`image-${index}.jpg`),
-    s3_key: fc.constant(`uploads/image-${index}.jpg`),
-    s3_url: fc.constant(`https://s3.example.com/image-${index}.jpg`),
-    mime_type: fc.constant('image/jpeg'),
-    size: fc.nat({ max: 5000000 }),
-    thumbnails: fc.constant({
-      small: `https://cdn.example.com/small/image-${index}.jpg`,
-      medium: `https://cdn.example.com/medium/image-${index}.jpg`,
-      large: `https://cdn.example.com/large/image-${index}.jpg`,
-    }),
-    metadata: fc.constant({ alt_text: `Alt text for image ${index}` }),
-    uploaded_by: fc.constant('user-1'),
-    uploaded_at: fc.constant(1700000000),
-  });
-}
-
-function mediaListArb(minLen: number, maxLen: number): fc.Arbitrary<Media[]> {
-  return fc.integer({ min: minLen, max: maxLen }).chain((n) => {
-    const arbs = Array.from({ length: n }, (_, i) => mediaArb(i));
-    return fc.tuple(...(arbs as [fc.Arbitrary<Media>, ...fc.Arbitrary<Media>[]]));
-  }).map((tuple) => [...tuple]);
-}
-
-function albumArb(imageCount: number): fc.Arbitrary<Content> {
-  const mediaArbs = Array.from({ length: imageCount }, (_, i) => mediaArb(i));
-  const mediaListPromise = imageCount > 0
-    ? fc.tuple(...(mediaArbs as [fc.Arbitrary<Media>, ...fc.Arbitrary<Media>[]])).map((t) => [...t])
-    : fc.constant([] as Media[]);
-
-  return fc.record({
-    id: fc.constant('album-1'),
-    type: fc.constant('gallery' as const),
-    title: fc.stringOf(fc.char(), { minLength: 1, maxLength: 30 }).filter((s) => s.trim().length > 0),
-    slug: fc.constant('test-album'),
-    content: fc.stringOf(fc.char(), { minLength: 1, maxLength: 50 }).filter((s) => s.trim().length > 0),
-    excerpt: fc.constant(''),
-    author: fc.constant('user-1'),
-    status: fc.constant('published' as const),
-    featured_image: fc.constant(''),
-    metadata: mediaListPromise.map((media) => ({ media })),
-    created_at: fc.constant(1700000000),
-    updated_at: fc.constant(1700000000),
-  });
-}
-
 // --- Property Tests ---
 
 describe('GalleryEmbed Property Tests', () => {
