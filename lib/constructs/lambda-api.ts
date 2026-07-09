@@ -208,6 +208,7 @@ export class LambdaApiConstruct extends Construct {
     this.grantDynamoDbIndexQuery(contentHandler, props.contentTable);
     props.pluginsTable.grantReadData(contentHandler);
     props.usersTable.grantReadWriteData(contentHandler);
+    props.sectionsTable.grantReadData(contentHandler);
     this.grantCognito(contentHandler, ['cognito-idp:AdminGetUser']);
 
     // Media handler permissions
