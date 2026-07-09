@@ -155,7 +155,7 @@ function matchGalleryDirective(
     return null;
   }
 
-  return child.value.match(GALLERY_DIRECTIVE_RE);
+  return child.value.trim().match(GALLERY_DIRECTIVE_RE);
 }
 
 /**
