@@ -194,6 +194,44 @@ export const GalleryEmbed: React.FC<GalleryEmbedProps> = ({
     );
   }
 
+  // Preview mode: limit=0 means show a preview card linking to the full gallery
+  if (limit === 0) {
+    const coverUrl = allImages[0]?.thumbnails?.medium || allImages[0]?.s3_url || '';
+    return (
+      <div role="region" aria-label={`Gallery: ${title}`} className="my-6">
+        {showTitle && title && (
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{title}</h3>
+        )}
+        {showDescription && description && (
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{description}</p>
+        )}
+        <a
+          href={`/gallery/${album?.slug || albumId}`}
+          className="group block rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 max-w-md"
+        >
+          <div className="relative aspect-[4/3] overflow-hidden">
+            {coverUrl && (
+              <img
+                src={coverUrl}
+                alt={title || 'Gallery preview'}
+                loading="lazy"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            )}
+            <div className="absolute top-0 right-0 bg-black/60 text-white text-xs px-2 py-1 rounded-bl-lg">
+              {allImages.length} {allImages.length === 1 ? 'image' : 'images'}
+            </div>
+          </div>
+          <div className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 border-t-0 rounded-b-lg">
+            <p className="text-blue-600 dark:text-blue-400 font-medium group-hover:underline">
+              View Gallery →
+            </p>
+          </div>
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div role="region" aria-label={`Gallery: ${title}`}>
       {showTitle && title && (

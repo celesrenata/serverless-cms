@@ -144,6 +144,9 @@ def handler(event, context, user_id, role):
         if 'metadata' in body:
             updates['metadata'] = body['metadata']
         
+        if 'type' in body:
+            updates['type'] = body['type']
+        
         # Handle slug update with uniqueness check
         if 'slug' in body and body['slug'] != existing_content.get('slug'):
             new_slug = body['slug']
