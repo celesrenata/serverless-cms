@@ -134,6 +134,25 @@ export class ServerlessCmsStack extends cdk.Stack {
     });
     preserveLogicalId(this.authorizer, 'CognitoAuthorizerF3215DBC');
 
+    // ─── Gateway Responses (CORS on error responses) ─────────────────
+    this.api.addGatewayResponse('GatewayResponseDefault4XX', {
+      type: apigateway.ResponseType.DEFAULT_4XX,
+      responseHeaders: {
+        'Access-Control-Allow-Origin': "'*'",
+        'Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+        'Access-Control-Allow-Methods': "'GET,POST,PUT,DELETE,OPTIONS'",
+      },
+    });
+
+    this.api.addGatewayResponse('GatewayResponseDefault5XX', {
+      type: apigateway.ResponseType.DEFAULT_5XX,
+      responseHeaders: {
+        'Access-Control-Allow-Origin': "'*'",
+        'Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+        'Access-Control-Allow-Methods': "'GET,POST,PUT,DELETE,OPTIONS'",
+      },
+    });
+
     // ─── CDN Construct ────────────────────────────────────────────────
     const cdn = new CdnConstruct(this, 'Cdn', {
       environment: props.environment,

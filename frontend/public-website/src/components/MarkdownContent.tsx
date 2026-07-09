@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { renderMarkdownToHtml } from '../../../shared/markdown';
 import type { TocItem } from '../../../shared/markdown';
 import { MermaidRenderer } from './MermaidRenderer';
+import { GalleryEmbed } from './GalleryEmbed';
+import type { GalleryEmbedProps } from './GalleryEmbed';
 import 'katex/dist/katex.min.css';
 
 interface MarkdownContentProps {
@@ -9,8 +11,9 @@ interface MarkdownContentProps {
 }
 
 type ContentSegment = {
-  type: 'html' | 'mermaid';
+  type: 'html' | 'mermaid' | 'gallery';
   content: string;
+  props?: GalleryEmbedProps;
 };
 
 const decodeHtmlEntities = (content: string): string =>
@@ -48,30 +51,78 @@ function TocList({ items }: { items: TocItem[] }) {
 }
 
 /**
- * Splits rendered HTML into segments, extracting mermaid code blocks
- * so they can be rendered via MermaidRenderer.
+ * Splits rendered HTML into segments, extracting gallery-embed divs
+ * and mermaid code blocks so they can be rendered as React components.
  */
-function extractMermaidSegments(html: string): ContentSegment[] {
-  const mermaidBlockRegex =
-    /<pre\b[^>]*>\s*<code\b[^>]*class=["'][^"']*\blanguage-mermaid\b[^"']*["'][^>]*>([\s\S]*?)<\/code>\s*<\/pre>/gi;
-
-  const result: ContentSegment[] = [];
+function extractSegments(html: string): ContentSegment[] {
+  // First pass: extract gallery-embed divs
+  const galleryRegex = /<div\s+class="gallery-embed"([^>]*)><\/div>/gi;
+  const afterGallery: ContentSegment[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = mermaidBlockRegex.exec(html)) !== null) {
+  while ((match = galleryRegex.exec(html)) !== null) {
     if (match.index > lastIndex) {
-      result.push({ type: 'html', content: html.slice(lastIndex, match.index) });
+      afterGallery.push({ type: 'html', content: html.slice(lastIndex, match.index) });
     }
-    result.push({ type: 'mermaid', content: decodeHtmlEntities(match[1] ?? '') });
-    lastIndex = mermaidBlockRegex.lastIndex;
+    const attrs = match[1] ?? '';
+    const props = parseGalleryAttributes(attrs);
+    afterGallery.push({ type: 'gallery', content: '', props });
+    lastIndex = galleryRegex.lastIndex;
   }
 
   if (lastIndex < html.length) {
-    result.push({ type: 'html', content: html.slice(lastIndex) });
+    afterGallery.push({ type: 'html', content: html.slice(lastIndex) });
+  }
+
+  if (afterGallery.length === 0) {
+    afterGallery.push({ type: 'html', content: html });
+  }
+
+  // Second pass: extract mermaid blocks from remaining html segments
+  const result: ContentSegment[] = [];
+  const mermaidBlockRegex =
+    /<pre\b[^>]*>\s*<code\b[^>]*class=["'][^"']*\blanguage-mermaid\b[^"']*["'][^>]*>([\s\S]*?)<\/code>\s*<\/pre>/gi;
+
+  for (const segment of afterGallery) {
+    if (segment.type !== 'html') {
+      result.push(segment);
+      continue;
+    }
+
+    let segLastIndex = 0;
+    mermaidBlockRegex.lastIndex = 0;
+
+    while ((match = mermaidBlockRegex.exec(segment.content)) !== null) {
+      if (match.index > segLastIndex) {
+        result.push({ type: 'html', content: segment.content.slice(segLastIndex, match.index) });
+      }
+      result.push({ type: 'mermaid', content: decodeHtmlEntities(match[1] ?? '') });
+      segLastIndex = mermaidBlockRegex.lastIndex;
+    }
+
+    if (segLastIndex < segment.content.length) {
+      result.push({ type: 'html', content: segment.content.slice(segLastIndex) });
+    }
   }
 
   return result;
+}
+
+function parseGalleryAttributes(attrString: string): GalleryEmbedProps {
+  const get = (name: string): string | null => {
+    const regex = new RegExp(`data-${name}="([^"]*)"`, 'i');
+    const m = attrString.match(regex);
+    return m ? m[1] : null;
+  };
+
+  return {
+    albumId: get('album-id') ?? '',
+    layout: (get('layout') as GalleryEmbedProps['layout']) || 'grid',
+    limit: parseInt(get('limit') ?? '0', 10) || 0,
+    showDescription: get('show-description') !== 'false',
+    showTitle: get('show-title') !== 'false',
+  };
 }
 
 export const MarkdownContent: React.FC<MarkdownContentProps> = ({ markdown }) => {
@@ -81,7 +132,7 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({ markdown }) =>
   );
 
   const segments = useMemo(
-    () => (html ? extractMermaidSegments(html) : []),
+    () => (html ? extractSegments(html) : []),
     [html],
   );
 
@@ -104,6 +155,9 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({ markdown }) =>
       {segments.map((segment, index) => {
         if (segment.type === 'mermaid') {
           return <MermaidRenderer key={index} chart={segment.content} />;
+        }
+        if (segment.type === 'gallery' && segment.props) {
+          return <GalleryEmbed key={index} {...segment.props} />;
         }
         return (
           <article

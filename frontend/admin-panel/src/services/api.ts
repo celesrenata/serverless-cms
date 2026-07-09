@@ -216,7 +216,7 @@ class ApiClient {
     await this.client.delete(`/media/${id}`);
   }
 
-  async listMedia(params?: { limit?: number; last_key?: string }): Promise<MediaListResponse> {
+  async listMedia(params?: { limit?: number; last_key?: string; search?: string }): Promise<MediaListResponse> {
     const response = await this.client.get<MediaListResponse>('/media', { params });
     return response.data;
   }

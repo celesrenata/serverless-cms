@@ -8,6 +8,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    include: [
+      'src/**/*.{test,spec}.{ts,tsx}',
+      '../shared/**/*.{test,spec}.{ts,tsx}',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -24,6 +28,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      'fast-check': path.resolve(__dirname, './node_modules/fast-check'),
       'unified': path.resolve(__dirname, './node_modules/unified'),
       'remark-parse': path.resolve(__dirname, './node_modules/remark-parse'),
       'remark-gfm': path.resolve(__dirname, './node_modules/remark-gfm'),

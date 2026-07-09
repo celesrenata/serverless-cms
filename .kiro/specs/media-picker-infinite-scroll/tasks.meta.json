@@ -1,0 +1,244 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Add `search` parameter to `listMedia` in the API client": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932695
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497944601
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498038342
+      }
+    ],
+    "2.1 Create `useInfiniteMediaQuery` hook": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932726
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498044452
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498178444
+      }
+    ],
+    "2.2 Create `useGalleriesQuery` hook": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932754
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498045485
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498179254
+      }
+    ],
+    "3.1 Create `ScrollSentinel` component": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932788
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498046120
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498179976
+      }
+    ],
+    "4. Checkpoint - Ensure hooks and sentinel tests pass": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932824
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498201061
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498255172
+      }
+    ],
+    "5.1 Create `MediaPickerDialog` with tabbed interface": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932850
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498260710
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498519594
+      }
+    ],
+    "5.2 Implement Media Library tab content": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932870
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498526532
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498532564
+      }
+    ],
+    "5.3 Implement Gallery tab content": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932902
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498527299
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498533283
+      }
+    ],
+    "6. Checkpoint - Ensure MediaPickerDialog tests pass": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932925
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498538707
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498589721
+      }
+    ],
+    "7.1 Update RichTextEditor to use `MediaPickerDialog`": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932949
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498596511
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498786514
+      }
+    ],
+    "7.2 Update MarkdownEditor to use `MediaPickerDialog`": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497932970
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498595667
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498787360
+      }
+    ],
+    "9. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783497933012
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498792155
+      },
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498979594
+      }
+    ],
+    "1. Update API client and set up shared types": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498038378
+      }
+    ],
+    "2. Implement custom data-fetching hooks": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498179287
+      }
+    ],
+    "3. Implement ScrollSentinel component": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498180011
+      }
+    ],
+    "5. Implement MediaPickerDialog component": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498533312
+      }
+    ],
+    "7. Integrate new picker into editors": [
+      {
+        "executionId": "a7303ea0-36e4-4b2b-b396-79ac131e987e",
+        "chatSessionId": "sess_fe895d99-9bea-4977-a4e4-0c32b06fc234",
+        "timestamp": 1783498787391
+      }
+    ]
+  }
+}

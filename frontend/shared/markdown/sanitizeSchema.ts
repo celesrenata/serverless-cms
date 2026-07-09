@@ -181,12 +181,16 @@ const prismClassNames: Array<string | RegExp> = [
 const katexStyleValue =
   /^(?:(?:height|depth|width|min-width|max-width|top|bottom|left|right|margin|margin-left|margin-right|vertical-align):\s*-?(?:\d+(?:\.\d+)?|\.\d+)(?:em|ex|mu|px|pt|rem|%)?;?\s*)+$/i;
 
-const katexClassNameRule: AttributeRule = ['className', ...katexClassNames];
 const prismClassNameRule: AttributeRule = ['className', ...prismClassNames];
 const katexAndPrismClassNameRule: AttributeRule = [
   'className',
   ...katexClassNames,
   ...prismClassNames,
+];
+const katexAndGalleryClassNameRule: AttributeRule = [
+  'className',
+  ...katexClassNames,
+  'gallery-embed',
 ];
 const ariaHiddenRule: AttributeRule = ['ariaHidden', 'true'];
 const katexStyleRule: AttributeRule = ['style', katexStyleValue];
@@ -243,7 +247,7 @@ export function getSanitizeSchema(): Schema {
         katexStyleRule,
       ],
 
-      div: [...attributesFor('div'), katexClassNameRule],
+      div: [...attributesFor('div'), katexAndGalleryClassNameRule, 'data-album-id', 'data-layout', 'data-limit', 'data-show-description', 'data-show-title'],
 
       pre: [...attributesFor('pre'), prismClassNameRule, 'dataLanguage'],
       code: [...attributesFor('code'), prismClassNameRule],

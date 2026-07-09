@@ -1,12 +1,27 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { renderMarkdownToHtml } from '../../../shared/markdown';
 import type { TocItem, MarkdownRenderResult } from '../../../shared/markdown';
+import { GalleryEmbedPreview } from './Editor/GalleryEmbedPreview';
 import 'katex/dist/katex.min.css';
 
 interface MarkdownPreviewProps {
   markdown: string;
   className?: string;
 }
+
+interface GalleryProps {
+  albumId: string;
+  layout: string;
+  limit: string;
+  showDescription: string;
+  showTitle: string;
+}
+
+type PreviewSegment = {
+  type: 'html' | 'gallery';
+  content: string;
+  props?: GalleryProps;
+};
 
 const DEBOUNCE_MS = 300;
 
@@ -16,6 +31,45 @@ const emptyResult: MarkdownRenderResult = {
   shouldShowToc: false,
   warnings: [],
 };
+
+function parseDataAttributes(attrString: string): GalleryProps {
+  const getAttr = (name: string, defaultValue: string): string => {
+    const regex = new RegExp(`data-${name}=["']([^"']*)["']`);
+    const match = attrString.match(regex);
+    return match ? match[1] : defaultValue;
+  };
+
+  return {
+    albumId: getAttr('album-id', ''),
+    layout: getAttr('layout', 'grid'),
+    limit: getAttr('limit', '0'),
+    showDescription: getAttr('show-description', 'true'),
+    showTitle: getAttr('show-title', 'true'),
+  };
+}
+
+function extractGallerySegments(html: string): PreviewSegment[] {
+  const galleryDivRegex = /<div class="gallery-embed"([^>]*)><\/div>/gi;
+
+  const result: PreviewSegment[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = galleryDivRegex.exec(html)) !== null) {
+    if (match.index > lastIndex) {
+      result.push({ type: 'html', content: html.slice(lastIndex, match.index) });
+    }
+    const props = parseDataAttributes(match[1] ?? '');
+    result.push({ type: 'gallery', content: '', props });
+    lastIndex = galleryDivRegex.lastIndex;
+  }
+
+  if (lastIndex < html.length) {
+    result.push({ type: 'html', content: html.slice(lastIndex) });
+  }
+
+  return result;
+}
 
 function TocList({ items }: { items: TocItem[] }) {
   if (items.length === 0) return null;
@@ -68,6 +122,11 @@ export const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
     };
   }, [markdown]);
 
+  const segments = useMemo(
+    () => (result.html ? extractGallerySegments(result.html) : []),
+    [result.html],
+  );
+
   if (!markdown || markdown.trim().length === 0) {
     return (
       <div className={`flex items-center justify-center h-full text-gray-400 italic ${className}`}>
@@ -89,10 +148,19 @@ export const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
         </nav>
       )}
 
-      <div
-        className="prose prose-sm max-w-none prose-headings:scroll-mt-4 prose-code:before:content-none prose-code:after:content-none"
-        dangerouslySetInnerHTML={{ __html: result.html }}
-      />
+      <div className="prose prose-sm max-w-none prose-headings:scroll-mt-4 prose-code:before:content-none prose-code:after:content-none">
+        {segments.map((segment, index) => {
+          if (segment.type === 'gallery' && segment.props) {
+            return <GalleryEmbedPreview key={index} {...segment.props} />;
+          }
+          return (
+            <div
+              key={index}
+              dangerouslySetInnerHTML={{ __html: segment.content }}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
