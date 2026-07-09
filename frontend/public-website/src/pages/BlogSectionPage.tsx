@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { fetchSectionByPath, fetchSectionPosts, SectionPostsResponse } from '../services/sectionService';
 import { SectionTreeNode } from '../../../shared/sections/types';
 import { PostCard } from '../components/PostCard';
+import { BlogContent } from '../components/BlogContent';
 import { PageMeta } from '../components/PageMeta';
 import { Content } from '../types';
 
@@ -122,6 +123,22 @@ export const BlogSectionPage = () => {
               <p className="text-gray-600 text-lg">{section.description}</p>
             )}
           </div>
+
+          {/* Landing page content */}
+          {postsResponse?.landing_page && (
+            <div className="mb-12 border-b border-gray-200 pb-12">
+              {postsResponse.landing_page.featured_image && (
+                <img
+                  src={postsResponse.landing_page.featured_image}
+                  alt={postsResponse.landing_page.title}
+                  className="w-full h-64 object-cover rounded-lg mb-6"
+                />
+              )}
+              <BlogContent
+                html={postsResponse.landing_page.content}
+              />
+            </div>
+          )}
 
           {/* Child section links */}
           {childSections.length > 0 && (

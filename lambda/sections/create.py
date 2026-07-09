@@ -13,8 +13,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.auth import require_auth
 from shared.sections_db import SectionRepository
+from shared.db import ContentRepository
 from service import (
     validate_section_input,
+    validate_page_id,
     compute_depth,
     build_path,
     ROOT_PARENT_ID,
@@ -27,6 +29,7 @@ HEADERS = {
 }
 
 sections_repo = SectionRepository()
+content_repo = ContentRepository()
 
 
 def _response(status_code, body):
@@ -51,6 +54,13 @@ def handler(event, context, user_id, role):
         errors = validate_section_input(body)
         if errors:
             return _response(400, {'error': 'Validation error', 'messages': errors})
+
+        # Validate page_id if provided
+        page_id = body.get('page_id')  # None if not provided
+        if page_id is not None:
+            error = validate_page_id(page_id, content_repo)
+            if error:
+                return _response(400, {'error': error})
 
         section_id = str(uuid.uuid4())
         now = int(time.time())
@@ -87,6 +97,7 @@ def handler(event, context, user_id, role):
             'path_ids': path_ids,
             'created_at': now,
             'updated_at': now,
+            'page_id': page_id,
         }
 
         try:

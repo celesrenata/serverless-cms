@@ -37,6 +37,7 @@ const mockSectionsTree: SectionTreeNode[] = [
     path: 'engineering',
     path_ids: ['sec-1'],
     depth: 1,
+    page_id: null,
     created_at: 1700000000,
     updated_at: 1700000000,
     children: [
@@ -50,6 +51,7 @@ const mockSectionsTree: SectionTreeNode[] = [
         path: 'engineering/backend',
         path_ids: ['sec-1', 'sec-2'],
         depth: 2,
+        page_id: null,
         created_at: 1700000000,
         updated_at: 1700000000,
         children: [],
@@ -158,7 +160,8 @@ describe('SectionForm', () => {
       <SectionForm mode="create" onSuccess={mockOnSuccess} onCancel={mockOnCancel} />,
     );
 
-    const parentSelect = screen.getByRole('combobox');
+    const selects = screen.getAllByRole('combobox');
+    const parentSelect = selects[0]; // First select is Parent Section
     const options = parentSelect.querySelectorAll('option');
 
     // None + Engineering + Backend = 3 options
@@ -180,6 +183,7 @@ describe('SectionForm', () => {
       path: 'engineering',
       path_ids: ['sec-1'],
       depth: 1,
+      page_id: null,
       created_at: 1700000000,
       updated_at: 1700000000,
     };

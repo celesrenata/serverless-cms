@@ -11,9 +11,11 @@ import traceback
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.auth import require_auth
+from shared.db import ContentRepository
 from shared.sections_db import SectionRepository
 from service import (
     validate_section_input,
+    validate_page_id,
     compute_depth,
     build_path,
     ROOT_PARENT_ID,
@@ -26,6 +28,7 @@ HEADERS = {
 }
 
 sections_repo = SectionRepository()
+content_repo = ContentRepository()
 
 
 def _response(status_code, body):
@@ -70,6 +73,14 @@ def handler(event, context, user_id, role):
 
         if 'sort_order' in body:
             updates['sort_order'] = body['sort_order']
+
+        if 'page_id' in body:
+            new_page_id = body['page_id']  # Can be string or None
+            if new_page_id is not None:
+                error = validate_page_id(new_page_id, content_repo)
+                if error:
+                    return _response(400, {'error': error})
+            updates['page_id'] = new_page_id
 
         # Handle parent change
         current_parent_id = existing.get('parent_id', ROOT_PARENT_ID)

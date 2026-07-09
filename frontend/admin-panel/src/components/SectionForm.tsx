@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Trash2, AlertTriangle } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import {
   useSections,
   useCreateSection,
   useUpdateSection,
   useDeleteSection,
 } from '../hooks/useSections';
+import { api } from '../services/api';
 import type {
   Section,
   SectionTreeNode,
@@ -24,6 +26,7 @@ interface FormData {
   parent_id: string | null;
   description: string;
   sort_order: number;
+  page_id: string | null;
 }
 
 interface FlatOption {
@@ -111,12 +114,18 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
   const updateMutation = useUpdateSection();
   const deleteMutation = useDeleteSection();
 
+  const { data: publishedPages, isLoading: pagesLoading } = useQuery({
+    queryKey: ['content', 'published-pages'],
+    queryFn: () => api.listContent({ type: 'page', status: 'published' }),
+  });
+
   const [formData, setFormData] = useState<FormData>({
     name: '',
     slug: '',
     parent_id: null,
     description: '',
     sort_order: 0,
+    page_id: null,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -130,6 +139,7 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
         parent_id: section.parent_id,
         description: section.description || '',
         sort_order: section.sort_order,
+        page_id: section.page_id || null,
       });
       setSlugManuallyEdited(true);
     }
@@ -218,6 +228,7 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
           parent_id: formData.parent_id || undefined,
           description: formData.description.trim() || undefined,
           sort_order: formData.sort_order,
+          page_id: formData.page_id || undefined,
         });
       } else if (section) {
         await updateMutation.mutateAsync({
@@ -228,6 +239,7 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
             parent_id: formData.parent_id,
             description: formData.description.trim(),
             sort_order: formData.sort_order,
+            page_id: formData.page_id,
           },
         });
       }
@@ -367,6 +379,28 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
               {formData.description.length}/500
             </p>
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Landing Page
+          </label>
+          <select
+            value={formData.page_id || ''}
+            onChange={(e) => setFormData((prev) => ({ ...prev, page_id: e.target.value || null }))}
+            disabled={pagesLoading}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">None</option>
+            {(publishedPages?.items || []).map((page) => (
+              <option key={page.id} value={page.id}>
+                {page.title}
+              </option>
+            ))}
+          </select>
+          <p className="text-gray-400 text-xs mt-1">
+            Select a published page to display as this section's landing content
+          </p>
         </div>
 
         <div>

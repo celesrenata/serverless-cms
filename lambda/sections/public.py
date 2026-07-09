@@ -158,6 +158,34 @@ def _handle_path(event):
     return _response(200, section)
 
 
+def _fetch_landing_page(page_id):
+    """Fetch a landing page by ID if it's still published."""
+    try:
+        result = content_table.query(
+            KeyConditionExpression=Key('id').eq(page_id),
+            Limit=1,
+        )
+        items = result.get('Items', [])
+        if not items:
+            return None
+
+        page = items[0]
+        if page.get('status') != 'published':
+            return None
+
+        return {
+            'id': page.get('id', ''),
+            'title': page.get('title', ''),
+            'slug': page.get('slug', ''),
+            'content': page.get('content', ''),
+            'featured_image': page.get('featured_image', ''),
+            'excerpt': page.get('excerpt', ''),
+        }
+    except Exception as e:
+        print(f"Error fetching landing page: {e}")
+        return None
+
+
 def _handle_posts(event):
     """Get paginated posts for a section including descendants."""
     section_id = _extract_section_id_for_posts(event)
@@ -189,7 +217,7 @@ def _handle_posts(event):
     end = start + POSTS_PER_PAGE
     paged_items = posts[start:end]
 
-    return _response(200, {
+    response_body = {
         'items': paged_items,
         'pagination': {
             'page': page,
@@ -197,7 +225,16 @@ def _handle_posts(event):
             'total': total,
             'total_pages': total_pages,
         },
-    })
+    }
+
+    # Include landing page if section has one
+    page_id = section.get('page_id')
+    if page_id:
+        landing_page = _fetch_landing_page(page_id)
+        if landing_page:
+            response_body['landing_page'] = landing_page
+
+    return _response(200, response_body)
 
 
 def handler(event, context):

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { SectionTreeNode } from '../../../shared/sections/types';
+import type { LandingPage } from '../../../shared/sections/types';
 import { Content } from '../types';
 
 const baseURL = import.meta.env.VITE_API_URL || '/api/v1';
@@ -19,6 +20,7 @@ export interface SectionPostsPagination {
 export interface SectionPostsResponse {
   items: Content[];
   pagination: SectionPostsPagination;
+  landing_page?: LandingPage;
 }
 
 /**

@@ -266,12 +266,37 @@ def resolve_path(
     return matched_section
 
 
+def validate_page_id(page_id, content_repo):
+    """Validate that page_id references a published page.
+
+    Args:
+        page_id: The page ID to validate, or None to skip.
+        content_repo: ContentRepository instance with get_by_id method.
+
+    Returns:
+        Error message string if invalid, None if valid.
+    """
+    if page_id is None:
+        return None
+
+    content = content_repo.get_by_id(page_id)
+    if not content:
+        return "Referenced page not found"
+    if content.get("type") != "page":
+        return "Referenced content is not a page"
+    if content.get("status") != "published":
+        return "Referenced page is not published"
+
+    return None
+
+
 __all__ = [
     "validate_section_input",
     "compute_depth",
     "build_path",
     "build_tree",
     "resolve_path",
+    "validate_page_id",
     "ROOT_PARENT_ID",
     "MAX_DEPTH",
     "SLUG_PATTERN",
