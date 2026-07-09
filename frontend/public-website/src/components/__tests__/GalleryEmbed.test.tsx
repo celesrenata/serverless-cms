@@ -63,7 +63,7 @@ function createMockAlbum(imageCount: number): Content {
 const defaultProps = {
   albumId: 'test-album',
   layout: 'grid' as const,
-  limit: 0,
+  limit: 99,
   showDescription: true,
   showTitle: true,
 };
@@ -207,6 +207,20 @@ describe('GalleryEmbed', () => {
     const viewAllLink = screen.getByRole('link', { name: /view all 10 images/i });
     expect(viewAllLink).toBeInTheDocument();
     expect(viewAllLink).toHaveAttribute('href', '/gallery/test-album');
+  });
+
+  it('renders preview card when limit=0', async () => {
+    const album = createMockAlbum(4);
+    mockGetContentBySlug.mockResolvedValue(album);
+
+    renderWithProviders(<GalleryEmbed {...defaultProps} limit={0} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('View Gallery →')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('4 images')).toBeInTheDocument();
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/gallery/test-album');
   });
 
   it('renders nothing for not-found album', async () => {

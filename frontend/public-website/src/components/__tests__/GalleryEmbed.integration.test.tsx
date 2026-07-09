@@ -119,11 +119,11 @@ describe('GalleryEmbed Integration - Full Pipeline', () => {
       '',
       'Here are some travel photos:',
       '',
-      '::gallery[travel-photos]{layout=grid limit=0}',
+      '::gallery[travel-photos]{layout=grid limit=99}',
       '',
       'And here are some nature shots:',
       '',
-      '::gallery[nature-shots]{layout=carousel limit=0}',
+      '::gallery[nature-shots]{layout=carousel limit=99}',
     ].join('\n');
 
     renderWithProviders(<MarkdownContent markdown={markdown} />);
