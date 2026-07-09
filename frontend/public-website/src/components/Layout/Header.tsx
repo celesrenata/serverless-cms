@@ -10,7 +10,11 @@ export const Header: React.FC = () => {
 
   useEffect(() => {
     fetchSectionTree()
-      .then(setSections)
+      .then((data) => {
+        // Safety: API may return { items: [...] } or raw array
+        const tree = Array.isArray(data) ? data : ((data as unknown as { items: SectionTreeNode[] }).items || []);
+        setSections(tree);
+      })
       .catch(() => setSections([]));
   }, []);
 
@@ -37,7 +41,9 @@ export const Header: React.FC = () => {
             >
               Blog
             </Link>
-            {sections.map((section) => (
+            {sections
+              .filter((s) => s.depth === 1 || String(s.depth) === '1')
+              .map((section) => (
               <Link
                 key={section.id}
                 to={`/blog/sections/${section.path}`}

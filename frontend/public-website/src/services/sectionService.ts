@@ -23,10 +23,12 @@ export interface SectionPostsResponse {
 
 /**
  * Fetch the full section tree (unauthenticated).
+ * The API may return a raw array or { items: [...] } wrapper.
  */
 export async function fetchSectionTree(): Promise<SectionTreeNode[]> {
-  const response = await client.get<SectionTreeNode[]>('/public/sections/tree');
-  return response.data;
+  const response = await client.get<SectionTreeNode[] | { items: SectionTreeNode[] }>('/public/sections/tree');
+  const data = response.data;
+  return Array.isArray(data) ? data : (data.items || []);
 }
 
 /**
