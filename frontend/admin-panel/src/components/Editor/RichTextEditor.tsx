@@ -18,7 +18,6 @@ interface RichTextEditorProps {
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
   onChange,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onMediaInsert: _onMediaInsert,
   onEditorReady
 }) => {
