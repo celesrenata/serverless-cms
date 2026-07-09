@@ -124,11 +124,15 @@ describe('remarkGalleryEmbed — directive parsing property tests', () => {
   // **Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8**
   describe('Property 2: Invalid IDs Produce No Embed Node', () => {
     it('invalid album IDs produce zero galleryEmbed AST nodes', () => {
+      // Exclude backslashes and brackets from generated IDs: in markdown, `\` acts as
+      // an escape character (e.g. `\]` → `]`), which can turn an "invalid" source string
+      // into a valid parsed text. We test the plugin's ID validation, not markdown escaping.
+      const noMarkdownSpecial = (s: string) => !s.includes('\\') && !s.includes('[') && !s.includes(']');
       const invalidId = fc.oneof(
         fc.constant(''),
-        fc.string().filter(s => s.length > 0 && !/^[a-zA-Z0-9-]+$/.test(s)),
+        fc.string().filter(s => s.length > 0 && !/^[a-zA-Z0-9-]+$/.test(s) && noMarkdownSpecial(s)),
         fc.array(fc.constantFrom(' ', '\t', '!', '@', '#', '$', '%', '^', '&', '*'), { minLength: 1, maxLength: 5 }).map(chars => chars.join('')),
-        fc.string({ minLength: 1 }).filter(s => !/^[a-zA-Z0-9-]+$/.test(s)),
+        fc.string({ minLength: 1 }).filter(s => !/^[a-zA-Z0-9-]+$/.test(s) && noMarkdownSpecial(s)),
       );
 
       fc.assert(
