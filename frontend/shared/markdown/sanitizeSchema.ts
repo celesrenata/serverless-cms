@@ -181,7 +181,6 @@ const prismClassNames: Array<string | RegExp> = [
 const katexStyleValue =
   /^(?:(?:height|depth|width|min-width|max-width|top|bottom|left|right|margin|margin-left|margin-right|vertical-align):\s*-?(?:\d+(?:\.\d+)?|\.\d+)(?:em|ex|mu|px|pt|rem|%)?;?\s*)+$/i;
 
-const katexClassNameRule: AttributeRule = ['className', ...katexClassNames];
 const prismClassNameRule: AttributeRule = ['className', ...prismClassNames];
 const katexAndPrismClassNameRule: AttributeRule = [
   'className',
