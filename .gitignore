@@ -74,6 +74,7 @@ cdk.context.json
 
 # Lambda Layer dependencies (installed at build time)
 lambda/layer/python/
+!lambda/layer/python/shared/
 
 # Backup files
 backups/
