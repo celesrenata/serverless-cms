@@ -4,7 +4,7 @@ import { useContent } from '../hooks/useContent';
 import { useSections } from '../hooks/useSections';
 import { RichTextEditor } from '../components/Editor/RichTextEditor';
 import { MarkdownEditor } from '../components/MarkdownEditor';
-import { MediaPicker } from '../components/Editor/MediaPicker';
+import { MediaPickerDialog } from '../components/Editor/MediaPickerDialog';
 import { ContentType, ContentStatus, ContentFormat, ContentCreate, ContentUpdate } from '../types/content';
 import { Media } from '../types/media';
 import { Editor } from '@tiptap/react';
@@ -702,10 +702,19 @@ export const ContentEditor: React.FC = () => {
       </div>
 
       {/* Media Picker Modal */}
-      <MediaPicker
+      <MediaPickerDialog
         isOpen={isMediaPickerOpen}
         onClose={() => setIsMediaPickerOpen(false)}
-        onSelect={handleMediaSelect}
+        onSelectMedia={handleMediaSelect}
+        onInsertGallery={(directive) => {
+          if (contentFormat === 'markdown') {
+            setContentMarkdown(prev => prev + '\n' + directive + '\n');
+          } else if (editor) {
+            editor.chain().focus().insertContent(`<p>${directive}</p>`).run();
+          }
+          setIsMediaPickerOpen(false);
+        }}
+        defaultTab={mediaPickerMode === 'featured' ? 'media' : undefined}
       />
     </div>
   );
