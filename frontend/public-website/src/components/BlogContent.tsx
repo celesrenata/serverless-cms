@@ -3,6 +3,8 @@ import { sanitizeWordPressContent } from '../utils/sanitizeContent';
 import { FullscreenOverlay } from './FullscreenOverlay';
 import { MermaidRenderer } from './MermaidRenderer';
 import { MarkdownContent } from './MarkdownContent';
+import { GalleryEmbed } from './GalleryEmbed';
+import type { GalleryEmbedProps } from './GalleryEmbed';
 
 interface BlogContentProps {
   html: string;
@@ -10,8 +12,9 @@ interface BlogContentProps {
 }
 
 type ContentSegment = {
-  type: 'html' | 'mermaid';
+  type: 'html' | 'mermaid' | 'gallery';
   content: string;
+  props?: GalleryEmbedProps;
 };
 
 const decodeHtmlEntities = (content: string): string =>
@@ -151,29 +154,101 @@ function MarkdownBlogContent({ markdown }: { markdown: string }) {
 }
 
 /**
- * Existing HTML rendering path with Mermaid support.
+ * Parse gallery directive attributes from the raw attribute string.
+ */
+function parseGalleryDirectiveAttrs(raw: string | undefined): Omit<GalleryEmbedProps, 'albumId'> {
+  const defaults: Omit<GalleryEmbedProps, 'albumId'> = {
+    layout: 'grid',
+    limit: 0,
+    showDescription: true,
+    showTitle: true,
+  };
+  if (!raw) return defaults;
+
+  const pairs = raw.trim().split(/\s+/);
+  for (const pair of pairs) {
+    const eq = pair.indexOf('=');
+    if (eq === -1) continue;
+    const key = pair.slice(0, eq);
+    const value = pair.slice(eq + 1);
+    switch (key) {
+      case 'layout':
+        if (['grid', 'carousel', 'masonry'].includes(value))
+          defaults.layout = value as 'grid' | 'carousel' | 'masonry';
+        break;
+      case 'limit': {
+        const n = parseInt(value, 10);
+        if (!isNaN(n) && n >= 0) defaults.limit = n;
+        break;
+      }
+      case 'showDescription':
+        defaults.showDescription = value !== 'false';
+        break;
+      case 'showTitle':
+        defaults.showTitle = value !== 'false';
+        break;
+    }
+  }
+  return defaults;
+}
+
+/**
+ * Existing HTML rendering path with Mermaid and Gallery support.
  */
 function HtmlBlogContent({ html }: { html: string }) {
   const sanitizedHtml = useMemo(() => sanitizeWordPressContent(html), [html]);
 
   const segments = useMemo<ContentSegment[]>(() => {
+    // First pass: extract gallery directives from <p>::gallery[...]</p>
+    const galleryRegex = /<p>\s*::gallery\[([a-zA-Z0-9-]+)\](?:\{([^}]*)\})?\s*<\/p>/gi;
+    const intermediateSegments: ContentSegment[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = galleryRegex.exec(sanitizedHtml)) !== null) {
+      if (match.index > lastIndex) {
+        intermediateSegments.push({ type: 'html', content: sanitizedHtml.slice(lastIndex, match.index) });
+      }
+      const albumId = match[1];
+      const attrs = parseGalleryDirectiveAttrs(match[2]);
+      intermediateSegments.push({
+        type: 'gallery',
+        content: '',
+        props: { albumId, ...attrs },
+      });
+      lastIndex = galleryRegex.lastIndex;
+    }
+
+    if (lastIndex < sanitizedHtml.length) {
+      intermediateSegments.push({ type: 'html', content: sanitizedHtml.slice(lastIndex) });
+    }
+
+    // Second pass: extract mermaid blocks from remaining HTML segments
     const mermaidBlockRegex =
       /<pre\b[^>]*>\s*<code\b[^>]*class=["'][^"']*\blanguage-mermaid\b[^"']*["'][^>]*>([\s\S]*?)<\/code>\s*<\/pre>|<div\b[^>]*class=["'][^"']*\bmermaid\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi;
 
     const result: ContentSegment[] = [];
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
 
-    while ((match = mermaidBlockRegex.exec(sanitizedHtml)) !== null) {
-      if (match.index > lastIndex) {
-        result.push({ type: 'html', content: sanitizedHtml.slice(lastIndex, match.index) });
+    for (const seg of intermediateSegments) {
+      if (seg.type !== 'html') {
+        result.push(seg);
+        continue;
       }
-      result.push({ type: 'mermaid', content: decodeHtmlEntities(match[1] ?? match[2] ?? '') });
-      lastIndex = mermaidBlockRegex.lastIndex;
-    }
 
-    if (lastIndex < sanitizedHtml.length) {
-      result.push({ type: 'html', content: sanitizedHtml.slice(lastIndex) });
+      let segLastIndex = 0;
+      mermaidBlockRegex.lastIndex = 0;
+
+      while ((match = mermaidBlockRegex.exec(seg.content)) !== null) {
+        if (match.index > segLastIndex) {
+          result.push({ type: 'html', content: seg.content.slice(segLastIndex, match.index) });
+        }
+        result.push({ type: 'mermaid', content: decodeHtmlEntities(match[1] ?? match[2] ?? '') });
+        segLastIndex = mermaidBlockRegex.lastIndex;
+      }
+
+      if (segLastIndex < seg.content.length) {
+        result.push({ type: 'html', content: seg.content.slice(segLastIndex) });
+      }
     }
 
     return result;
@@ -182,6 +257,9 @@ function HtmlBlogContent({ html }: { html: string }) {
   return (
     <>
       {segments.map((segment, index) => {
+        if (segment.type === 'gallery' && segment.props) {
+          return <GalleryEmbed key={index} {...segment.props} />;
+        }
         if (segment.type === 'mermaid') {
           return <MermaidRenderer key={index} chart={segment.content} />;
         }
