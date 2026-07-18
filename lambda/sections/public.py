@@ -232,6 +232,19 @@ def _handle_posts(event):
     end = start + POSTS_PER_PAGE
     paged_items = posts[start:end]
 
+    # Enrich posts with author names
+    author_cache = {}
+    for post in paged_items:
+        author_id = post.get('author', '')
+        if author_id:
+            if author_id not in author_cache:
+                try:
+                    user = user_repo.get_by_id(author_id)
+                    author_cache[author_id] = user.get('name', user.get('display_name', 'Unknown Author')) if user else 'Unknown Author'
+                except Exception:
+                    author_cache[author_id] = 'Unknown Author'
+            post['author_name'] = author_cache[author_id]
+
     response_body = {
         'items': paged_items,
         'pagination': {
