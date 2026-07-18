@@ -126,7 +126,7 @@ export const BlogSectionPage = () => {
 
           {/* Landing page content */}
           {postsResponse?.landing_page && (
-            <div className="mb-12 border-b border-gray-200 pb-12">
+            <div className="mb-12">
               {postsResponse.landing_page.featured_image && (
                 <img
                   src={postsResponse.landing_page.featured_image}
@@ -158,46 +158,50 @@ export const BlogSectionPage = () => {
             </div>
           )}
 
-          {/* Posts */}
-          {isLoadingPosts ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          ) : posts.length > 0 ? (
+          {/* Posts - only show when there's no landing page */}
+          {!postsResponse?.landing_page && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {posts.map((post: Content) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
+              {isLoadingPosts ? (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              ) : posts.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {posts.map((post: Content) => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                  </div>
 
-              {/* Pagination controls */}
-              {pagination && pagination.total_pages > 1 && (
-                <div className="flex items-center justify-center gap-4 mt-12">
-                  <button
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page <= 1}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  <span className="text-gray-600">
-                    Page {pagination.page} of {pagination.total_pages}
-                  </span>
-                  <button
-                    onClick={() => setPage((p) => Math.min(pagination.total_pages, p + 1))}
-                    disabled={page >= pagination.total_pages}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
+                  {/* Pagination controls */}
+                  {pagination && pagination.total_pages > 1 && (
+                    <div className="flex items-center justify-center gap-4 mt-12">
+                      <button
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page <= 1}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Previous
+                      </button>
+                      <span className="text-gray-600">
+                        Page {pagination.page} of {pagination.total_pages}
+                      </span>
+                      <button
+                        onClick={() => setPage((p) => Math.min(pagination.total_pages, p + 1))}
+                        disabled={page >= pagination.total_pages}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-600 text-lg">No posts available in this section.</p>
                 </div>
               )}
             </>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-600 text-lg">No posts available in this section.</p>
-            </div>
           )}
         </div>
       </div>

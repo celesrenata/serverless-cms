@@ -3,6 +3,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { PageMeta } from '../PageMeta';
 import { CustomCSSPreviewIndicator } from '../CustomCSSPreviewIndicator';
+import { LoadingIndicator } from '../LoadingIndicator';
 
 // Lazy-loaded components (Req 13.3: non-critical sections via dynamic imports)
 const ThemePanel = lazy(() => import('../ThemePanel/ThemePanel'));
@@ -34,6 +35,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Suspense fallback={null}>
         <CommandPalette />
       </Suspense>
+      <LoadingIndicator />
     </div>
   );
 };
