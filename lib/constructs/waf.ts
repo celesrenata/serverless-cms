@@ -108,6 +108,7 @@ export class WafConstruct extends Construct {
                 { name: 'SizeRestrictions_BODY' }, // Allow larger request bodies for content
                 { name: 'GenericRFI_BODY' }, // Can cause false positives with user content
                 { name: 'CrossSiteScripting_BODY' }, // CMS content contains HTML by design
+                { name: 'GenericLFI_BODY' }, // CMS content with file paths triggers false positives
               ],
             },
           },
