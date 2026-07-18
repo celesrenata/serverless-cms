@@ -186,7 +186,7 @@ export const ContentEditor: React.FC = () => {
         tags: tags.length > 0 ? tags : undefined,
         categories: categories.length > 0 ? categories : undefined,
       },
-      section_id: sectionId || undefined,
+      section_id: sectionId || '',
       content_format: contentFormat,
       content_markdown: contentFormat === 'markdown' ? contentMarkdown : undefined,
       // Only include scheduled_at if status is draft and a time is set

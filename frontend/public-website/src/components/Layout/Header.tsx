@@ -52,18 +52,6 @@ export const Header: React.FC = () => {
                 {section.name}
               </Link>
             ))}
-            <Link
-              to="/gallery"
-              className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-3 py-2 text-sm font-medium"
-            >
-              Gallery
-            </Link>
-            <Link
-              to="/projects"
-              className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-3 py-2 text-sm font-medium"
-            >
-              Projects
-            </Link>
           </div>
 
           {/* Mobile menu button */}

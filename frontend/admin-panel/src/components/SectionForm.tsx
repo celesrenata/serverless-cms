@@ -127,7 +127,7 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
     description: '',
     sort_order: 0,
     page_id: null,
-    show_posts: true,
+    show_posts: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -142,7 +142,7 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
         description: section.description || '',
         sort_order: section.sort_order,
         page_id: section.page_id || null,
-        show_posts: section.show_posts ?? true,
+        show_posts: section.show_posts ?? false,
       });
       setSlugManuallyEdited(true);
     }
