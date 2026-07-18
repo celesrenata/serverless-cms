@@ -237,6 +237,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     if (!hasUserThemePreference()) {
       setServerThemeTokens(serverTokens);
       setActiveThemeState(serverTokens.id);
+      // Persist so subsequent loads are consistent (no flash)
+      safeSetItem(ACTIVE_THEME_KEY, serverTokens.id);
     }
 
     // Apply custom_css from active theme into @layer user stylesheet
