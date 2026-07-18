@@ -19,6 +19,7 @@ from boto3.dynamodb.conditions import Key, Attr
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from shared.sections_db import SectionRepository
+from shared.db import UserRepository
 from service import build_tree, resolve_path
 
 
@@ -32,6 +33,7 @@ CONTENT_SECTION_INDEX = 'section_id-published_at-index'
 POSTS_PER_PAGE = 20
 
 sections_repo = SectionRepository()
+user_repo = UserRepository()
 dynamodb = boto3.resource('dynamodb')
 content_table = dynamodb.Table(CONTENT_TABLE)
 
@@ -173,6 +175,17 @@ def _fetch_landing_page(page_id):
         if page.get('status') != 'published':
             return None
 
+        # Look up author name
+        author_name = 'Unknown Author'
+        author_id = page.get('author', '')
+        if author_id:
+            try:
+                user = user_repo.get_by_id(author_id)
+                if user:
+                    author_name = user.get('name', user.get('display_name', 'Unknown Author'))
+            except Exception:
+                pass
+
         return {
             'id': page.get('id', ''),
             'title': page.get('title', ''),
@@ -180,6 +193,8 @@ def _fetch_landing_page(page_id):
             'content': page.get('content', ''),
             'featured_image': page.get('featured_image', ''),
             'excerpt': page.get('excerpt', ''),
+            'published_at': page.get('published_at', 0),
+            'author_name': author_name,
         }
     except Exception as e:
         print(f"Error fetching landing page: {e}")

@@ -42,4 +42,6 @@ export interface LandingPage {
   content: string;
   featured_image: string;
   excerpt: string;
+  author_name?: string;
+  published_at?: number;
 }
