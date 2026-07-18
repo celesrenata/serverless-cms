@@ -107,6 +107,7 @@ export class WafConstruct extends Construct {
               excludedRules: [
                 { name: 'SizeRestrictions_BODY' }, // Allow larger request bodies for content
                 { name: 'GenericRFI_BODY' }, // Can cause false positives with user content
+                { name: 'CrossSiteScripting_BODY' }, // CMS content contains HTML by design
               ],
             },
           },
