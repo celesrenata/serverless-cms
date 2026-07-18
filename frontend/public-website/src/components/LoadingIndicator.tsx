@@ -8,7 +8,6 @@ export const LoadingIndicator: React.FC = () => {
     const origOpen = XMLHttpRequest.prototype.open;
     const origSend = XMLHttpRequest.prototype.send;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (XMLHttpRequest.prototype as any).open = function (this: XMLHttpRequest, ...args: any[]) {
       this.addEventListener('loadend', () => {
         countRef.current = Math.max(0, countRef.current - 1);
