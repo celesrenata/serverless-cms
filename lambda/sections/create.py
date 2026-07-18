@@ -98,6 +98,7 @@ def handler(event, context, user_id, role):
             'created_at': now,
             'updated_at': now,
             'page_id': page_id,
+            'show_posts': body.get('show_posts', False),
         }
 
         try:

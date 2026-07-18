@@ -27,6 +27,7 @@ interface FormData {
   description: string;
   sort_order: number;
   page_id: string | null;
+  show_posts: boolean;
 }
 
 interface FlatOption {
@@ -126,6 +127,7 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
     description: '',
     sort_order: 0,
     page_id: null,
+    show_posts: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -140,6 +142,7 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
         description: section.description || '',
         sort_order: section.sort_order,
         page_id: section.page_id || null,
+        show_posts: section.show_posts || false,
       });
       setSlugManuallyEdited(true);
     }
@@ -229,6 +232,7 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
           description: formData.description.trim() || undefined,
           sort_order: formData.sort_order,
           page_id: formData.page_id || undefined,
+          show_posts: formData.show_posts,
         });
       } else if (section) {
         await updateMutation.mutateAsync({
@@ -240,6 +244,7 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
             description: formData.description.trim(),
             sort_order: formData.sort_order,
             page_id: formData.page_id,
+            show_posts: formData.show_posts,
           },
         });
       }
@@ -402,6 +407,21 @@ export default function SectionForm({ mode, section, onSuccess, onCancel }: Sect
             Select a published page to display as this section's landing content
           </p>
         </div>
+
+        {formData.page_id && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="show_posts"
+              checked={formData.show_posts}
+              onChange={(e) => setFormData((prev) => ({ ...prev, show_posts: e.target.checked }))}
+              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="show_posts" className="text-sm text-gray-700">
+              Show post index below landing page
+            </label>
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

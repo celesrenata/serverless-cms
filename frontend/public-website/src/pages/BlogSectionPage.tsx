@@ -181,6 +181,48 @@ export const BlogSectionPage = () => {
                 </div>
               </div>
             )}
+
+            {/* Posts below landing page (when show_posts enabled) */}
+            {section.show_posts && (
+              <>
+                {isLoadingPosts ? (
+                  <div className="text-center py-12">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : posts.length > 0 ? (
+                  <div className="border-t border-gray-200 pt-8 mt-8">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-6">Posts</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {posts.map((post: Content) => (
+                        <PostCard key={post.id} post={post} />
+                      ))}
+                    </div>
+
+                    {pagination && pagination.total_pages > 1 && (
+                      <div className="flex items-center justify-center gap-4 mt-8">
+                        <button
+                          onClick={() => setPage((p) => Math.max(1, p - 1))}
+                          disabled={page <= 1}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+                        <span className="text-gray-600">
+                          Page {pagination.page} of {pagination.total_pages}
+                        </span>
+                        <button
+                          onClick={() => setPage((p) => Math.min(pagination.total_pages, p + 1))}
+                          disabled={page >= pagination.total_pages}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+              </>
+            )}
           </div>
         </article>
       </>

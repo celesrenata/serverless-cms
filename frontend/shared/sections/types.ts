@@ -9,6 +9,7 @@ export interface Section {
   path_ids: string[];
   depth: number;
   page_id: string | null;
+  show_posts?: boolean;
   created_at: number;
   updated_at: number;
 }
@@ -24,6 +25,7 @@ export interface CreateSectionRequest {
   description?: string;
   sort_order?: number;
   page_id?: string | null;
+  show_posts?: boolean;
 }
 
 export interface UpdateSectionRequest {
@@ -33,6 +35,7 @@ export interface UpdateSectionRequest {
   description?: string;
   sort_order?: number;
   page_id?: string | null;
+  show_posts?: boolean;
 }
 
 export interface LandingPage {

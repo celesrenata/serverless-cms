@@ -82,6 +82,9 @@ def handler(event, context, user_id, role):
                     return _response(400, {'error': error})
             updates['page_id'] = new_page_id
 
+        if 'show_posts' in body:
+            updates['show_posts'] = bool(body['show_posts'])
+
         # Handle parent change
         current_parent_id = existing.get('parent_id', ROOT_PARENT_ID)
         new_parent_id = current_parent_id
