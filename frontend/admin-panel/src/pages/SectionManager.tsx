@@ -17,6 +17,7 @@ interface Toast {
 function SectionTreeItem({
   node,
   onEdit,
+  onFullEdit,
   editState,
   onEditChange,
   onEditSave,
@@ -24,6 +25,7 @@ function SectionTreeItem({
 }: {
   node: SectionTreeNode;
   onEdit: (sectionId: string, field: EditState['field'], value: string) => void;
+  onFullEdit: (node: SectionTreeNode) => void;
   editState: EditState | null;
   onEditChange: (value: string) => void;
   onEditSave: () => void;
@@ -159,6 +161,18 @@ function SectionTreeItem({
             </span>
           )}
 
+          {/* Edit button - visible on hover */}
+          <button
+            onClick={() => onFullEdit(node)}
+            className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-blue-600 rounded transition-opacity"
+            title="Edit all settings"
+            aria-label={`Edit ${node.name} settings`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+
           {/* Slug display */}
           <span className="text-xs text-gray-400 font-mono hidden md:inline">
             /{node.slug}
@@ -174,6 +188,7 @@ function SectionTreeItem({
               key={child.id}
               node={child}
               onEdit={onEdit}
+              onFullEdit={onFullEdit}
               editState={editState}
               onEditChange={onEditChange}
               onEditSave={onEditSave}
@@ -193,6 +208,7 @@ export function SectionManager() {
   const [editState, setEditState] = useState<EditState | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingSection, setEditingSection] = useState<SectionTreeNode | null>(null);
   const toastIdRef = useRef(0);
 
   const showErrorToast = useCallback((message: string) => {
@@ -309,6 +325,20 @@ export function SectionManager() {
         </div>
       )}
 
+      {editingSection && (
+        <div className="card">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Edit Section: {editingSection.name}</h2>
+          </div>
+          <SectionForm
+            mode="edit"
+            section={editingSection}
+            onSuccess={() => setEditingSection(null)}
+            onCancel={() => setEditingSection(null)}
+          />
+        </div>
+      )}
+
       <div className="card">
         {sections && sections.length > 0 ? (
           <div className="divide-y divide-gray-100">
@@ -317,6 +347,7 @@ export function SectionManager() {
                 key={section.id}
                 node={section}
                 onEdit={handleEdit}
+                onFullEdit={setEditingSection}
                 editState={editState}
                 onEditChange={handleEditChange}
                 onEditSave={handleEditSave}
