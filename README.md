@@ -7,9 +7,33 @@ A modern, serverless content management system built entirely on AWS infrastruct
 ### Content Management
 - Create, edit, and publish posts, pages, galleries, and projects
 - Rich text editor with media picker
-- Scheduled publishing
+- Markdown rendering with syntax-highlighted code blocks and Mermaid diagrams
+- Scheduled publishing via EventBridge
 - Content status management (draft, published, archived)
 - SEO metadata support
+
+### Blog Sections
+- Hierarchical organization of blog content into sections
+- Landing pages mapped to sections with dedicated navigation
+- `show_posts` toggle to control post visibility per section
+- Section-based navigation component
+
+### Theme Engine
+- 6 built-in themes: Celestium Neon (default), AWS Console After Dark, Glass Circuit, Paper Systems, Terminal Witchcraft, Celestium Bromide
+- CSS custom properties driven by a structured token system (colors, typography, radius, shadows, motion)
+- Theme panel drawer for live switching
+- Command palette (Cmd+K / Ctrl+K) for quick theme and navigation access
+- JSON import/export for sharing custom themes
+- Custom CSS upload with live preview and validation
+- Scroll reveal animations (respects `prefers-reduced-motion`)
+- FOUC prevention with server-side theme injection
+- Custom themes stored in DynamoDB with full CRUD API
+
+### Interactive Architecture Map
+- SVG-based interactive system diagram
+- Keyboard navigable for accessibility
+- Technical and non-technical explanation modes
+- Highlights service connections on hover/focus
 
 ### User Management
 - Role-based access control (Admin, Editor, Author, Viewer)
@@ -29,12 +53,13 @@ A modern, serverless content management system built entirely on AWS infrastruct
 - Upload and manage images
 - Automatic thumbnail generation
 - Media metadata and organization
+- Gallery embeds with lightbox
 
-### Theme System
-- 5 built-in themes: Default, Dark, Light, Minimal, Custom
-- Dynamic theme switching
-- Customizable CSS variables
-- CAPTCHA styling per theme
+### Backup & Restore
+- Full backup of all DynamoDB tables (content, users, media, settings, plugins, comments, sections, themes)
+- S3 media backup with manifest tracking
+- Checkpoint-based restore for safe recovery
+- NDJSON format for portable data
 
 ### Plugin System
 - Extensible plugin architecture
@@ -55,6 +80,12 @@ A modern, serverless content management system built entirely on AWS infrastruct
 ├── bin/                          # CDK app entry point
 ├── lib/                          # CDK stack definitions
 ├── config/                       # Environment configurations
+├── docs/                         # All project documentation
+│   ├── screenshots/              # Architecture and UI screenshots
+│   ├── API_DOCUMENTATION.md
+│   ├── DEPLOYMENT.md
+│   ├── CI_CD_GUIDE.md
+│   └── ...
 ├── lambda/                       # Lambda function code
 │   ├── shared/                   # Shared utilities (auth, db, email, logger)
 │   ├── content/                  # Content management functions
@@ -63,6 +94,8 @@ A modern, serverless content management system built entirely on AWS infrastruct
 │   ├── settings/                 # Settings management functions
 │   ├── plugins/                  # Plugin management functions
 │   ├── comments/                 # Comment management functions
+│   ├── sections/                 # Section management functions
+│   ├── themes/                   # Theme CRUD functions
 │   ├── auth/                     # Authentication functions
 │   └── scheduler/                # Scheduled task functions
 ├── frontend/
@@ -74,28 +107,39 @@ A modern, serverless content management system built entirely on AWS infrastruct
 │   │       └── services/         # API services
 │   └── public-website/           # React public website
 │       └── src/
+│           ├── components/
+│           │   ├── ArchitectureMap/   # Interactive SVG architecture diagram
+│           │   ├── CommandPalette/    # Cmd+K command palette
+│           │   ├── ThemePanel/        # Theme switching drawer
+│           │   ├── ScrollReveal.tsx   # Scroll-triggered animations
+│           │   └── ...
+│           ├── theme/            # Theme engine (tokens, provider, builtins, serialization)
+│           ├── themes/           # Legacy theme CSS files
 │           ├── pages/            # Public pages
-│           ├── components/       # Reusable components
-│           ├── themes/           # Theme CSS files
+│           ├── hooks/            # Custom React hooks
 │           └── services/         # API services
-├── tests/                        # Integration tests
+├── tests/                        # Integration tests (pytest + Hypothesis)
 ├── scripts/                      # Deployment and utility scripts
+├── backups/                      # Local backup storage
 └── plugins/                      # Plugin examples
 ```
 
 ## Prerequisites
 
-### Standard Setup
 - Node.js 20+ and npm
 - Python 3.12+
 - AWS CLI configured with appropriate credentials
 - AWS CDK CLI (`npm install -g aws-cdk`)
 
+### Testing
+- **Backend:** pytest + Hypothesis (property-based testing)
+- **Frontend:** Vitest + React Testing Library
+
 ### NixOS Setup (Recommended for NixOS users)
 - Nix with flakes enabled (or traditional Nix)
 - All dependencies managed automatically via Nix
 
-**NixOS users:** See [NIXOS_DEVELOPMENT.md](NIXOS_DEVELOPMENT.md) for detailed setup instructions.
+**NixOS users:** See [docs/NIXOS_DEVELOPMENT.md](docs/NIXOS_DEVELOPMENT.md) for detailed setup instructions.
 
 ## Quick Start
 
@@ -126,10 +170,10 @@ cd frontend/public-website && npm install && cd ../..
 - Update `bin/app.ts` with your AWS account ID
 - Update `config/environments.ts` with your domain configuration:
   - `hostedZoneName`: Your Route53 hosted zone domain (e.g., `example.com`)
-  - `hostedZoneId`: Your Route53 hosted zone ID (find in AWS Console or via `aws route53 list-hosted-zones`)
+  - `hostedZoneId`: Your Route53 hosted zone ID
   - `domainName`: The subdomain for each environment (e.g., `staging-cms.example.com`)
-- For GitHub Actions CI/CD, see [GITHUB_IAM_SETUP.md](GITHUB_IAM_SETUP.md) to create IAM users
-- Configure GitHub Secrets as described in [GITHUB_SECRETS_SETUP.md](GITHUB_SECRETS_SETUP.md)
+- For GitHub Actions CI/CD, see [docs/GITHUB_IAM_SETUP.md](docs/GITHUB_IAM_SETUP.md)
+- Configure GitHub Secrets as described in [docs/GITHUB_SECRETS_SETUP.md](docs/GITHUB_SECRETS_SETUP.md)
 
 3. **Deploy**
 ```bash
@@ -144,14 +188,14 @@ npm run deploy:dev
 # Run all tests
 npm test
 
-# Run backend tests only
+# Backend tests only
 npm run test:backend
 
-# Run frontend tests only
+# Frontend tests only
 npm run test:admin
 npm run test:public
 
-# Run with coverage
+# Backend with coverage
 npm run test:backend:coverage
 ```
 
@@ -183,26 +227,30 @@ npm run deploy:prod
 npm run deploy:all:dev
 ```
 
-**Note:** On first deployment to a new environment, smoke tests will fail because no content exists yet. This is expected. Create some initial content through the admin panel, then subsequent deployments will pass smoke tests.
+**Note:** On first deployment to a new environment, smoke tests will fail because no content exists yet. Create initial content through the admin panel, then subsequent deployments will pass.
 
 ## Documentation
 
-- [API Documentation](API_DOCUMENTATION.md) - REST API endpoints
-- [Deployment Guide](DEPLOYMENT.md) - Deployment instructions
-- [CI/CD Guide](CI_CD_GUIDE.md) - GitHub Actions pipeline overview
-- [GitHub IAM Setup](GITHUB_IAM_SETUP.md) - Create IAM users for GitHub Actions
-- [GitHub Secrets Setup](GITHUB_SECRETS_SETUP.md) - Configure repository secrets
-- [User Management Guide](USER_MANAGEMENT_GUIDE.md) - User roles and permissions
-- [Comment Moderation Guide](COMMENT_MODERATION_GUIDE.md) - Comment system usage
-- [Plugin Development Guide](PLUGIN_DEVELOPMENT_GUIDE.md) - Creating plugins
-- [Monitoring Guide](MONITORING.md) - CloudWatch metrics and alarms
+- [API Documentation](docs/API_DOCUMENTATION.md) - REST API endpoints
+- [Deployment Guide](docs/DEPLOYMENT.md) - Deployment instructions
+- [CI/CD Guide](docs/CI_CD_GUIDE.md) - GitHub Actions pipeline overview
+- [Pipeline Overview](docs/PIPELINE_OVERVIEW.md) - Full pipeline architecture
+- [GitHub IAM Setup](docs/GITHUB_IAM_SETUP.md) - Create IAM users for GitHub Actions
+- [GitHub Secrets Setup](docs/GITHUB_SECRETS_SETUP.md) - Configure repository secrets
+- [User Management Guide](docs/USER_MANAGEMENT_GUIDE.md) - User roles and permissions
+- [Comment Moderation Guide](docs/COMMENT_MODERATION_GUIDE.md) - Comment system usage
+- [Plugin Development Guide](docs/PLUGIN_DEVELOPMENT_GUIDE.md) - Creating plugins
+- [Monitoring Guide](docs/MONITORING.md) - CloudWatch metrics and alarms
 - [Testing Guide](tests/TESTING_GUIDE.md) - Testing strategy
-- [NixOS Development](NIXOS_DEVELOPMENT.md) - NixOS setup
+- [NixOS Development](docs/NIXOS_DEVELOPMENT.md) - NixOS setup
+- [WAF CAPTCHA Setup](docs/WAF_CAPTCHA_SETUP.md) - CAPTCHA configuration
+- [CloudFront Setup](docs/CLOUDFRONT_SETUP.md) - CDN configuration
+- [Cost Analysis](docs/COST_ANALYSIS.md) - AWS cost breakdown
 
 ## Architecture
 
 ### AWS Services
-- **DynamoDB** - Data persistence (content, users, media, settings, plugins, comments)
+- **DynamoDB** - Data persistence (content, users, media, settings, plugins, comments, sections, themes)
 - **S3** - Media storage and static hosting
 - **Lambda** - Backend business logic (Python 3.12)
 - **API Gateway** - REST API routing
@@ -210,7 +258,7 @@ npm run deploy:all:dev
 - **CloudFront** - CDN for content delivery
 - **EventBridge** - Scheduled publishing
 - **SES** - Email delivery (verification, password reset)
-- **WAF** - CAPTCHA and rate limiting
+- **WAF** - CAPTCHA challenge and rate limiting
 - **CloudWatch** - Monitoring and alarms
 
 ### Frontend
@@ -219,12 +267,14 @@ npm run deploy:all:dev
 - **TanStack Query** for data fetching
 - **React Router** for navigation
 - **Tailwind CSS** for styling
+- **Vitest** for testing
 
 ### Backend
 - **Python 3.12** Lambda functions
 - **Boto3** for AWS SDK
 - **JWT** authentication
 - **Plugin system** with hooks
+- **pytest + Hypothesis** for testing
 
 ## Environment Variables
 
