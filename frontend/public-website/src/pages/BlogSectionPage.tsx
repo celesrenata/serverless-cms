@@ -183,7 +183,7 @@ export const BlogSectionPage = () => {
             )}
 
             {/* Posts below landing page (when show_posts enabled) */}
-            {section.show_posts && (
+            {section.show_posts !== false && (
               <>
                 {isLoadingPosts ? (
                   <div className="text-center py-12">
