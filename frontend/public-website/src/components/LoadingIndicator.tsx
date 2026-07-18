@@ -8,18 +8,19 @@ export const LoadingIndicator: React.FC = () => {
     const origOpen = XMLHttpRequest.prototype.open;
     const origSend = XMLHttpRequest.prototype.send;
 
-    XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, ...args: Parameters<typeof origOpen>) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (XMLHttpRequest.prototype as any).open = function (this: XMLHttpRequest, ...args: any[]) {
       this.addEventListener('loadend', () => {
         countRef.current = Math.max(0, countRef.current - 1);
         setActiveCount(countRef.current);
       });
-      return origOpen.apply(this, args);
+      return origOpen.apply(this, args as any);
     };
 
-    XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, ...args: Parameters<typeof origSend>) {
+    XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, body?: Document | XMLHttpRequestBodyInit | null) {
       countRef.current++;
       setActiveCount(countRef.current);
-      return origSend.apply(this, args);
+      return origSend.call(this, body);
     };
 
     return () => {
