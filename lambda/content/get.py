@@ -88,13 +88,13 @@ def handler(event, context):
             
             if not user_info:
                 return {
-                    'statusCode': 403,
+                    'statusCode': 401,
                     'headers': {
                         'Content-Type': 'application/json',
                         'Access-Control-Allow-Origin': '*',
                     },
                     'body': json.dumps({
-                        'error': 'Forbidden',
+                        'error': 'Unauthorized',
                         'message': 'Draft content requires authentication'
                     })
                 }
