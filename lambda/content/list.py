@@ -35,7 +35,7 @@ def handler(event, context):
         # Parse query parameters
         params = event.get('queryStringParameters', {}) or {}
         
-        content_type = params.get('type', 'post')
+        content_type = params.get('type')  # None means all types
         status = params.get('status')  # None means all statuses
         limit = int(params.get('limit', '20'))
         last_key_str = params.get('last_key')
@@ -93,12 +93,34 @@ def handler(event, context):
             published_count += pub_response.get('Count', 0)
 
         # Get content from repository
-        result = content_repo.list_by_type(
-            content_type=content_type,
-            status=status,
-            limit=limit,
-            last_key=last_key
-        )
+        if content_type:
+            result = content_repo.list_by_type(
+                content_type=content_type,
+                status=status,
+                limit=limit,
+                last_key=last_key
+            )
+        else:
+            # All types: scan with optional status filter
+            scan_kwargs = {
+                'Limit': limit,
+            }
+            filter_expressions = []
+            if status:
+                filter_expressions.append(Attr('status').eq(status))
+            if filter_expressions:
+                combined = filter_expressions[0]
+                for expr in filter_expressions[1:]:
+                    combined = combined & expr
+                scan_kwargs['FilterExpression'] = combined
+            if last_key:
+                scan_kwargs['ExclusiveStartKey'] = last_key
+
+            response = content_repo.table.scan(**scan_kwargs)
+            result = {
+                'items': response.get('Items', []),
+                'last_key': response.get('LastEvaluatedKey')
+            }
         
         items = result['items']
         

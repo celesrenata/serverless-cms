@@ -1,4 +1,7 @@
+import { useMemo } from 'react';
 import { Content } from '../../types/content';
+import { useSections } from '../../hooks/useSections';
+import type { SectionTreeNode } from '../../../../shared/sections/types';
 
 interface ContentTableProps {
   content: Content[];
@@ -18,6 +21,21 @@ export function ContentTable({
   onDelete,
 }: ContentTableProps) {
   const allSelected = content.length > 0 && selectedIds.length === content.length;
+
+  const { data: sections = [] } = useSections();
+
+  // Build a flat map of section id -> section name
+  const sectionMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    const flatten = (nodes: SectionTreeNode[]) => {
+      for (const node of nodes) {
+        map[node.id] = node.name;
+        if (node.children?.length) flatten(node.children);
+      }
+    };
+    flatten(sections);
+    return map;
+  }, [sections]);
 
   const formatDate = (timestamp?: number) => {
     if (!timestamp) return 'N/A';
@@ -62,6 +80,9 @@ export function ContentTable({
                 Type
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Section
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -78,7 +99,7 @@ export function ContentTable({
           <tbody className="bg-white divide-y divide-gray-200">
             {content.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                   No content found
                 </td>
               </tr>
@@ -99,6 +120,11 @@ export function ContentTable({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-900 capitalize">{item.type}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600">
+                      {item.section_id ? (sectionMap[item.section_id] || '—') : '—'}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span

@@ -10,7 +10,7 @@ from datetime import datetime
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from shared.auth import require_auth
+from shared.auth import require_auth, check_permission
 from shared.db import ContentRepository
 from shared.plugins import PluginManager
 try:
@@ -105,11 +105,12 @@ def handler(event, context, user_id, role):
         
         existing_content = items[0]
         
-        # Check permissions
+        # Check permissions - use hierarchy check for robustness
         is_author = existing_content.get('author') == user_id
-        is_editor_or_admin = role in ['admin', 'editor']
+        is_editor_or_admin = check_permission(role, ['editor'])  # admin >= editor in hierarchy
         
         if not (is_author or is_editor_or_admin):
+            print(f"PERMISSION DENIED: user_id={user_id}, role={role!r}, content_author={existing_content.get('author')!r}, is_author={is_author}, is_editor_or_admin={is_editor_or_admin}")
             return {
                 'statusCode': 403,
                 'headers': {
