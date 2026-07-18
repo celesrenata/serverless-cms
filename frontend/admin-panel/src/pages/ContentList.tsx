@@ -17,11 +17,11 @@ export function ContentList() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  // Fetch content with filters
+  // Fetch content with filters - request all items since we paginate client-side
   const { data, isLoading, error } = useContentList({
     type: filters.type,
     status: filters.status,
-    limit: itemsPerPage,
+    limit: 200,
   });
 
   const deleteContentMutation = useDeleteContent();

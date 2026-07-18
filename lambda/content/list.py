@@ -65,7 +65,7 @@ def handler(event, context):
                 }
         
         # Validate limit
-        if limit < 1 or limit > 100:
+        if limit < 1 or limit > 200:
             limit = 20
         
         # Get total counts for dashboard statistics
@@ -100,11 +100,19 @@ def handler(event, context):
                 limit=limit,
                 last_key=last_key
             )
+            # Fetch additional pages if we got less than limit and there's a next key
+            while len(result['items']) < limit and result.get('last_key'):
+                more = content_repo.list_by_type(
+                    content_type=content_type,
+                    status=status,
+                    limit=limit - len(result['items']),
+                    last_key=result['last_key']
+                )
+                result['items'].extend(more['items'])
+                result['last_key'] = more.get('last_key')
         else:
-            # All types: scan with optional status filter
-            scan_kwargs = {
-                'Limit': limit,
-            }
+            # All types: scan with optional status filter, fetch all up to limit
+            scan_kwargs = {}
             filter_expressions = []
             if status:
                 filter_expressions.append(Attr('status').eq(status))
@@ -116,10 +124,21 @@ def handler(event, context):
             if last_key:
                 scan_kwargs['ExclusiveStartKey'] = last_key
 
-            response = content_repo.table.scan(**scan_kwargs)
+            all_items = []
+            while len(all_items) < limit:
+                response = content_repo.table.scan(**scan_kwargs)
+                all_items.extend(response.get('Items', []))
+                next_key = response.get('LastEvaluatedKey')
+                if not next_key:
+                    break
+                scan_kwargs['ExclusiveStartKey'] = next_key
+
+            # Sort by updated_at descending
+            all_items.sort(key=lambda x: int(x.get('updated_at', 0)), reverse=True)
+
             result = {
-                'items': response.get('Items', []),
-                'last_key': response.get('LastEvaluatedKey')
+                'items': all_items[:limit],
+                'last_key': None,
             }
         
         items = result['items']
