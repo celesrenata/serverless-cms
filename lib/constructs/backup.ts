@@ -169,6 +169,7 @@ export class BackupConstruct extends Construct {
     this.backupFunction.grantInvoke(this.apiHandlerFunction);
     this.restoreFunction.grantInvoke(this.apiHandlerFunction);
     props.settingsTable.grantReadWriteData(this.apiHandlerFunction);
+    props.usersTable.grantReadData(this.apiHandlerFunction);
 
     // ─── EventBridge Rule (Scheduled Backup - Initially Disabled) ─────
     const scheduledBackupRule = new events.Rule(this, 'ScheduledBackupRule', {
