@@ -374,6 +374,21 @@ class ApiClient {
     return response.data;
   }
 
+  async uploadBackupFile(archiveId: string, fileName: string, data: Blob): Promise<{ success: boolean }> {
+    // First get a presigned PUT URL from the backend
+    const response = await this.client.post<{ url: string }>(`/backup/${archiveId}/upload`, { fileName });
+    const { url } = response.data;
+
+    // Upload directly to S3 via presigned URL
+    await fetch(url, {
+      method: 'PUT',
+      body: data,
+      headers: { 'Content-Type': 'application/octet-stream' },
+    });
+
+    return { success: true };
+  }
+
   async getBackupSchedule(): Promise<{ schedule: BackupSchedule }> {
     const response = await this.client.get<{ schedule: BackupSchedule }>('/backup/schedule');
     return response.data;

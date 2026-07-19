@@ -568,6 +568,13 @@ export class LambdaApiConstruct extends Construct {
         authorizationType: apigateway.AuthorizationType.COGNITO,
       });
 
+      // POST /api/v1/backup/{id}/upload — upload a backup file
+      const backupUploadResource = backupIdResource.addResource('upload');
+      backupUploadResource.addMethod('POST', backupIntegration, {
+        authorizer: props.authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      });
+
       // GET /api/v1/backup/{id}/download/{file} — download a backup file
       const backupDownloadResource = backupIdResource.addResource('download');
       const backupDownloadFileResource = backupDownloadResource.addResource('{file}');

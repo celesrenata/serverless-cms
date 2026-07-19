@@ -84,6 +84,12 @@ def handler(event, context):
             event['_file_name'] = download_match.group(2)
             return _download_file(event, context)
 
+        # Route: POST /backup/{id}/upload
+        upload_match = re.search(r'/backup/([^/]+)/upload$', path)
+        if http_method == 'POST' and upload_match:
+            event['_archive_id'] = upload_match.group(1)
+            return _upload_file(event, context)
+
         # Route: POST /backup/{id}/restore
         restore_match = re.search(r'/backup/([^/]+)/restore$', path)
         if http_method == 'POST' and restore_match:
@@ -413,6 +419,42 @@ def _download_file(event, context, user_id, role):
             'statusCode': 500,
             'headers': HEADERS,
             'body': json.dumps({'error': 'Internal server error', 'message': str(e)}),
+        }
+
+
+@require_auth(roles=['admin'])
+def _upload_file(event, context, user_id, role):
+    """POST /backup/{id}/upload - Generate presigned PUT URL for uploading a backup file."""
+    try:
+        archive_id = event.get('_archive_id')
+        body = json.loads(event.get('body', '{}') or '{}')
+        file_name = body.get('fileName')
+
+        if not file_name:
+            return {
+                'statusCode': 400,
+                'headers': HEADERS,
+                'body': json.dumps({'error': 'fileName is required'}),
+            }
+
+        s3_key = f'backups/{archive_id}/{file_name}'
+
+        url = s3_client.generate_presigned_url(
+            'put_object',
+            Params={'Bucket': BACKUP_BUCKET, 'Key': s3_key},
+            ExpiresIn=300,
+        )
+
+        return {
+            'statusCode': 200,
+            'headers': HEADERS,
+            'body': json.dumps({'url': url}),
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': HEADERS,
+            'body': json.dumps({'error': str(e)}),
         }
 
 

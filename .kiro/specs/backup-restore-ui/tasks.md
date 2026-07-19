@@ -130,8 +130,8 @@
     - Only visible for admin role
     - _Requirements: 1.10_
 
-- [ ] 4. Testing & Integration
-  - [-] 4.1 Backend tests
+- [x] 4. Testing & Integration
+  - [x] 4.1 Backend tests
     - Test API handler routing and validation
     - Test job creation and status updates
     - Test component mapping
@@ -139,7 +139,7 @@
     - Mock DynamoDB and S3 operations
     - _Requirements: all_
 
-  - [~] 4.2 Frontend tests
+  - [x] 4.2 Frontend tests
     - Test BackupRestore page renders correctly
     - Test component selector modal
     - Test restore confirmation dialog (RESTORE text validation)
@@ -147,14 +147,14 @@
     - Test schedule settings form
     - _Requirements: all_
 
-  - [~] 4.3 CDK synth verification
+  - [x] 4.3 CDK synth verification
     - Build TypeScript
     - Synthesize stack
     - Verify no circular dependencies
     - Verify IAM permissions are correct
     - _Requirements: 6.1–6.10_
 
-- [~] 5. Checkpoint
+- [x] 5. Checkpoint
   - Run full test suite
   - Verify CDK builds and synths
   - Commit and deploy

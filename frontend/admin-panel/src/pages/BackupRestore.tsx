@@ -8,6 +8,8 @@ import {
   useBackupSchedule,
   useUpdateSchedule,
 } from '../hooks/useBackup';
+import { useQueryClient } from '@tanstack/react-query';
+import JSZip from 'jszip';
 import { api } from '../services/api';
 import type { BackupJob, BackupSchedule } from '../types/backup';
 import { ALL_BACKUP_COMPONENTS } from '../types/backup';
@@ -433,6 +435,41 @@ function DownloadPanel({ job, onClose }: { job: BackupJob; onClose: () => void }
     }
   };
 
+  const handleDownloadAllAsZip = async () => {
+    setDownloading('all');
+    try {
+      const zip = new JSZip();
+
+      // Download each table file and add to zip
+      for (const file of tableFiles) {
+        const { url } = await api.getDownloadUrl(job.id, file.name);
+        const response = await fetch(url);
+        const blob = await response.blob();
+        zip.file(file.name, blob);
+      }
+
+      // Add manifest
+      const { url: manifestUrl } = await api.getDownloadUrl(job.id, 'manifest.json');
+      const manifestResp = await fetch(manifestUrl);
+      const manifestBlob = await manifestResp.blob();
+      zip.file('manifest.json', manifestBlob);
+
+      // Generate and download zip
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const downloadUrl = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `backup-${job.id.substring(0, 8)}-${new Date(job.created_at * 1000).toISOString().split('T')[0]}.zip`;
+      a.click();
+      URL.revokeObjectURL(downloadUrl);
+    } catch (e) {
+      alert('Failed to create ZIP download');
+      console.error(e);
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   // Build file list from result.tables
   const tableFiles = job.result?.tables
     ? Object.entries(job.result.tables).map(([tableName, info]) => ({
@@ -453,6 +490,14 @@ function DownloadPanel({ job, onClose }: { job: BackupJob; onClose: () => void }
             <span className="ml-2">({formatBytes(job.result.archive_size_bytes)} total)</span>
           )}
         </p>
+
+        <button
+          onClick={handleDownloadAllAsZip}
+          disabled={downloading === 'all'}
+          className="w-full mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 text-sm"
+        >
+          {downloading === 'all' ? 'Creating ZIP...' : '\u{1F4E6} Download All as ZIP'}
+        </button>
 
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {tableFiles.map((file) => (
@@ -475,6 +520,19 @@ function DownloadPanel({ job, onClose }: { job: BackupJob; onClose: () => void }
               </button>
             </div>
           ))}
+
+          {/* S3 Media info */}
+          {(job.components || []).includes('s3_media') && job.result?.s3_objects && job.result.s3_objects > 0 && (
+            <div className="p-2 rounded bg-amber-50 border border-amber-200">
+              <div className="text-sm font-medium">S3 Media Files</div>
+              <div className="text-xs text-amber-700">
+                {job.result.s3_objects} files &middot; {formatBytes(job.result.s3_bytes)} — Too large for browser download. Use AWS CLI:
+              </div>
+              <code className="text-xs text-gray-600 block mt-1 bg-white p-1 rounded">
+                aws s3 cp s3://serverless-cms-backups-prod-776053071238/backups/{job.id}/media/ ./media/ --recursive
+              </code>
+            </div>
+          )}
 
           {/* Manifest download */}
           <div className="flex items-center justify-between p-2 rounded hover:bg-gray-50 border-t pt-3 mt-2">
@@ -502,6 +560,113 @@ function DownloadPanel({ job, onClose }: { job: BackupJob; onClose: () => void }
   );
 }
 
+// ─── UploadRestoreModal ──────────────────────────────────────────────
+
+function UploadRestoreModal({ onClose }: { onClose: () => void }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [confirmText, setConfirmText] = useState('');
+  const queryClient = useQueryClient();
+
+  const handleUploadAndRestore = async () => {
+    if (!file) return;
+    setUploading(true);
+
+    try {
+      const zip = await JSZip.loadAsync(file);
+
+      // Verify it has a manifest.json
+      const manifestFile = zip.file('manifest.json');
+      if (!manifestFile) {
+        alert('Invalid backup ZIP: missing manifest.json');
+        setUploading(false);
+        return;
+      }
+
+      const manifest = JSON.parse(await manifestFile.async('text'));
+      const archiveId = manifest.job_id || `upload-${Date.now()}`;
+
+      // Upload each file to the backup bucket via presigned URLs
+      const files = Object.keys(zip.files).filter(name => !zip.files[name].dir);
+
+      for (const fileName of files) {
+        const fileData = await zip.files[fileName].async('blob');
+
+        // Upload to backup bucket via upload endpoint
+        await api.uploadBackupFile(archiveId, fileName, fileData);
+      }
+
+      // Trigger restore from the uploaded archive
+      const components = manifest.components || [];
+      await api.restoreBackup(archiveId, components);
+
+      queryClient.invalidateQueries({ queryKey: ['backup-jobs'] });
+      onClose();
+    } catch (error) {
+      alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        <h2 className="text-lg font-semibold mb-4">Upload & Restore Backup</h2>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Select backup ZIP file
+          </label>
+          <input
+            type="file"
+            accept=".zip"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="w-full text-sm border rounded p-2"
+          />
+          {file && (
+            <p className="text-xs text-gray-500 mt-1">
+              {file.name} ({formatBytes(file.size)})
+            </p>
+          )}
+        </div>
+
+        <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
+          <p className="text-sm text-red-700 font-medium">
+            \u26A0\uFE0F Restoring will overwrite existing data with the backup contents.
+          </p>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm text-gray-600 mb-1">
+            Type <strong>RESTORE</strong> to confirm:
+          </label>
+          <input
+            type="text"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            className="w-full border rounded px-3 py-2 text-sm"
+            placeholder="RESTORE"
+          />
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:text-gray-800">
+            Cancel
+          </button>
+          <button
+            onClick={handleUploadAndRestore}
+            disabled={uploading || !file || confirmText !== 'RESTORE'}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+          >
+            {uploading ? 'Uploading & Restoring...' : 'Upload & Restore'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── BackupRestore Page ─────────────────────────────────────────────
 
 export function BackupRestore() {
@@ -509,6 +674,7 @@ export function BackupRestore() {
   const { deleteBackup } = useDeleteBackup();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [restoreJob, setRestoreJob] = useState<BackupJob | null>(null);
   const [downloadJob, setDownloadJob] = useState<BackupJob | null>(null);
 
@@ -555,6 +721,13 @@ export function BackupRestore() {
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
           Create Backup
+        </button>
+        <button
+          onClick={() => setShowUploadModal(true)}
+          disabled={!!activeJob}
+          className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+        >
+          Upload & Restore
         </button>
         <button
           onClick={() => setShowScheduleModal(true)}
@@ -656,6 +829,7 @@ export function BackupRestore() {
       {/* Modals */}
       {showCreateModal && <CreateBackupModal onClose={() => setShowCreateModal(false)} />}
       {showScheduleModal && <ScheduleSettings onClose={() => setShowScheduleModal(false)} />}
+      {showUploadModal && <UploadRestoreModal onClose={() => setShowUploadModal(false)} />}
       {restoreJob && <RestoreDialog job={restoreJob} onClose={() => setRestoreJob(null)} />}
       {downloadJob && <DownloadPanel job={downloadJob} onClose={() => setDownloadJob(null)} />}
     </div>
