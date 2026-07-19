@@ -15,6 +15,7 @@ import Users from './pages/Users';
 import Comments from './pages/Comments';
 import { SectionManager } from './pages/SectionManager';
 import { ThemeEditor } from './pages/ThemeEditor';
+import { BackupRestore } from './pages/BackupRestore';
 import { Login } from './pages/Login';
 
 const queryClient = new QueryClient({
@@ -51,6 +52,7 @@ function App() {
               <Route path="/users" element={<Users />} />
               <Route path="/comments" element={<Comments />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/backup" element={<BackupRestore />} />
               <Route path="/appearance" element={<Appearance />} />
               <Route path="/plugins" element={<Plugins />} />
               <Route path="/appearance/new" element={<ThemeEditor />} />

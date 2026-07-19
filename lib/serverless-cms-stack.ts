@@ -17,6 +17,7 @@ import {
   WafConstruct,
   LambdaApiConstruct,
   MonitoringConstruct,
+  BackupConstruct,
 } from './constructs';
 import { preserveLogicalId } from './utils/logical-id';
 
@@ -174,6 +175,22 @@ export class ServerlessCmsStack extends cdk.Stack {
       region: this.region,
     });
 
+    // ─── Backup Construct ────────────────────────────────────────────
+    const backup = new BackupConstruct(this, 'Backup', {
+      environment: props.environment,
+      contentTable: database.contentTable,
+      mediaTable: database.mediaTable,
+      usersTable: database.usersTable,
+      settingsTable: database.settingsTable,
+      commentsTable: database.commentsTable,
+      pluginsTable: database.pluginsTable,
+      sectionsTable: database.sectionsTable,
+      themesTable: database.themesTable,
+      mediaBucket: storage.mediaBucket,
+      userPool: auth.userPool,
+      userPoolClient: auth.userPoolClient,
+    });
+
     // ─── LambdaApi Construct ──────────────────────────────────────────
     const lambdaApi = new LambdaApiConstruct(this, 'LambdaApi', {
       environment: props.environment,
@@ -193,6 +210,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       sesFromEmail: email.sesFromEmail,
       sesConfigurationSetName: email.sesConfigurationSetName,
       mediaCdnUrl: cdn.mediaCdnUrl,
+      backupApiFunction: backup.apiHandlerFunction,
     });
 
     // ─── Monitoring Construct ─────────────────────────────────────────
@@ -292,6 +310,12 @@ export class ServerlessCmsStack extends cdk.Stack {
       description: 'Media bucket name',
     });
     mediaBucketOutput.overrideLogicalId('MediaBucketName');
+
+    const backupBucketOutput = new cdk.CfnOutput(this, 'BackupBucketName', {
+      value: backup.backupBucket.bucketName,
+      description: 'Backup bucket name',
+    });
+    backupBucketOutput.overrideLogicalId('BackupBucketName');
 
     const adminBucketOutput = new cdk.CfnOutput(this, 'AdminBucketName', {
       value: this.adminBucket.bucketName,

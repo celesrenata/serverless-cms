@@ -1,0 +1,252 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Create backup construct (`lib/constructs/backup.ts`)": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441905861
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441917543
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442080144
+      }
+    ],
+    "1.2 Add API Gateway routes for backup": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441905905
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442086148
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442204803
+      }
+    ],
+    "1.3 Wire backup construct into main stack": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441905930
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442211543
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442310256
+      }
+    ],
+    "2.1 Create backup API router (`lambda/backup/api_handler.py`)": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441905960
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442317419
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442565288
+      }
+    ],
+    "2.2 Create backup executor (`lambda/backup/backup_handler.py`)": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441905987
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442571203
+      }
+    ],
+    "2.3 Create restore executor (`lambda/backup/restore_handler.py`)": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906019
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442576718
+      }
+    ],
+    "2.4 Create shared backup utilities (`lambda/backup/utils.py`)": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906058
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442582651
+      }
+    ],
+    "3.1 Create BackupRestore page (`frontend/admin-panel/src/pages/BackupRestore.tsx`)": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906086
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442589796
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442828872
+      }
+    ],
+    "3.2 Create backup creation modal": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906117
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442835071
+      }
+    ],
+    "3.3 Create restore confirmation dialog": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906143
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442841071
+      }
+    ],
+    "3.4 Create progress indicator component": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906175
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442848005
+      }
+    ],
+    "3.5 Create schedule settings panel": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906209
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442853706
+      }
+    ],
+    "3.6 Add backup hooks and API service": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906238
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442859457
+      }
+    ],
+    "3.7 Add route and sidebar entry": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906273
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442865314
+      }
+    ],
+    "4.1 Backend tests": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906302
+      },
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442872239
+      }
+    ],
+    "4.2 Frontend tests": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906334
+      }
+    ],
+    "4.3 CDK synth verification": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906364
+      }
+    ],
+    "5. Checkpoint": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784441906392
+      }
+    ],
+    "1. CDK Infrastructure": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442310289
+      }
+    ],
+    "2. Backend - API Handler": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442582687
+      }
+    ],
+    "3. Frontend - Admin UI": [
+      {
+        "executionId": "ea3e8538-a87a-4878-8a71-0aa0529d86c0",
+        "chatSessionId": "sess_352151c2-a85a-4639-bd23-025e3f62bb45",
+        "timestamp": 1784442865343
+      }
+    ]
+  }
+}

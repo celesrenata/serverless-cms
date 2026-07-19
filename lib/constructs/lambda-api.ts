@@ -29,6 +29,7 @@ export interface LambdaApiConstructProps {
   sesFromEmail: string;
   sesConfigurationSetName: string;
   mediaCdnUrl: string;
+  backupApiFunction?: lambda.IFunction;
 }
 
 interface LambdaFunctionConfig {
@@ -512,6 +513,69 @@ export class LambdaApiConstruct extends Construct {
       authorizer: props.authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
+
+    // ─── Backup endpoints: /api/v1/backup (authenticated, admin only) ──
+    if (props.backupApiFunction) {
+      const backupIntegration = new apigateway.LambdaIntegration(props.backupApiFunction);
+      const backupResource = apiV1.addResource('backup');
+
+      // POST /api/v1/backup — create a new backup
+      backupResource.addMethod('POST', backupIntegration, {
+        authorizer: props.authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      });
+
+      // GET /api/v1/backup/jobs — list backup/restore jobs
+      const backupJobsResource = backupResource.addResource('jobs');
+      backupJobsResource.addMethod('GET', backupIntegration, {
+        authorizer: props.authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      });
+
+      // GET /api/v1/backup/jobs/{id} — get single job details
+      const backupJobIdResource = backupJobsResource.addResource('{jobId}');
+      backupJobIdResource.addMethod('GET', backupIntegration, {
+        authorizer: props.authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      });
+
+      // PUT /api/v1/backup/schedule — update backup schedule
+      const backupScheduleResource = backupResource.addResource('schedule');
+      backupScheduleResource.addMethod('PUT', backupIntegration, {
+        authorizer: props.authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      });
+
+      // GET /api/v1/backup/schedule — get backup schedule
+      backupScheduleResource.addMethod('GET', backupIntegration, {
+        authorizer: props.authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      });
+
+      // Routes under /api/v1/backup/{id}
+      const backupIdResource = backupResource.addResource('{id}');
+
+      // DELETE /api/v1/backup/{id} — delete a backup archive
+      backupIdResource.addMethod('DELETE', backupIntegration, {
+        authorizer: props.authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      });
+
+      // POST /api/v1/backup/{id}/restore — restore from a backup
+      const backupRestoreResource = backupIdResource.addResource('restore');
+      backupRestoreResource.addMethod('POST', backupIntegration, {
+        authorizer: props.authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      });
+
+      // GET /api/v1/backup/{id}/download/{file} — download a backup file
+      const backupDownloadResource = backupIdResource.addResource('download');
+      const backupDownloadFileResource = backupDownloadResource.addResource('{file}');
+      backupDownloadFileResource.addMethod('GET', backupIntegration, {
+        authorizer: props.authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      });
+    }
 
     // Apply deferred logical ID overrides for service role default policies
     this.applyDeferredPolicyOverrides();

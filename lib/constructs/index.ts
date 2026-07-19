@@ -7,3 +7,4 @@ export { StorageConstruct, StorageConstructProps } from './storage';
 export { WafConstruct, WafConstructProps } from './waf';
 export { LambdaApiConstruct, LambdaApiConstructProps } from './lambda-api';
 export { MonitoringConstruct, MonitoringConstructProps } from './monitoring';
+export { BackupConstruct, BackupConstructProps } from './backup';

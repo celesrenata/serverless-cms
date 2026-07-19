@@ -17,6 +17,7 @@ import {
   SiteSettings,
   SettingsUpdate,
 } from '../types';
+import type { BackupJob, BackupSchedule } from '../types/backup';
 
 const MEDIA_CDN_URL = import.meta.env.VITE_MEDIA_CDN_URL || '';
 
@@ -341,6 +342,46 @@ class ApiClient {
 
   async deleteComment(id: string): Promise<void> {
     await this.client.delete(`/comments/${id}`);
+  }
+
+  // Backup API methods
+  async createBackup(components: string[]): Promise<BackupJob> {
+    const response = await this.client.post<BackupJob>('/backup', { components });
+    return response.data;
+  }
+
+  async restoreBackup(archiveId: string, components: string[]): Promise<BackupJob> {
+    const response = await this.client.post<BackupJob>(`/backup/${archiveId}/restore`, { components });
+    return response.data;
+  }
+
+  async listBackupJobs(): Promise<{ jobs: BackupJob[] }> {
+    const response = await this.client.get<{ jobs: BackupJob[] }>('/backup/jobs');
+    return response.data;
+  }
+
+  async getBackupJob(id: string): Promise<BackupJob> {
+    const response = await this.client.get<BackupJob>(`/backup/jobs/${id}`);
+    return response.data;
+  }
+
+  async deleteBackup(id: string): Promise<void> {
+    await this.client.delete(`/backup/${id}`);
+  }
+
+  async getDownloadUrl(archiveId: string, file: string): Promise<{ url: string }> {
+    const response = await this.client.get<{ url: string }>(`/backup/${archiveId}/download/${file}`);
+    return response.data;
+  }
+
+  async getBackupSchedule(): Promise<{ schedule: BackupSchedule }> {
+    const response = await this.client.get<{ schedule: BackupSchedule }>('/backup/schedule');
+    return response.data;
+  }
+
+  async updateBackupSchedule(schedule: BackupSchedule): Promise<{ schedule: BackupSchedule }> {
+    const response = await this.client.put<{ schedule: BackupSchedule }>('/backup/schedule', schedule);
+    return response.data;
   }
 }
 
