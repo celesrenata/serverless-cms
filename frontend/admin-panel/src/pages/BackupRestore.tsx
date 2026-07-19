@@ -8,6 +8,7 @@ import {
   useBackupSchedule,
   useUpdateSchedule,
 } from '../hooks/useBackup';
+import { api } from '../services/api';
 import type { BackupJob, BackupSchedule } from '../types/backup';
 import { ALL_BACKUP_COMPONENTS } from '../types/backup';
 
@@ -415,6 +416,92 @@ function ScheduleSettings({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ─── DownloadPanel ──────────────────────────────────────────────────
+
+function DownloadPanel({ job, onClose }: { job: BackupJob; onClose: () => void }) {
+  const [downloading, setDownloading] = useState<string | null>(null);
+
+  const handleFileDownload = async (fileName: string) => {
+    setDownloading(fileName);
+    try {
+      const { url } = await api.getDownloadUrl(job.id, fileName);
+      window.open(url, '_blank');
+    } catch {
+      alert(`Failed to generate download link for ${fileName}`);
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  // Build file list from result.tables
+  const tableFiles = job.result?.tables
+    ? Object.entries(job.result.tables).map(([tableName, info]) => ({
+        name: `${tableName}.ndjson.gz`,
+        label: tableName.replace(/^cms-/, '').replace(/-(?:prod|dev|staging)$/, ''),
+        items: info.items,
+        bytes: info.bytes,
+      }))
+    : [];
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        <h2 className="text-lg font-semibold mb-2">Download Backup Files</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Archive from {formatDate(job.created_at)}
+          {job.result?.archive_size_bytes && (
+            <span className="ml-2">({formatBytes(job.result.archive_size_bytes)} total)</span>
+          )}
+        </p>
+
+        <div className="space-y-2 max-h-64 overflow-y-auto">
+          {tableFiles.map((file) => (
+            <div
+              key={file.name}
+              className="flex items-center justify-between p-2 rounded hover:bg-gray-50"
+            >
+              <div>
+                <div className="text-sm font-medium">{file.label}</div>
+                <div className="text-xs text-gray-500">
+                  {file.items} items &middot; {formatBytes(file.bytes)}
+                </div>
+              </div>
+              <button
+                onClick={() => handleFileDownload(file.name)}
+                disabled={downloading === file.name}
+                className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+              >
+                {downloading === file.name ? '...' : 'Download'}
+              </button>
+            </div>
+          ))}
+
+          {/* Manifest download */}
+          <div className="flex items-center justify-between p-2 rounded hover:bg-gray-50 border-t pt-3 mt-2">
+            <div>
+              <div className="text-sm font-medium">manifest.json</div>
+              <div className="text-xs text-gray-500">Backup metadata</div>
+            </div>
+            <button
+              onClick={() => handleFileDownload('manifest.json')}
+              disabled={downloading === 'manifest.json'}
+              className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+            >
+              {downloading === 'manifest.json' ? '...' : 'Download'}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex justify-end mt-6">
+          <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:text-gray-800">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── BackupRestore Page ─────────────────────────────────────────────
 
 export function BackupRestore() {
@@ -423,6 +510,7 @@ export function BackupRestore() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [restoreJob, setRestoreJob] = useState<BackupJob | null>(null);
+  const [downloadJob, setDownloadJob] = useState<BackupJob | null>(null);
 
   const activeJob = jobs.find((j) => j.status === 'running' || j.status === 'queued');
   const completedBackups = jobs.filter((j) => j.type === 'backup' && j.status === 'completed');
@@ -540,6 +628,14 @@ export function BackupRestore() {
                           Restore
                         </button>
                       )}
+                      {job.type === 'backup' && job.status === 'completed' && (
+                        <button
+                          onClick={() => setDownloadJob(job)}
+                          className="text-xs text-green-600 hover:underline"
+                        >
+                          Download
+                        </button>
+                      )}
                       {(job.status === 'completed' || job.status === 'queued' || job.status === 'failed' || job.status === 'cancelled') && (
                         <button
                           onClick={() => handleDelete(job.id)}
@@ -561,6 +657,7 @@ export function BackupRestore() {
       {showCreateModal && <CreateBackupModal onClose={() => setShowCreateModal(false)} />}
       {showScheduleModal && <ScheduleSettings onClose={() => setShowScheduleModal(false)} />}
       {restoreJob && <RestoreDialog job={restoreJob} onClose={() => setRestoreJob(null)} />}
+      {downloadJob && <DownloadPanel job={downloadJob} onClose={() => setDownloadJob(null)} />}
     </div>
   );
 }
