@@ -175,6 +175,13 @@ export class ServerlessCmsStack extends cdk.Stack {
       region: this.region,
     });
 
+    // ─── Shared Lambda Layer ─────────────────────────────────────────
+    const sharedLayer = new lambda.LayerVersion(this, 'BackupSharedLayer', {
+      code: lambda.Code.fromAsset('lambda/layer'),
+      compatibleRuntimes: [lambda.Runtime.PYTHON_3_12],
+      description: 'Shared utilities for backup Lambda functions',
+    });
+
     // ─── Backup Construct ────────────────────────────────────────────
     const backup = new BackupConstruct(this, 'Backup', {
       environment: props.environment,
@@ -189,6 +196,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       mediaBucket: storage.mediaBucket,
       userPool: auth.userPool,
       userPoolClient: auth.userPoolClient,
+      sharedLayer: sharedLayer,
     });
 
     // ─── LambdaApi Construct ──────────────────────────────────────────

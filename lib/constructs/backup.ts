@@ -21,6 +21,7 @@ export interface BackupConstructProps {
   mediaBucket: s3.IBucket;
   userPool: cognito.IUserPool;
   userPoolClient: cognito.IUserPoolClient;
+  sharedLayer: lambda.ILayerVersion;
 }
 
 export class BackupConstruct extends Construct {
@@ -94,6 +95,7 @@ export class BackupConstruct extends Construct {
       code: lambda.Code.fromAsset('lambda/backup'),
       timeout: Duration.minutes(15),
       memorySize: 1024,
+      layers: [props.sharedLayer],
       environment: {
         ...commonEnv,
         BACKUP_FUNCTION_NAME: `cms-backup-executor-${props.environment}`,
@@ -109,6 +111,7 @@ export class BackupConstruct extends Construct {
       code: lambda.Code.fromAsset('lambda/backup'),
       timeout: Duration.minutes(15),
       memorySize: 1024,
+      layers: [props.sharedLayer],
       environment: {
         ...commonEnv,
         BACKUP_FUNCTION_NAME: `cms-backup-executor-${props.environment}`,
@@ -124,6 +127,7 @@ export class BackupConstruct extends Construct {
       code: lambda.Code.fromAsset('lambda/backup'),
       timeout: Duration.seconds(30),
       memorySize: 256,
+      layers: [props.sharedLayer],
       environment: {
         ...commonEnv,
         BACKUP_FUNCTION_NAME: this.backupFunction.functionName,
