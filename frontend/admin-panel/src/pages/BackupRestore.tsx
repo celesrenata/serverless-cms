@@ -138,7 +138,7 @@ function CreateBackupModal({ onClose }: { onClose: () => void }) {
 // ─── RestoreDialog ──────────────────────────────────────────────────
 
 function RestoreDialog({ job, onClose }: { job: BackupJob; onClose: () => void }) {
-  const [selected, setSelected] = useState<string[]>(job.components);
+  const [selected, setSelected] = useState<string[]>(job.components || []);
   const [confirmText, setConfirmText] = useState('');
   const { restoreBackup, isPending } = useRestoreBackup();
 
@@ -511,14 +511,14 @@ export function BackupRestore() {
                   <td className="px-4 py-3">{typeBadge(job.type)}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
-                      {job.components.slice(0, 3).map((c) => (
+                      {(job.components || []).slice(0, 3).map((c) => (
                         <span key={c} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
                           {ALL_BACKUP_COMPONENTS.find((comp) => comp.id === c)?.name || c}
                         </span>
                       ))}
-                      {job.components.length > 3 && (
+                      {(job.components || []).length > 3 && (
                         <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
-                          +{job.components.length - 3}
+                          +{(job.components || []).length - 3}
                         </span>
                       )}
                     </div>
@@ -540,7 +540,7 @@ export function BackupRestore() {
                           Restore
                         </button>
                       )}
-                      {job.status === 'completed' && (
+                      {(job.status === 'completed' || job.status === 'queued' || job.status === 'failed' || job.status === 'cancelled') && (
                         <button
                           onClick={() => handleDelete(job.id)}
                           className="text-xs text-red-600 hover:underline"
