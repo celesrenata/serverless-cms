@@ -222,10 +222,10 @@ function BackupProgress({ jobId }: { jobId: string }) {
   const [elapsed, setElapsed] = useState('');
 
   useEffect(() => {
-    if (!job || !job.started_at) return;
+    if (!job || !job.started_at || Number(job.started_at) === 0) return;
     const interval = setInterval(() => {
       const now = Math.floor(Date.now() / 1000);
-      const diff = now - job.started_at;
+      const diff = now - Number(job.started_at);
       const m = Math.floor(diff / 60);
       const s = diff % 60;
       setElapsed(m > 0 ? `${m}m ${s}s` : `${s}s`);
