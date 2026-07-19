@@ -46,8 +46,8 @@ HEADERS = {
 }
 
 SETTINGS_TABLE = os.environ.get('SETTINGS_TABLE', 'cms-settings-dev')
-BACKUP_LAMBDA_NAME = os.environ.get('BACKUP_LAMBDA_NAME', '')
-RESTORE_LAMBDA_NAME = os.environ.get('RESTORE_LAMBDA_NAME', '')
+BACKUP_LAMBDA_NAME = os.environ.get('BACKUP_FUNCTION_NAME', '') or os.environ.get('BACKUP_LAMBDA_NAME', '')
+RESTORE_LAMBDA_NAME = os.environ.get('RESTORE_FUNCTION_NAME', '') or os.environ.get('RESTORE_LAMBDA_NAME', '')
 
 lambda_client = boto3.client('lambda')
 settings_table = dynamodb.Table(SETTINGS_TABLE)
