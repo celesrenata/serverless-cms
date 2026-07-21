@@ -13,6 +13,8 @@ export interface CdnConstructProps {
   environment: string;
   domainName?: string;
   subdomain?: string;
+  /** Additional root domain aliases for the public distribution (e.g., ['celestium.life', 'www.celestium.life']) */
+  rootDomainAliases?: string[];
   mediaBucket: s3.Bucket;
   adminBucket: s3.Bucket;
   publicBucket: s3.Bucket;
@@ -183,13 +185,19 @@ export class CdnConstruct extends Construct {
     preserveLogicalId(this.adminDistribution, 'AdminDistribution4E89F8C0');
 
     // Public Website CloudFront Distribution
+    const publicDomainNames = publicDomain && publicWwwDomain ? [publicDomain, publicWwwDomain] : undefined;
+    // Append root domain aliases if specified (e.g., celestium.life, www.celestium.life)
+    if (publicDomainNames && props.rootDomainAliases && props.rootDomainAliases.length > 0) {
+      publicDomainNames.push(...props.rootDomainAliases);
+    }
+
     this.publicDistribution = new cloudfront.Distribution(this, 'PublicDistribution', {
       comment: `CMS Public Website Distribution - ${props.environment}`,
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-      domainNames: publicDomain && publicWwwDomain ? [publicDomain, publicWwwDomain] : undefined,
+      domainNames: publicDomainNames,
       certificate: props.certificate,
       defaultBehavior: {
         origin: origins.S3BucketOrigin.withOriginAccessIdentity(props.publicBucket, {
@@ -287,6 +295,19 @@ export class CdnConstruct extends Construct {
           ),
         });
         preserveLogicalId(publicWwwAliasRecord, 'PublicWwwAliasRecord960A8791');
+      }
+
+      // Root domain alias records (e.g., celestium.life, www.celestium.life)
+      if (props.rootDomainAliases) {
+        props.rootDomainAliases.forEach((aliasDomain, index) => {
+          new route53.ARecord(this, `RootDomainAlias${index}`, {
+            zone: props.hostedZone!,
+            recordName: aliasDomain,
+            target: route53.RecordTarget.fromAlias(
+              new route53targets.CloudFrontTarget(this.publicDistribution)
+            ),
+          });
+        });
       }
     }
 

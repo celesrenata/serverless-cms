@@ -25,6 +25,8 @@ export interface ServerlessCmsStackProps extends cdk.StackProps {
   environment: string;
   domainName?: string;
   subdomain?: string;
+  /** Additional root domain aliases for the public distribution (e.g., ['celestium.life', 'www.celestium.life']) */
+  rootDomainAliases?: string[];
   alarmEmail?: string;
   sesFromEmail?: string;
 }
@@ -76,6 +78,11 @@ export class ServerlessCmsStack extends cdk.Stack {
         certDomains.push(`www.${props.domainName}`);
         certDomains.push(`admin.${props.domainName}`);
         certDomains.push(`media.${props.domainName}`);
+      }
+
+      // Add root domain aliases to certificate SANs (e.g., celestium.life, www.celestium.life)
+      if (props.rootDomainAliases) {
+        certDomains.push(...props.rootDomainAliases);
       }
 
       this.certificate = new acm.DnsValidatedCertificate(this, 'Certificate', {
@@ -159,6 +166,7 @@ export class ServerlessCmsStack extends cdk.Stack {
       environment: props.environment,
       domainName: props.domainName,
       subdomain: props.subdomain,
+      rootDomainAliases: props.rootDomainAliases,
       mediaBucket: storage.mediaBucket,
       adminBucket: storage.adminBucket,
       publicBucket: storage.publicBucket,
